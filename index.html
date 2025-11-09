@@ -328,13 +328,6 @@
       to { transform: rotate(360deg); }
     }
 
-    #formTarget {
-      display: none;
-      width: 0;
-      height: 0;
-      border: none;
-    }
-
     @media (max-width: 768px) {
       .desktop-nav {
         display: none;
@@ -523,18 +516,13 @@
     </div>
   </section>
 
-  <!-- 反馈表单（已填入正确提交链接） -->
+  <!-- 反馈表单（JSON提交方式） -->
   <section id="contact" class="section">
     <h2 data-text-zh-CN="联系我们" 
         data-text-zh="聯絡我們" 
         data-text-en="Contact Us">联系我们</h2>
-    <!-- 表单提交地址：使用你提供的正确链接 -->
-    <form id="contactForm" 
-          action="https://forms.guest.usercontent.microsoft/formapi/api/df2bdc73-c22a-4968-916c-1635d7ebc400/users/0aafb97e-957a-4eb0-b4e8-2885e06d2569/forms('c9wr3yrCaEmRbBY11-vEAH65rwp6lbBOtOgoheBtJWlURUE5Tjg2WU4xOElKTVNaVlNORFZJTkYxOC4u')/responses" 
-          method="POST" 
-          target="formTarget">
-      
-      <!-- 姓名字段：匹配questionId -->
+    <form id="contactForm">
+      <!-- 姓名字段 -->
       <div class="form-group">
         <label for="name" 
                data-text-zh-CN="您的姓名" 
@@ -542,7 +530,6 @@
                data-text-en="Your Name">您的姓名</label>
         <input type="text" 
                id="name" 
-               name="r707d21ceed3942f2a15435202f3f4312" 
                placeholder="您的姓名" 
                data-placeholder-zh-CN="您的姓名" 
                data-placeholder-zh="您的姓名" 
@@ -554,7 +541,7 @@
               data-text-en="Please enter your name">请输入您的姓名</span>
       </div>
 
-      <!-- 邮箱字段：匹配questionId -->
+      <!-- 邮箱字段 -->
       <div class="form-group">
         <label for="email" 
                data-text-zh-CN="您的电子邮件" 
@@ -562,7 +549,6 @@
                data-text-en="Your Email">您的电子邮件</label>
         <input type="email" 
                id="email" 
-               name="r7c279dbe7de54959a58cddcabfc44d2e" 
                placeholder="您的电子邮件" 
                data-placeholder-zh-CN="您的电子邮件" 
                data-placeholder-zh="您的電子郵件" 
@@ -574,14 +560,13 @@
               data-text-en="Please enter a valid email address">请输入有效的电子邮件</span>
       </div>
 
-      <!-- 建议字段：匹配questionId -->
+      <!-- 建议字段 -->
       <div class="form-group">
         <label for="message" 
                data-text-zh-CN="您的建议" 
                data-text-zh="您的建議" 
                data-text-en="Your Suggestion">您的建议</label>
         <textarea id="message" 
-                  name="rb6b7a740ffda4b89b71d55f25cb7f38e" 
                   rows="4" 
                   placeholder="请输入您的建议" 
                   data-placeholder-zh-CN="请输入您的建议" 
@@ -600,9 +585,6 @@
               data-text-zh="送出建議" 
               data-text-en="Send Suggestion">提交建议</button>
     </form>
-
-    <!-- 隐藏iframe处理提交结果 -->
-    <iframe id="formTarget" name="formTarget"></iframe>
   </section>
 
   <!-- 页脚 -->
@@ -616,8 +598,8 @@
 
   <script>
     let currentLang = 'zh-CN'; // 默认简体中文
-    const langToggle = document.getElementById('langToggle'); // 切换繁体/简体
-    const langToggleEn = document.getElementById('langToggleEn'); // 切换英文/简体
+    const langToggle = document.getElementById('langToggle');
+    const langToggleEn = document.getElementById('langToggleEn');
     const mobileLangToggle = document.getElementById('mobileLangToggle');
     const mobileLangToggleEn = document.getElementById('mobileLangToggleEn');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -625,7 +607,6 @@
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
     const header = document.querySelector('header');
-    const formTarget = document.getElementById('formTarget');
 
     // 导航栏滚动效果
     window.addEventListener('scroll', () => {
@@ -638,138 +619,131 @@
       mobileMenuBtn.textContent = mobileNav.classList.contains('active') ? '✕' : '☰';
     });
 
-    // 切换到繁体中文
-    const switchToZh = () => {
-      currentLang = 'zh';
-      updateLanguage();
-    };
+    // 语言切换逻辑
+    const switchToZh = () => { currentLang = 'zh'; updateLanguage(); };
+    const switchToEn = () => { currentLang = 'en'; updateLanguage(); };
+    const switchToZhCN = () => { currentLang = 'zh-CN'; updateLanguage(); };
 
-    // 切换到英文
-    const switchToEn = () => {
-      currentLang = 'en';
-      updateLanguage();
-    };
-
-    // 切换到简体中文
-    const switchToZhCN = () => {
-      currentLang = 'zh-CN';
-      updateLanguage();
-    };
-
-    // 语言更新核心函数
     const updateLanguage = () => {
-      // 更新语言按钮状态（显示选中标记）
+      // 更新语言按钮
       langToggle.textContent = currentLang === 'zh' ? '繁 ✓' : '繁';
       langToggleEn.textContent = currentLang === 'en' ? 'EN ✓' : 'EN';
       mobileLangToggle.textContent = currentLang === 'zh' ? '繁 ✓' : '繁';
       mobileLangToggleEn.textContent = currentLang === 'en' ? 'EN ✓' : 'EN';
 
-      // 更新所有文本内容
-      document.querySelectorAll('[data-text-zh-CN]').forEach(el => {
-        el.textContent = el.getAttribute(`data-text-${currentLang}`);
-      });
-
-      // 更新输入框占位符
+      // 更新文本、占位符、alt属性
+      document.querySelectorAll('[data-text-zh-CN]').forEach(el => el.textContent = el.getAttribute(`data-text-${currentLang}`));
       document.querySelectorAll('input, textarea').forEach(el => {
-        if (el.hasAttribute(`data-placeholder-${currentLang}`)) {
-          el.placeholder = el.getAttribute(`data-placeholder-${currentLang}`);
-        }
+        if (el.hasAttribute(`data-placeholder-${currentLang}`)) el.placeholder = el.getAttribute(`data-placeholder-${currentLang}`);
       });
-
-      // 更新图片alt属性
-      document.querySelectorAll('[data-alt-zh-CN]').forEach(el => {
-        el.alt = el.getAttribute(`data-alt-${currentLang}`);
-      });
+      document.querySelectorAll('[data-alt-zh-CN]').forEach(el => el.alt = el.getAttribute(`data-alt-${currentLang}`));
 
       // 更新页面标题
       document.title = currentLang === 'zh-CN' 
         ? '兴贵创新 | 以人为本的创新' 
-        : currentLang === 'zh'
-          ? '興貴創新 | 以人為本的創新'
-          : 'Hing Kwai Innovate | Human-Centered Innovation';
+        : currentLang === 'zh' ? '興貴創新 | 以人為本的創新' : 'Hing Kwai Innovate | Human-Centered Innovation';
     };
 
     // 绑定语言切换事件
-    langToggle.addEventListener('click', () => {
-      currentLang === 'zh' ? switchToZhCN() : switchToZh();
-    });
-    langToggleEn.addEventListener('click', () => {
-      currentLang === 'en' ? switchToZhCN() : switchToEn();
-    });
-    mobileLangToggle.addEventListener('click', () => {
-      currentLang === 'zh' ? switchToZhCN() : switchToZh();
-    });
-    mobileLangToggleEn.addEventListener('click', () => {
-      currentLang === 'en' ? switchToZhCN() : switchToEn();
-    });
+    langToggle.addEventListener('click', () => currentLang === 'zh' ? switchToZhCN() : switchToZh());
+    langToggleEn.addEventListener('click', () => currentLang === 'en' ? switchToZhCN() : switchToEn());
+    mobileLangToggle.addEventListener('click', () => currentLang === 'zh' ? switchToZhCN() : switchToZh());
+    mobileLangToggleEn.addEventListener('click', () => currentLang === 'en' ? switchToZhCN() : switchToEn());
 
-    // 表单验证逻辑
+    // 表单验证
     const validateField = (field) => {
       let isValid = true;
       const errorMsg = field.nextElementSibling;
+      if (field.required && !field.value.trim()) isValid = false;
+      else if (field.type === 'email' && field.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value.trim())) isValid = false;
+      else if (field.id === 'message' && field.value.trim().length < 10) isValid = false;
 
-      if (field.required && !field.value.trim()) {
-        isValid = false; // 必填项为空
-      } else if (field.type === 'email' && field.value.trim()) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        isValid = emailRegex.test(field.value.trim()); // 邮箱格式验证
-      } else if (field.id === 'message' && field.value.trim().length < 10) {
-        isValid = false; // 建议长度不足
-      }
-
-      // 更新错误状态样式
-      if (isValid) {
-        field.classList.remove('invalid');
-        errorMsg.style.display = 'none';
-      } else {
-        field.classList.add('invalid');
-        errorMsg.style.display = 'block';
-      }
+      field.classList.toggle('invalid', !isValid);
+      errorMsg.style.display = isValid ? 'none' : 'block';
       return isValid;
     };
 
-    // 绑定字段验证事件（失焦和输入时触发）
     document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
       field.addEventListener('blur', () => validateField(field));
-      field.addEventListener('input', () => {
-        if (field.classList.contains('invalid')) validateField(field);
-      });
+      field.addEventListener('input', () => field.classList.contains('invalid') && validateField(field));
     });
 
-    // 表单提交成功后的处理
-    formTarget.addEventListener('load', () => {
-      // 根据当前语言显示感谢信息
-      const thankYouMsg = currentLang === 'zh-CN' 
-        ? '感谢您的建议！我们已收到反馈，2秒后返回主页...' 
-        : currentLang === 'zh'
-          ? '感謝您的建議！我們已收到反饋，2秒後返回主頁...'
-          : 'Thank you for your suggestion! We received your feedback, redirecting in 2s...';
-      alert(thankYouMsg);
-
-      // 2秒后重定向到主页
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 2000);
-    });
-
-    // 表单提交处理
-    contactForm.addEventListener('submit', (e) => {
+    // 核心修复：JSON格式提交表单（适配Microsoft Forms API）
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // 全表单验证
+      // 表单验证
       let isFormValid = true;
       document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
         if (!validateField(field)) isFormValid = false;
       });
 
-      if (isFormValid) {
-        // 验证通过：显示加载状态并提交
-        submitBtn.disabled = true;
-        const loadingText = currentLang === 'zh-CN' 
-          ? '提交中...' 
-          : currentLang === 'zh' ? '提交中...' : 'Submitting...';
-        submitBtn.innerHTML = `<span class="loading"></span> ${loadingText}`;
-        contactForm.submit();
+      if (!isFormValid) return;
+
+      // 显示加载状态
+      submitBtn.disabled = true;
+      const loadingText = currentLang === 'zh-CN' ? '提交中...' : currentLang === 'zh' ? '提交中...' : 'Submitting...';
+      submitBtn.innerHTML = `<span class="loading"></span> ${loadingText}`;
+
+      try {
+        // 1. 构造Microsoft Forms API要求的JSON数据格式
+        const formData = {
+          answers: [
+            // 姓名字段：questionId + 文本类型响应
+            {
+              questionId: "r707d21ceed3942f2a15435202f3f4312",
+              response: {
+                type: "text",
+                text: document.getElementById('name').value.trim()
+              }
+            },
+            // 邮箱字段：questionId + 文本类型响应
+            {
+              questionId: "r7c279dbe7de54959a58cddcabfc44d2e",
+              response: {
+                type: "text",
+                text: document.getElementById('email').value.trim()
+              }
+            },
+            // 建议字段：questionId + 文本类型响应
+            {
+              questionId: "rb6b7a740ffda4b89b71d55f25cb7f38e",
+              response: {
+                type: "text",
+                text: document.getElementById('message').value.trim()
+              }
+            }
+          ]
+        };
+
+        // 2. 发送POST请求（JSON格式，设置正确请求头）
+        const response = await fetch('https://forms.guest.usercontent.microsoft/formapi/api/df2bdc73-c22a-4968-916c-1635d7ebc400/users/0aafb97e-957a-4eb0-b4e8-2885e06d2569/forms('c9wr3yrCaEmRbBY11-vEAH65rwp6lbBOtOgoheBtJWlURUE5Tjg2WU4xOElKTVNaVlNORFZJTkYxOC4u')/responses', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json', // 关键：指定JSON格式
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(formData) // 序列化JSON数据
+        });
+
+        // 3. 处理响应
+        if (response.ok) {
+          const thankYouMsg = currentLang === 'zh-CN' 
+            ? '感谢您的建议！我们已收到反馈，2秒后返回主页...' 
+            : currentLang === 'zh' ? '感謝您的建議！我們已收到反饋，2秒後返回主頁...' : 'Thank you for your suggestion! Redirecting in 2s...';
+          alert(thankYouMsg);
+          setTimeout(() => window.location.href = 'index.html', 2000);
+        } else {
+          const errorMsg = currentLang === 'zh-CN' ? '提交失败，请稍后重试！' : currentLang === 'zh' ? '提交失敗，請稍後重試！' : 'Submission failed, please try again later!';
+          alert(errorMsg);
+          submitBtn.disabled = false;
+          submitBtn.textContent = currentLang === 'zh-CN' ? '提交建议' : currentLang === 'zh' ? '送出建議' : 'Send Suggestion';
+        }
+      } catch (error) {
+        const errorMsg = currentLang === 'zh-CN' ? '网络错误，请检查连接！' : currentLang === 'zh' ? '網絡錯誤，請檢查連接！' : 'Network error, please check your connection!';
+        alert(errorMsg);
+        submitBtn.disabled = false;
+        submitBtn.textContent = currentLang === 'zh-CN' ? '提交建议' : currentLang === 'zh' ? '送出建議' : 'Send Suggestion';
       }
     });
   </script>
