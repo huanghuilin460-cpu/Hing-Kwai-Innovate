@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hing Kwai Innovate | 以人为本的创新</title>
   <style>
+    /* 样式代码与之前一致，此处省略 */
     :root {
       --primary-color: #406c84;
       --secondary-color: #f2f4f6;
@@ -389,8 +390,8 @@
            data-text-zh-CN="联系我们" 
            data-text-zh="聯絡我們" 
            data-text-en="Contact Us">联系我们</a>
-        <button class="lang-toggle" id="langToggle">繁</button>
-        <button class="lang-toggle" id="langToggleEn">EN</button>
+        <button class="lang-toggle" data-lang="zh">繁</button>
+        <button class="lang-toggle" data-lang="en">EN</button>
       </nav>
       
       <!-- 移动端菜单按钮 -->
@@ -412,8 +413,8 @@
          data-text-zh="聯絡我們" 
          data-text-en="Contact Us">联系我们</a>
       <div style="display: flex; gap: 0.5rem;">
-        <button class="lang-toggle" id="mobileLangToggle">繁</button>
-        <button class="lang-toggle" id="mobileLangToggleEn">EN</button>
+        <button class="lang-toggle" data-lang="zh">繁</button>
+        <button class="lang-toggle" data-lang="en">EN</button>
       </div>
     </nav>
   </header>
@@ -597,89 +598,81 @@
   </footer>
 
   <script>
-    let currentLang = 'zh-CN';
-    const langToggle = document.getElementById('langToggle');
-    const langToggleEn = document.getElementById('langToggleEn');
-    const mobileLangToggle = document.getElementById('mobileLangToggle');
-    const mobileLangToggleEn = document.getElementById('mobileLangToggleEn');
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const mobileNav = document.getElementById('mobileNav');
-    const contactForm = document.getElementById('contactForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const header = document.querySelector('header');
+    // 核心修复：简化语言切换逻辑，确保事件绑定无遗漏
+    let currentLang = 'zh-CN'; // 初始语言：简体中文
     const htmlElement = document.documentElement;
+    const langButtons = document.querySelectorAll('.lang-toggle'); // 统一选择所有语言按钮
+
+    // 移动端菜单切换
+    document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+      const mobileNav = document.getElementById('mobileNav');
+      mobileNav.classList.toggle('active');
+      this.textContent = mobileNav.classList.contains('active') ? '✕' : '☰';
+    });
 
     // 导航栏滚动效果
     window.addEventListener('scroll', () => {
-      header.classList.toggle('scrolled', window.scrollY > 50);
+      document.querySelector('header').classList.toggle('scrolled', window.scrollY > 50);
     });
 
-    // 移动端菜单切换
-    mobileMenuBtn.addEventListener('click', () => {
-      mobileNav.classList.toggle('active');
-      mobileMenuBtn.textContent = mobileNav.classList.contains('active') ? '✕' : '☰';
-    });
+    // 语言切换核心函数（增加日志便于调试）
+    function updateLanguage(targetLang) {
+      currentLang = targetLang;
+      htmlElement.lang = currentLang; // 更新HTML根语言属性
 
-    // 语言切换逻辑
-    const switchToZh = () => { currentLang = 'zh'; updateLanguage(); };
-    const switchToEn = () => { currentLang = 'en'; updateLanguage(); };
-    const switchToZhCN = () => { currentLang = 'zh-CN'; updateLanguage(); };
-
-    // 语言更新核心函数
-    const updateLanguage = () => {
-      // 更新HTML根元素lang属性
-      htmlElement.lang = currentLang;
-
-      // 更新语言按钮状态
-      langToggle.textContent = currentLang === 'zh' ? '繁 ✓' : '繁';
-      langToggleEn.textContent = currentLang === 'en' ? 'EN ✓' : 'EN';
-      mobileLangToggle.textContent = currentLang === 'zh' ? '繁 ✓' : '繁';
-      mobileLangToggleEn.textContent = currentLang === 'en' ? 'EN ✓' : 'EN';
-
-      // 更新所有文本内容
+      // 1. 更新所有文本内容（带data-text属性的元素）
       document.querySelectorAll('[data-text-zh-CN]').forEach(el => {
-        el.textContent = el.getAttribute(`data-text-${currentLang}`);
+        const text = el.getAttribute(`data-text-${currentLang}`);
+        if (text) el.textContent = text;
+        else console.warn('Missing translation for:', el); // 提示缺失的翻译
       });
 
-      // 更新输入框占位符
+      // 2. 更新输入框占位符
       document.querySelectorAll('input, textarea').forEach(el => {
-        if (el.hasAttribute(`data-placeholder-${currentLang}`)) {
-          el.placeholder = el.getAttribute(`data-placeholder-${currentLang}`);
-        }
+        const placeholder = el.getAttribute(`data-placeholder-${currentLang}`);
+        if (placeholder) el.placeholder = placeholder;
       });
 
-      // 更新图片alt属性
+      // 3. 更新图片alt属性
       document.querySelectorAll('[data-alt-zh-CN]').forEach(el => {
-        el.alt = el.getAttribute(`data-alt-${currentLang}`);
+        const alt = el.getAttribute(`data-alt-${currentLang}`);
+        if (alt) el.alt = alt;
       });
 
-      // 更新错误提示文本
+      // 4. 更新错误提示文本
       document.querySelectorAll('.error-message').forEach(el => {
-        el.textContent = el.getAttribute(`data-text-${currentLang}`);
+        const errorText = el.getAttribute(`data-text-${currentLang}`);
+        if (errorText) el.textContent = errorText;
       });
 
-      // 更新页面标题
+      // 5. 更新页面标题
       document.title = currentLang === 'zh-CN' 
         ? '兴贵创新 | 以人为本的创新' 
         : currentLang === 'zh' ? '興貴創新 | 以人為本的創新' : 'Hing Kwai Innovate | Human-Centered Innovation';
-    };
 
-    // 绑定语言切换事件
-    langToggle.addEventListener('click', () => {
-      currentLang === 'zh' ? switchToZhCN() : switchToZh();
-    });
-    langToggleEn.addEventListener('click', () => {
-      currentLang === 'en' ? switchToZhCN() : switchToEn();
-    });
-    mobileLangToggle.addEventListener('click', () => {
-      currentLang === 'zh' ? switchToZhCN() : switchToZh();
-    });
-    mobileLangToggleEn.addEventListener('click', () => {
-      currentLang === 'en' ? switchToZhCN() : switchToEn();
+      console.log('Language updated to:', currentLang); // 调试日志
+    }
+
+    // 绑定所有语言按钮的点击事件（核心修复：统一事件委托）
+    langButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const targetLang = this.getAttribute('data-lang');
+        // 点击当前语言按钮时切换回简体中文
+        if (currentLang === targetLang) {
+          updateLanguage('zh-CN');
+        } else {
+          updateLanguage(targetLang);
+        }
+        // 更新按钮状态（显示选中标记）
+        langButtons.forEach(btn => {
+          const lang = btn.getAttribute('data-lang');
+          btn.textContent = currentLang === lang ? `${lang.toUpperCase()} ✓` : lang.toUpperCase();
+        });
+      });
     });
 
     // 表单验证
-    const validateField = (field) => {
+    function validateField(field) {
       let isValid = true;
       const errorMsg = field.nextElementSibling;
 
@@ -695,20 +688,16 @@
       field.classList.toggle('invalid', !isValid);
       errorMsg.style.display = isValid ? 'none' : 'block';
       return isValid;
-    };
+    }
 
     document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
       field.addEventListener('blur', () => validateField(field));
-      field.addEventListener('input', () => {
-        if (field.classList.contains('invalid')) validateField(field);
-      });
+      field.addEventListener('input', () => field.classList.contains('invalid') && validateField(field));
     });
 
     // 表单提交（JSON格式）
-    contactForm.addEventListener('submit', async (e) => {
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      // 全表单验证
       let isFormValid = true;
       document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
         if (!validateField(field)) isFormValid = false;
@@ -716,72 +705,58 @@
 
       if (!isFormValid) return;
 
-      // 显示加载状态
+      const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
       const loadingText = currentLang === 'zh-CN' ? '提交中...' : currentLang === 'zh' ? '提交中...' : 'Submitting...';
       submitBtn.innerHTML = `<span class="loading"></span> ${loadingText}`;
 
       try {
-        // 构造符合Microsoft Forms API的JSON数据
         const formData = {
           answers: [
             {
               questionId: "r707d21ceed3942f2a15435202f3f4312",
-              response: {
-                type: "text",
-                text: document.getElementById('name').value.trim()
-              }
+              response: { type: "text", text: document.getElementById('name').value.trim() }
             },
             {
               questionId: "r7c279dbe7de54959a58cddcabfc44d2e",
-              response: {
-                type: "text",
-                text: document.getElementById('email').value.trim()
-              }
+              response: { type: "text", text: document.getElementById('email').value.trim() }
             },
             {
               questionId: "rb6b7a740ffda4b89b71d55f25cb7f38e",
-              response: {
-                type: "text",
-                text: document.getElementById('message').value.trim()
-              }
+              response: { type: "text", text: document.getElementById('message').value.trim() }
             }
           ]
         };
 
-        // 发送POST请求
         const response = await fetch('https://forms.guest.usercontent.microsoft/formapi/api/df2bdc73-c22a-4968-916c-1635d7ebc400/users/0aafb97e-957a-4eb0-b4e8-2885e06d2569/forms('c9wr3yrCaEmRbBY11-vEAH65rwp6lbBOtOgoheBtJWlURUE5Tjg2WU4xOElKTVNaVlNORFZJTkYxOC4u')/responses', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
 
-        // 处理响应
         if (response.ok) {
-          const thankYouMsg = currentLang === 'zh-CN' 
-            ? '感谢您的建议！我们已收到反馈，2秒后返回主页...' 
-            : currentLang === 'zh' ? '感謝您的建議！我們已收到反饋，2秒後返回主頁...' : 'Thank you for your suggestion! Redirecting in 2s...';
-          alert(thankYouMsg);
+          const msg = currentLang === 'zh-CN' ? '感谢反馈，2秒后返回主页...' : currentLang === 'zh' ? '感謝反饋，2秒後返回主頁...' : 'Thanks, redirecting in 2s...';
+          alert(msg);
           setTimeout(() => window.location.href = 'index.html', 2000);
         } else {
-          const errorMsg = currentLang === 'zh-CN' ? '提交失败，请稍后重试！' : currentLang === 'zh' ? '提交失敗，請稍後重試！' : 'Submission failed, please try again later!';
-          alert(errorMsg);
+          alert(currentLang === 'zh-CN' ? '提交失败，请重试' : currentLang === 'zh' ? '提交失敗，請重試' : 'Submission failed, try again');
           submitBtn.disabled = false;
           submitBtn.textContent = currentLang === 'zh-CN' ? '提交建议' : currentLang === 'zh' ? '送出建議' : 'Send Suggestion';
         }
       } catch (error) {
-        const errorMsg = currentLang === 'zh-CN' ? '网络错误，请检查连接！' : currentLang === 'zh' ? '網絡錯誤，請檢查連接！' : 'Network error, please check your connection!';
-        alert(errorMsg);
+        alert(currentLang === 'zh-CN' ? '网络错误，请检查连接' : currentLang === 'zh' ? '網絡錯誤，請檢查連接' : 'Network error, check connection');
         submitBtn.disabled = false;
         submitBtn.textContent = currentLang === 'zh-CN' ? '提交建议' : currentLang === 'zh' ? '送出建議' : 'Send Suggestion';
       }
     });
 
-    // 初始化语言设置
-    updateLanguage();
+    // 初始化语言（确保页面加载时正确显示）
+    updateLanguage('zh-CN');
+    // 初始化语言按钮状态
+    langButtons.forEach(btn => {
+      const lang = btn.getAttribute('data-lang');
+      btn.textContent = currentLang === lang ? `${lang.toUpperCase()} ✓` : lang.toUpperCase();
+    });
   </script>
 </body>
 </html>
