@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hing Kwai Innovate | 以人為本的創新</title>
+  <title>Hing Kwai Innovate | 以人为本的创新</title>
   <style>
     :root {
       --primary-color: #406c84;
@@ -19,11 +19,10 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: "Helvetica Neue", "Noto Sans TC", sans-serif;
+      font-family: "Helvetica Neue", "Noto Sans SC", "Noto Sans TC", sans-serif;
       color: var(--text-color);
       background-color: var(--secondary-color);
       line-height: 1.6;
-      transition: all 0.3s ease;
     }
 
     header {
@@ -329,7 +328,6 @@
       to { transform: rotate(360deg); }
     }
 
-    /* 隐藏iframe：接收表单提交结果 */
     #formTarget {
       display: none;
       width: 0;
@@ -337,7 +335,6 @@
       border: none;
     }
 
-    /* 响应式调整 */
     @media (max-width: 768px) {
       .desktop-nav {
         display: none;
@@ -379,153 +376,250 @@
   <header>
     <div class="nav-container">
       <div class="logo" 
+           data-text-zh-CN="兴贵创新" 
            data-text-zh="興貴創新" 
            data-text-en="Hing Kwai Innovate">
-           興貴創新
+           兴贵创新
       </div>
       
       <!-- 桌面端导航 -->
       <nav class="desktop-nav">
-        <a href="#about" data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</a>
-        <a href="#products" data-text-zh="產品介紹" data-text-en="Products">產品介紹</a>
-        <a href="#contact" data-text-zh="聯絡我們" data-text-en="Contact Us">聯絡我們</a>
-        <button class="lang-toggle" id="langToggle">EN</button>
+        <a href="#about" 
+           data-text-zh-CN="品牌理念" 
+           data-text-zh="品牌理念" 
+           data-text-en="Our Concept">品牌理念</a>
+        <a href="#products" 
+           data-text-zh-CN="产品介绍" 
+           data-text-zh="產品介紹" 
+           data-text-en="Products">产品介绍</a>
+        <a href="#contact" 
+           data-text-zh-CN="联系我们" 
+           data-text-zh="聯絡我們" 
+           data-text-en="Contact Us">联系我们</a>
+        <button class="lang-toggle" id="langToggle">繁</button>
+        <button class="lang-toggle" id="langToggleEn">EN</button>
       </nav>
       
-      <!-- 移动端汉堡菜单 -->
+      <!-- 移动端菜单按钮 -->
       <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
     </div>
     
     <!-- 移动端导航菜单 -->
     <nav class="mobile-nav" id="mobileNav">
-      <a href="#about" data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</a>
-      <a href="#products" data-text-zh="產品介紹" data-text-en="Products">產品介紹</a>
-      <a href="#contact" data-text-zh="聯絡我們" data-text-en="Contact Us">聯絡我們</a>
-      <button class="lang-toggle" id="mobileLangToggle">EN</button>
+      <a href="#about" 
+         data-text-zh-CN="品牌理念" 
+         data-text-zh="品牌理念" 
+         data-text-en="Our Concept">品牌理念</a>
+      <a href="#products" 
+         data-text-zh-CN="产品介绍" 
+         data-text-zh="產品介紹" 
+         data-text-en="Products">产品介绍</a>
+      <a href="#contact" 
+         data-text-zh-CN="联系我们" 
+         data-text-zh="聯絡我們" 
+         data-text-en="Contact Us">联系我们</a>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="lang-toggle" id="mobileLangToggle">繁</button>
+        <button class="lang-toggle" id="mobileLangToggleEn">EN</button>
+      </div>
     </nav>
   </header>
 
   <!-- 英雄区 -->
   <section class="hero">
-    <h1 data-text-zh="以人為本的創新，讓科技更有溫度" data-text-en="Human-centered Innovation Bringing Warmth to Technology">
-      以人為本的創新，讓科技更有溫度
+    <h1 data-text-zh-CN="以人为本的创新，让科技更有温度" 
+        data-text-zh="以人為本的創新，讓科技更有溫度" 
+        data-text-en="Human-centered Innovation Bringing Warmth to Technology">
+        以人为本的创新，让科技更有温度
     </h1>
-    <p data-text-zh="Hing Kwai Innovate 致力於結合設計與科技，傾聽每個人的真實需求，創造貼近生活的暖心創新產品。"
+    <p data-text-zh-CN="Hing Kwai Innovate 致力于结合设计与科技，倾听每个人的真实需求，创造贴近生活的暖心创新产品。"
+       data-text-zh="Hing Kwai Innovate 致力於結合設計與科技，傾聽每個人的真實需求，創造貼近生活的暖心創新產品。"
        data-text-en="Hing Kwai Innovate merges design and technology, listening to real human needs to create warm, life-inspired innovations.">
-       Hing Kwai Innovate 致力於結合設計與科技，傾聽每個人的真實需求，創造貼近生活的暖心創新產品。
+       Hing Kwai Innovate 致力于结合设计与科技，倾听每个人的真实需求，创造贴近生活的暖心创新产品。
     </p>
   </section>
 
   <!-- 品牌理念 -->
   <section id="about" class="section about">
-    <h2 data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</h2>
-    <p data-text-zh="我們相信，科技的力量應該來自於對人的理解。「以人為本」不僅是一句口號，更是我們設計每一項產品的出發點。從溫度、聲音、觸感到安全，Hing Kwai Innovate 讓每一次創新，都成為生活中細膩的關懷。"
+    <h2 data-text-zh-CN="品牌理念" 
+        data-text-zh="品牌理念" 
+        data-text-en="Our Concept">品牌理念</h2>
+    <p data-text-zh-CN="我们相信，科技的力量应该来自于对人的理解。「以人为本」不仅是一句口号，更是我们设计每一项产品的出发点。从温度、声音、触感到安全，Hing Kwai Innovate 让每一次创新，都成为生活中细腻的关怀。"
+       data-text-zh="我們相信，科技的力量應該來自於對人的理解。「以人為本」不僅是一句口號，更是我們設計每一項產品的出發點。從溫度、聲音、觸感到安全，Hing Kwai Innovate 讓每一次創新，都成為生活中細膩的關懷。"
        data-text-en="We believe technology’s true power comes from understanding people. 'Human-centered' is not just a slogan—it’s the starting point of every design. From warmth, sound, and touch to safety, Hing Kwai Innovate turns every innovation into genuine care in life.">
-       我們相信，科技的力量應該來自於對人的理解。「以人為本」不僅是一句口號，更是我們設計每一項產品的出發點。從溫度、聲音、觸感到安全，Hing Kwai Innovate 讓每一次創新，都成為生活中細膩的關懷。
+       我们相信，科技的力量应该来自于对人的理解。「以人为本」不仅是一句口号，更是我们设计每一项产品的出发点。从温度、声音、触感到安全，Hing Kwai Innovate 让每一次创新，都成为生活中细腻的关怀。
     </p>
   </section>
 
   <!-- 产品介绍 -->
   <section id="products" class="section">
-    <h2 data-text-zh="產品介紹" data-text-en="Our Products">產品介紹</h2>
+    <h2 data-text-zh-CN="产品介绍" 
+        data-text-zh="產品介紹" 
+        data-text-en="Our Products">产品介绍</h2>
     <div class="products">
       <div class="product">
-        <img src="https://picsum.photos/id/175/800/600" alt="個性化風鈴" class="product-img" data-alt-zh="個性化風鈴" data-alt-en="Personalized Wind Chime">
-        <h3 data-text-zh="個性化風鈴" data-text-en="Personalized Wind Chime">個性化風鈴</h3>
-        <p data-text-zh="自由選擇外觀與聲音設計的智慧風鈴，讓每一次微風都成為屬於你的旋律。結合聲音學與設計美學，帶來獨一無二的陪伴感。"
+        <img src="https://picsum.photos/id/175/800/600" 
+             alt="个性化风铃" 
+             class="product-img" 
+             data-alt-zh-CN="个性化风铃" 
+             data-alt-zh="個性化風鈴" 
+             data-alt-en="Personalized Wind Chime">
+        <h3 data-text-zh-CN="个性化风铃" 
+            data-text-zh="個性化風鈴" 
+            data-text-en="Personalized Wind Chime">个性化风铃</h3>
+        <p data-text-zh-CN="自由选择外观与声音设计的智慧风铃，让每一次微风都成为属于你的旋律。结合声学与设计美学，带来独一无二的陪伴感。"
+           data-text-zh="自由選擇外觀與聲音設計的智慧風鈴，讓每一次微風都成為屬於你的旋律。結合聲音學與設計美學，帶來獨一無二的陪伴感。"
            data-text-en="A smart wind chime with fully customizable look and sound—turning every breeze into your personal melody. Designed for unique companionship and aesthetic harmony.">
-           自由選擇外觀與聲音設計的智慧風鈴，讓每一次微風都成為屬於你的旋律。結合聲音學與設計美學，帶來獨一無二的陪伴感。
+           自由选择外观与声音设计的智慧风铃，让每一次微风都成为属于你的旋律。结合声学与设计美学，带来独一无二的陪伴感。
         </p>
-        <a href="wind-chime.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+        <a href="wind-chime.html" 
+           class="product-btn" 
+           data-text-zh-CN="了解更多" 
+           data-text-zh="了解更多" 
+           data-text-en="Learn More">了解更多</a>
       </div>
       <div class="product">
-        <img src="https://picsum.photos/id/1059/800/600" alt="智能安全拐杖" class="product-img" data-alt-zh="智能安全拐杖" data-alt-en="Smart Safety Cane">
-        <h3 data-text-zh="智能安全拐杖" data-text-en="Smart Safety Cane">智能安全拐杖</h3>
-        <p data-text-zh="內建跌倒偵測與自動求助功能，結合GPS 定位與語音提示。讓長者在行走間多一份安全，也讓家人更安心。"
+        <img src="https://picsum.photos/id/1059/800/600" 
+             alt="智能安全拐杖" 
+             class="product-img" 
+             data-alt-zh-CN="智能安全拐杖" 
+             data-alt-zh="智能安全拐杖" 
+             data-alt-en="Smart Safety Cane">
+        <h3 data-text-zh-CN="智能安全拐杖" 
+            data-text-zh="智能安全拐杖" 
+            data-text-en="Smart Safety Cane">智能安全拐杖</h3>
+        <p data-text-zh-CN="内置跌倒检测与自动求助功能，结合GPS定位与语音提示。让长者在行走间多一份安全，也让家人更安心。"
+           data-text-zh="內建跌倒偵測與自動求助功能，結合GPS 定位與語音提示。讓長者在行走間多一份安全，也讓家人更安心。"
            data-text-en="Equipped with fall detection and automatic SOS, combining GPS tracking and voice alert. Offering confidence and peace of mind for seniors and their families.">
-           內建跌倒偵測與自動求助功能，結合GPS 定位與語音提示。讓長者在行走間多一份安全，也讓家人更安心。
+           内置跌倒检测与自动求助功能，结合GPS定位与语音提示。让长者在行走间多一份安全，也让家人更安心。
         </p>
-        <a href="safety-cane.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+        <a href="safety-cane.html" 
+           class="product-btn" 
+           data-text-zh-CN="了解更多" 
+           data-text-zh="了解更多" 
+           data-text-en="Learn More">了解更多</a>
       </div>
       <div class="product">
-        <img src="https://picsum.photos/id/287/800/600" alt="便攜空氣過濾杯" class="product-img" data-alt-zh="便攜空氣過濾杯" data-alt-en="Portable Air Filter Cup">
-        <h3 data-text-zh="便攜空氣過濾杯" data-text-en="Portable Air Filter Cup">便攜空氣過濾杯</h3>
-        <p data-text-zh="一手掌握的微型空氣淨化器，杯型設計方便攜帶。無論在辦公室、汽車或戶外，隨時呼吸潔淨空氣。"
+        <img src="https://picsum.photos/id/287/800/600" 
+             alt="便携空气过滤杯" 
+             class="product-img" 
+             data-alt-zh-CN="便携空气过滤杯" 
+             data-alt-zh="便攜空氣過濾杯" 
+             data-alt-en="Portable Air Filter Cup">
+        <h3 data-text-zh-CN="便携空气过滤杯" 
+            data-text-zh="便攜空氣過濾杯" 
+            data-text-en="Portable Air Filter Cup">便携空气过滤杯</h3>
+        <p data-text-zh-CN="一手掌握的微型空气净化器，杯型设计方便携带。无论在办公室、汽车或户外，随时呼吸洁净空气。"
+           data-text-zh="一手掌握的微型空氣淨化器，杯型設計方便攜帶。無論在辦公室、汽車或戶外，隨時呼吸潔淨空氣。"
            data-text-en="A handheld air purifier in the shape of a cup—designed for mobility and elegance. Clean air within reach, wherever you are.">
-           一手掌握的微型空氣淨化器，杯型設計方便攜帶。無論在辦公室、汽車或戶外，隨時呼吸潔淨空氣。
+           一手掌握的微型空气净化器，杯型设计方便携带。无论在办公室、汽车或户外，随时呼吸洁净空气。
         </p>
-        <a href="air-filter.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+        <a href="air-filter.html" 
+           class="product-btn" 
+           data-text-zh-CN="了解更多" 
+           data-text-zh="了解更多" 
+           data-text-en="Learn More">了解更多</a>
       </div>
     </div>
   </section>
 
-  <!-- 反馈表单（核心修正部分） -->
+  <!-- 反馈表单（已填入正确提交链接） -->
   <section id="contact" class="section">
-    <h2 data-text-zh="聯絡我們" data-text-en="Contact Us">聯絡我們</h2>
-    <!-- 修正：使用 Microsoft Forms 标准提交地址格式 -->
+    <h2 data-text-zh-CN="联系我们" 
+        data-text-zh="聯絡我們" 
+        data-text-en="Contact Us">联系我们</h2>
+    <!-- 表单提交地址：使用你提供的正确链接 -->
     <form id="contactForm" 
-          action="https://forms.office.com/formapi/api/d2bdc73-22a-4968-916c-1635d7eb400/users/0afb97e-957a-4eb0-b4e8-2885e06d2569/forms/c9wr3yrCaEmRbBY11-vEAF65nwp6lBOtOgoheBtWJURUE5Tjg2W4xOEIKTVNaVINORZJTJKYxOC4u/responses" 
+          action="https://forms.guest.usercontent.microsoft/formapi/api/df2bdc73-c22a-4968-916c-1635d7ebc400/users/0aafb97e-957a-4eb0-b4e8-2885e06d2569/forms('c9wr3yrCaEmRbBY11-vEAH65rwp6lbBOtOgoheBtJWlURUE5Tjg2WU4xOElKTVNaVlNORFZJTkYxOC4u')/responses" 
           method="POST" 
           target="formTarget">
       
-      <!-- 姓名字段：严格匹配 questionId -->
+      <!-- 姓名字段：匹配questionId -->
       <div class="form-group">
-        <label for="name" data-text-zh="您的姓名" data-text-en="Your Name">您的姓名</label>
+        <label for="name" 
+               data-text-zh-CN="您的姓名" 
+               data-text-zh="您的姓名" 
+               data-text-en="Your Name">您的姓名</label>
         <input type="text" 
                id="name" 
                name="r707d21ceed3942f2a15435202f3f4312" 
                placeholder="您的姓名" 
+               data-placeholder-zh-CN="您的姓名" 
                data-placeholder-zh="您的姓名" 
                data-placeholder-en="Your Name" 
                required />
-        <span class="error-message" data-text-zh="請輸入您的姓名" data-text-en="Please enter your name">請輸入您的姓名</span>
+        <span class="error-message" 
+              data-text-zh-CN="请输入您的姓名" 
+              data-text-zh="請輸入您的姓名" 
+              data-text-en="Please enter your name">请输入您的姓名</span>
       </div>
 
-      <!-- 邮箱字段：严格匹配 questionId -->
+      <!-- 邮箱字段：匹配questionId -->
       <div class="form-group">
-        <label for="email" data-text-zh="您的電子郵件" data-text-en="Your Email">您的電子郵件</label>
+        <label for="email" 
+               data-text-zh-CN="您的电子邮件" 
+               data-text-zh="您的電子郵件" 
+               data-text-en="Your Email">您的电子邮件</label>
         <input type="email" 
                id="email" 
                name="r7c279dbe7de54959a58cddcabfc44d2e" 
-               placeholder="您的電子郵件" 
+               placeholder="您的电子邮件" 
+               data-placeholder-zh-CN="您的电子邮件" 
                data-placeholder-zh="您的電子郵件" 
                data-placeholder-en="Your Email" 
                required />
-        <span class="error-message" data-text-zh="請輸入有效的電子郵件" data-text-en="Please enter a valid email address">請輸入有效的電子郵件</span>
+        <span class="error-message" 
+              data-text-zh-CN="请输入有效的电子邮件" 
+              data-text-zh="請輸入有效的電子郵件" 
+              data-text-en="Please enter a valid email address">请输入有效的电子邮件</span>
       </div>
 
-      <!-- 建议字段：严格匹配 questionId -->
+      <!-- 建议字段：匹配questionId -->
       <div class="form-group">
-        <label for="message" data-text-zh="您的建議" data-text-en="Your Suggestion">您的建議</label>
+        <label for="message" 
+               data-text-zh-CN="您的建议" 
+               data-text-zh="您的建議" 
+               data-text-en="Your Suggestion">您的建议</label>
         <textarea id="message" 
                   name="rb6b7a740ffda4b89b71d55f25cb7f38e" 
                   rows="4" 
-                  placeholder="請輸入您的建議" 
+                  placeholder="请输入您的建议" 
+                  data-placeholder-zh-CN="请输入您的建议" 
                   data-placeholder-zh="請輸入您的建議" 
                   data-placeholder-en="Your Suggestion" 
                   required></textarea>
-        <span class="error-message" data-text-zh="請輸入您的建議（不少於10個字元）" data-text-en="Please enter your suggestion (at least 10 characters)">請輸入您的建議（不少於10個字元）</span>
+        <span class="error-message" 
+              data-text-zh-CN="请输入您的建议（不少于10个字符）" 
+              data-text-zh="請輸入您的建議（不少於10個字元）" 
+              data-text-en="Please enter your suggestion (at least 10 characters)">请输入您的建议（不少于10个字符）</span>
       </div>
 
-      <button type="submit" id="submitBtn" data-text-zh="送出建議" data-text-en="Send Suggestion">送出建議</button>
+      <button type="submit" 
+              id="submitBtn" 
+              data-text-zh-CN="提交建议" 
+              data-text-zh="送出建議" 
+              data-text-en="Send Suggestion">提交建议</button>
     </form>
 
-    <!-- 隐藏iframe：处理提交结果，避免页面跳转 -->
+    <!-- 隐藏iframe处理提交结果 -->
     <iframe id="formTarget" name="formTarget"></iframe>
   </section>
 
   <!-- 页脚 -->
   <footer class="footer">
-    <p data-text-zh="© 2025 興貴創新 | 創意 × 科技 × 人文關懷"
+    <p data-text-zh-CN="© 2025 兴贵创新 | 创意 × 科技 × 人文关怀"
+       data-text-zh="© 2025 興貴創新 | 創意 × 科技 × 人文關懷"
        data-text-en="© 2025 Hing Kwai Innovate | Creativity × Technology × Human Care">
-       © 2025 興貴創新 | 創意 × 科技 × 人文關懷
+       © 2025 兴贵创新 | 创意 × 科技 × 人文关怀
     </p>
   </footer>
 
   <script>
-    let currentLang = 'zh';
-    const langToggle = document.getElementById('langToggle');
+    let currentLang = 'zh-CN'; // 默认简体中文
+    const langToggle = document.getElementById('langToggle'); // 切换繁体/简体
+    const langToggleEn = document.getElementById('langToggleEn'); // 切换英文/简体
     const mobileLangToggle = document.getElementById('mobileLangToggle');
+    const mobileLangToggleEn = document.getElementById('mobileLangToggleEn');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const mobileNav = document.getElementById('mobileNav');
     const contactForm = document.getElementById('contactForm');
@@ -544,55 +638,86 @@
       mobileMenuBtn.textContent = mobileNav.classList.contains('active') ? '✕' : '☰';
     });
 
-    // 双语切换功能
-    const switchLanguage = () => {
-      const isChinese = currentLang === 'zh';
-      currentLang = isChinese ? 'en' : 'zh';
+    // 切换到繁体中文
+    const switchToZh = () => {
+      currentLang = 'zh';
+      updateLanguage();
+    };
 
-      // 更新语言按钮
-      [langToggle, mobileLangToggle].forEach(btn => {
-        btn.textContent = isChinese ? '中文' : 'EN';
+    // 切换到英文
+    const switchToEn = () => {
+      currentLang = 'en';
+      updateLanguage();
+    };
+
+    // 切换到简体中文
+    const switchToZhCN = () => {
+      currentLang = 'zh-CN';
+      updateLanguage();
+    };
+
+    // 语言更新核心函数
+    const updateLanguage = () => {
+      // 更新语言按钮状态（显示选中标记）
+      langToggle.textContent = currentLang === 'zh' ? '繁 ✓' : '繁';
+      langToggleEn.textContent = currentLang === 'en' ? 'EN ✓' : 'EN';
+      mobileLangToggle.textContent = currentLang === 'zh' ? '繁 ✓' : '繁';
+      mobileLangToggleEn.textContent = currentLang === 'en' ? 'EN ✓' : 'EN';
+
+      // 更新所有文本内容
+      document.querySelectorAll('[data-text-zh-CN]').forEach(el => {
+        el.textContent = el.getAttribute(`data-text-${currentLang}`);
       });
 
-      // 更新文本内容
-      document.querySelectorAll('[data-text-zh]').forEach(el => {
-        el.textContent = isChinese ? el.getAttribute('data-text-en') : el.getAttribute('data-text-zh');
-      });
-
-      // 更新占位符
+      // 更新输入框占位符
       document.querySelectorAll('input, textarea').forEach(el => {
-        if (el.hasAttribute('data-placeholder-zh')) {
-          el.placeholder = isChinese ? el.getAttribute('data-placeholder-en') : el.getAttribute('data-placeholder-zh');
+        if (el.hasAttribute(`data-placeholder-${currentLang}`)) {
+          el.placeholder = el.getAttribute(`data-placeholder-${currentLang}`);
         }
       });
 
-      // 更新图片alt
-      document.querySelectorAll('[data-alt-zh]').forEach(el => {
-        el.alt = isChinese ? el.getAttribute('data-alt-en') : el.getAttribute('data-alt-zh');
+      // 更新图片alt属性
+      document.querySelectorAll('[data-alt-zh-CN]').forEach(el => {
+        el.alt = el.getAttribute(`data-alt-${currentLang}`);
       });
 
       // 更新页面标题
-      document.title = currentLang === 'zh' 
-        ? '興貴創新 | 以人為本的創新' 
-        : 'Hing Kwai Innovate | Human-Centered Innovation';
+      document.title = currentLang === 'zh-CN' 
+        ? '兴贵创新 | 以人为本的创新' 
+        : currentLang === 'zh'
+          ? '興貴創新 | 以人為本的創新'
+          : 'Hing Kwai Innovate | Human-Centered Innovation';
     };
-    langToggle.addEventListener('click', switchLanguage);
-    mobileLangToggle.addEventListener('click', switchLanguage);
 
-    // 表单验证
+    // 绑定语言切换事件
+    langToggle.addEventListener('click', () => {
+      currentLang === 'zh' ? switchToZhCN() : switchToZh();
+    });
+    langToggleEn.addEventListener('click', () => {
+      currentLang === 'en' ? switchToZhCN() : switchToEn();
+    });
+    mobileLangToggle.addEventListener('click', () => {
+      currentLang === 'zh' ? switchToZhCN() : switchToZh();
+    });
+    mobileLangToggleEn.addEventListener('click', () => {
+      currentLang === 'en' ? switchToZhCN() : switchToEn();
+    });
+
+    // 表单验证逻辑
     const validateField = (field) => {
       let isValid = true;
       const errorMsg = field.nextElementSibling;
 
       if (field.required && !field.value.trim()) {
-        isValid = false;
+        isValid = false; // 必填项为空
       } else if (field.type === 'email' && field.value.trim()) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        isValid = emailRegex.test(field.value.trim());
+        isValid = emailRegex.test(field.value.trim()); // 邮箱格式验证
       } else if (field.id === 'message' && field.value.trim().length < 10) {
-        isValid = false;
+        isValid = false; // 建议长度不足
       }
 
+      // 更新错误状态样式
       if (isValid) {
         field.classList.remove('invalid');
         errorMsg.style.display = 'none';
@@ -603,7 +728,7 @@
       return isValid;
     };
 
-    // 绑定验证事件
+    // 绑定字段验证事件（失焦和输入时触发）
     document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
       field.addEventListener('blur', () => validateField(field));
       field.addEventListener('input', () => {
@@ -611,17 +736,19 @@
       });
     });
 
-    // 表单提交成功处理
+    // 表单提交成功后的处理
     formTarget.addEventListener('load', () => {
-      // 显示感谢提示
-      const thankYouMsg = currentLang === 'zh' 
+      // 根据当前语言显示感谢信息
+      const thankYouMsg = currentLang === 'zh-CN' 
         ? '感谢您的建议！我们已收到反馈，2秒后返回主页...' 
-        : 'Thank you for your suggestion! We received your feedback, redirecting in 2s...';
+        : currentLang === 'zh'
+          ? '感謝您的建議！我們已收到反饋，2秒後返回主頁...'
+          : 'Thank you for your suggestion! We received your feedback, redirecting in 2s...';
       alert(thankYouMsg);
 
-      // 重定向到主页
+      // 2秒后重定向到主页
       setTimeout(() => {
-        window.location.href = 'index.html'; // 主页URL，可根据实际修改
+        window.location.href = 'index.html';
       }, 2000);
     });
 
@@ -629,16 +756,19 @@
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      // 全量验证
+      // 全表单验证
       let isFormValid = true;
       document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
         if (!validateField(field)) isFormValid = false;
       });
 
       if (isFormValid) {
-        // 显示加载状态并提交
+        // 验证通过：显示加载状态并提交
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<span class="loading"></span> ${currentLang === 'zh' ? '提交中...' : 'Submitting...'}`;
+        const loadingText = currentLang === 'zh-CN' 
+          ? '提交中...' 
+          : currentLang === 'zh' ? '提交中...' : 'Submitting...';
+        submitBtn.innerHTML = `<span class="loading"></span> ${loadingText}`;
         contactForm.submit();
       }
     });
