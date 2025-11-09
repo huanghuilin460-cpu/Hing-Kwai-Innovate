@@ -329,7 +329,7 @@
       to { transform: rotate(360deg); }
     }
 
-    /* 隐藏的iframe，用于接收表单提交结果 */
+    /* 隐藏iframe：接收表单提交结果，避免页面跳转 */
     #formTarget {
       display: none;
       width: 0;
@@ -384,6 +384,7 @@
            興貴創新
       </div>
       
+      <!-- 桌面端导航 -->
       <nav class="desktop-nav">
         <a href="#about" data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</a>
         <a href="#products" data-text-zh="產品介紹" data-text-en="Products">產品介紹</a>
@@ -391,11 +392,13 @@
         <button class="lang-toggle" id="langToggle">EN</button>
       </nav>
       
+      <!-- 移动端汉堡菜单按钮 -->
       <button class="mobile-menu-btn" id="mobileMenuBtn">
         ☰
       </button>
     </div>
     
+    <!-- 移动端导航菜单 -->
     <nav class="mobile-nav" id="mobileNav">
       <a href="#about" data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</a>
       <a href="#products" data-text-zh="產品介紹" data-text-en="Products">產品介紹</a>
@@ -404,6 +407,7 @@
     </nav>
   </header>
 
+  <!-- 英雄区 -->
   <section class="hero">
     <h1 data-text-zh="以人為本的創新，讓科技更有溫度" data-text-en="Human-centered Innovation Bringing Warmth to Technology">
       以人為本的創新，讓科技更有溫度
@@ -414,6 +418,7 @@
     </p>
   </section>
 
+  <!-- 品牌理念 -->
   <section id="about" class="section about">
     <h2 data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</h2>
     <p data-text-zh="我們相信，科技的力量應該來自於對人的理解。「以人為本」不僅是一句口號，更是我們設計每一項產品的出發點。從溫度、聲音、觸感到安全，Hing Kwai Innovate 讓每一次創新，都成為生活中細膩的關懷。"
@@ -422,6 +427,7 @@
     </p>
   </section>
 
+  <!-- 产品介绍（带详情页跳转） -->
   <section id="products" class="section">
     <h2 data-text-zh="產品介紹" data-text-en="Our Products">產品介紹</h2>
     <div class="products">
@@ -455,33 +461,62 @@
     </div>
   </section>
 
-  <!-- 反馈表单区域 -->
+  <!-- 核心：Microsoft Forms 反馈表单（已填QuestionID和提交地址） -->
   <section id="contact" class="section">
     <h2 data-text-zh="聯絡我們" data-text-en="Contact Us">聯絡我們</h2>
-    <!-- 表单提交目标改为隐藏的iframe，避免页面跳转 -->
-    <form id="contactForm" action="https://docs.google.com/forms/d/e/1FAIpQLSd3-CM853sxVOKEfWh7VBD-dqHr9fNKK_B8f8aHzSsdqNOc1Q/formResponse" method="POST" target="formTarget">
+    <!-- 表单提交地址：对应你提供的Microsoft Forms链接 -->
+    <form id="contactForm" 
+          action="https://forms.guest.usercontent.microsoft.com/formapi/api/d2bdc73-22a-4968-916c-1635d7eb400/users/0afb97e-957a-4eb0-b4e8-2885e06d2569/forms/c9wr3yrCaEmRbBY11-vEAF65nwp6lBOtOgoheBtWJURUE5Tjg2W4xOEIKTVNaVINORZJTJKYxOC4u/responses" 
+          method="POST" 
+          target="formTarget">
+      
+      <!-- 1. 姓名字段：QuestionID = r707d21ceed3942f2a15435202f3f4312 -->
       <div class="form-group">
         <label for="name" data-text-zh="您的姓名" data-text-en="Your Name">您的姓名</label>
-        <input type="text" id="name" name="entry.2036383228" placeholder="您的姓名" data-placeholder-zh="您的姓名" data-placeholder-en="Your Name" required />
+        <input type="text" 
+               id="name" 
+               name="r707d21ceed3942f2a15435202f3f4312" 
+               placeholder="您的姓名" 
+               data-placeholder-zh="您的姓名" 
+               data-placeholder-en="Your Name" 
+               required />
         <span class="error-message" data-text-zh="請輸入您的姓名" data-text-en="Please enter your name">請輸入您的姓名</span>
       </div>
+
+      <!-- 2. 邮箱字段：QuestionID = r7c279dbe7de54959a58cddcabfc44d2e -->
       <div class="form-group">
         <label for="email" data-text-zh="您的電子郵件" data-text-en="Your Email">您的電子郵件</label>
-        <input type="email" id="email" name="entry.1860062296" placeholder="您的電子郵件" data-placeholder-zh="您的電子郵件" data-placeholder-en="Your Email" required />
+        <input type="email" 
+               id="email" 
+               name="r7c279dbe7de54959a58cddcabfc44d2e" 
+               placeholder="您的電子郵件" 
+               data-placeholder-zh="您的電子郵件" 
+               data-placeholder-en="Your Email" 
+               required />
         <span class="error-message" data-text-zh="請輸入有效的電子郵件" data-text-en="Please enter a valid email address">請輸入有效的電子郵件</span>
       </div>
+
+      <!-- 3. 建议字段：QuestionID = rb6b7a740ffda4b89b71d55f25cb7f38e -->
       <div class="form-group">
-        <label for="message" data-text-zh="您的訊息" data-text-en="Your Message">您的訊息</label>
-        <textarea id="message" name="entry.817479488" rows="4" placeholder="請輸入您的訊息" data-placeholder-zh="請輸入您的訊息" data-placeholder-en="Your Message" required></textarea>
-        <span class="error-message" data-text-zh="請輸入您的訊息（不少於10個字元）" data-text-en="Please enter your message (at least 10 characters)">請輸入您的訊息（不少於10個字元）</span>
+        <label for="message" data-text-zh="您的建議" data-text-en="Your Suggestion">您的建議</label>
+        <textarea id="message" 
+                  name="rb6b7a740ffda4b89b71d55f25cb7f38e" 
+                  rows="4" 
+                  placeholder="請輸入您的建議" 
+                  data-placeholder-zh="請輸入您的建議" 
+                  data-placeholder-en="Your Suggestion" 
+                  required></textarea>
+        <span class="error-message" data-text-zh="請輸入您的建議（不少於10個字元）" data-text-en="Please enter your suggestion (at least 10 characters)">請輸入您的建議（不少於10個字元）</span>
       </div>
-      <button type="submit" id="submitBtn" data-text-zh="送出留言" data-text-en="Send Message">送出留言</button>
+
+      <button type="submit" id="submitBtn" data-text-zh="送出建議" data-text-en="Send Suggestion">送出建議</button>
     </form>
 
-    <!-- 隐藏的iframe，用于接收表单提交结果 -->
+    <!-- 隐藏iframe：接收表单提交结果，避免页面跳转 -->
     <iframe id="formTarget" name="formTarget"></iframe>
   </section>
 
+  <!-- 页脚 -->
   <footer class="footer">
     <p data-text-zh="© 2025 興貴創新 | 創意 × 科技 × 人文關懷"
        data-text-en="© 2025 Hing Kwai Innovate | Creativity × Technology × Human Care">
@@ -498,67 +533,69 @@
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
     const header = document.querySelector('header');
-    const formTarget = document.getElementById('formTarget'); // 获取隐藏的iframe
+    const formTarget = document.getElementById('formTarget');
 
-    // 导航栏滚动效果
+    // 1. 导航栏滚动效果：滚动时添加透明背景和阴影
     window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
+      header.classList.toggle('scrolled', window.scrollY > 50);
     });
 
-    // 移动端菜单切换
+    // 2. 移动端菜单切换：点击汉堡图标展开/收起
     mobileMenuBtn.addEventListener('click', () => {
       mobileNav.classList.toggle('active');
       mobileMenuBtn.textContent = mobileNav.classList.contains('active') ? '✕' : '☰';
     });
 
-    // 语言切换核心函数
+    // 3. 双语切换功能：同步所有文本、占位符、图片alt
     const switchLanguage = () => {
       const isChinese = currentLang === 'zh';
       currentLang = isChinese ? 'en' : 'zh';
-      
-      langToggle.textContent = isChinese ? '中文' : 'EN';
-      mobileLangToggle.textContent = isChinese ? '中文' : 'EN';
 
+      // 更新语言切换按钮文本
+      [langToggle, mobileLangToggle].forEach(btn => {
+        btn.textContent = isChinese ? '中文' : 'EN';
+      });
+
+      // 更新普通文本（标题、段落、按钮等）
       document.querySelectorAll('[data-text-zh]').forEach(el => {
         el.textContent = isChinese ? el.getAttribute('data-text-en') : el.getAttribute('data-text-zh');
       });
 
+      // 更新输入框占位符
       document.querySelectorAll('input, textarea').forEach(el => {
         if (el.hasAttribute('data-placeholder-zh')) {
           el.placeholder = isChinese ? el.getAttribute('data-placeholder-en') : el.getAttribute('data-placeholder-zh');
         }
       });
 
+      // 更新图片alt属性
       document.querySelectorAll('[data-alt-zh]').forEach(el => {
         el.alt = isChinese ? el.getAttribute('data-alt-en') : el.getAttribute('data-alt-zh');
       });
 
-      document.title = currentLang === 'zh'
-        ? '興貴創新 | 以人為本的創新'
+      // 更新页面标题
+      document.title = currentLang === 'zh' 
+        ? '興貴創新 | 以人為本的創新' 
         : 'Hing Kwai Innovate | Human-Centered Innovation';
     };
-
     langToggle.addEventListener('click', switchLanguage);
     mobileLangToggle.addEventListener('click', switchLanguage);
 
-    // 表单验证
+    // 4. 表单前端验证：必填项、邮箱格式、字符长度
     const validateField = (field) => {
       let isValid = true;
       const errorMsg = field.nextElementSibling;
 
       if (field.required && !field.value.trim()) {
-        isValid = false;
+        isValid = false; // 必填项为空
       } else if (field.type === 'email' && field.value.trim()) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        isValid = emailRegex.test(field.value.trim());
+        isValid = emailRegex.test(field.value.trim()); // 邮箱格式验证
       } else if (field.id === 'message' && field.value.trim().length < 10) {
-        isValid = false;
+        isValid = false; // 建议长度不足10字符
       }
 
+      // 更新样式和错误提示
       if (isValid) {
         field.classList.remove('invalid');
         errorMsg.style.display = 'none';
@@ -566,51 +603,44 @@
         field.classList.add('invalid');
         errorMsg.style.display = 'block';
       }
-
       return isValid;
     };
 
+    // 绑定验证事件（失焦时验证、输入时重新验证）
     document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
       field.addEventListener('blur', () => validateField(field));
       field.addEventListener('input', () => {
-        if (field.classList.contains('invalid')) {
-          validateField(field);
-        }
+        if (field.classList.contains('invalid')) validateField(field);
       });
     });
 
-    // 监听iframe加载完成（表示表单提交成功）
+    // 5. 表单提交处理：验证通过后提交，成功后提示并重定向
     formTarget.addEventListener('load', () => {
-      // 显示感谢提示（根据当前语言）
+      // 提交成功：显示感谢提示
       const thankYouMsg = currentLang === 'zh' 
-        ? '感谢您的反馈！我们会尽快回复。即将返回主页...' 
-        : 'Thank you for your feedback! We will reply soon. Redirecting to homepage...';
-      
+        ? '感谢您的建议！我们会尽快回复。2秒后返回主页...' 
+        : 'Thank you for your suggestion! We will reply soon. Redirecting in 2s...';
       alert(thankYouMsg);
 
-      // 2秒后重定向到主页（根据实际主页URL修改，这里假设主页是index.html）
+      // 2秒后重定向到主页（若主页URL不同，修改此处）
       setTimeout(() => {
         window.location.href = 'index.html';
       }, 2000);
     });
 
-    // 表单提交处理
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      // 验证所有字段
-      const fields = document.querySelectorAll('#contactForm input, #contactForm textarea');
+      // 先执行全量验证
       let isFormValid = true;
-      fields.forEach(field => {
+      document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
         if (!validateField(field)) isFormValid = false;
       });
 
       if (isFormValid) {
-        // 显示加载状态
+        // 验证通过：显示加载状态并提交表单
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<span class="loading"></span> ${currentLang === 'zh' ? '提交中...' : 'Submitting...'}`;
-        
-        // 提交表单（数据会发送到隐藏的iframe）
         contactForm.submit();
       }
     });
