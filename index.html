@@ -329,6 +329,14 @@
       to { transform: rotate(360deg); }
     }
 
+    /* 隐藏的iframe，用于接收表单提交结果 */
+    #formTarget {
+      display: none;
+      width: 0;
+      height: 0;
+      border: none;
+    }
+
     /* 响应式调整 */
     @media (max-width: 768px) {
       .desktop-nav {
@@ -424,7 +432,7 @@
            data-text-en="A smart wind chime with fully customizable look and sound—turning every breeze into your personal melody. Designed for unique companionship and aesthetic harmony.">
            自由選擇外觀與聲音設計的智慧風鈴，讓每一次微風都成為屬於你的旋律。結合聲音學與設計美學，帶來獨一無二的陪伴感。
         </p>
-        <a href="#" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+        <a href="wind-chime.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
       </div>
       <div class="product">
         <img src="https://picsum.photos/id/1059/800/600" alt="智能安全拐杖" class="product-img" data-alt-zh="智能安全拐杖" data-alt-en="Smart Safety Cane">
@@ -433,7 +441,7 @@
            data-text-en="Equipped with fall detection and automatic SOS, combining GPS tracking and voice alert. Offering confidence and peace of mind for seniors and their families.">
            內建跌倒偵測與自動求助功能，結合GPS 定位與語音提示。讓長者在行走間多一份安全，也讓家人更安心。
         </p>
-        <a href="#" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+        <a href="safety-cane.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
       </div>
       <div class="product">
         <img src="https://picsum.photos/id/287/800/600" alt="便攜空氣過濾杯" class="product-img" data-alt-zh="便攜空氣過濾杯" data-alt-en="Portable Air Filter Cup">
@@ -442,14 +450,16 @@
            data-text-en="A handheld air purifier in the shape of a cup—designed for mobility and elegance. Clean air within reach, wherever you are.">
            一手掌握的微型空氣淨化器，杯型設計方便攜帶。無論在辦公室、汽車或戶外，隨時呼吸潔淨空氣。
         </p>
-        <a href="#" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+        <a href="air-filter.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
       </div>
     </div>
   </section>
 
+  <!-- 反馈表单区域 -->
   <section id="contact" class="section">
     <h2 data-text-zh="聯絡我們" data-text-en="Contact Us">聯絡我們</h2>
-    <form id="contactForm" action="https://docs.google.com/forms/d/e/1FAIpQLSd3-CM853sxVOKEfWh7VBD-dqHr9fNKK_B8f8aHzSsdqNOc1Q/formResponse" method="POST" target="_self">
+    <!-- 表单提交目标改为隐藏的iframe，避免页面跳转 -->
+    <form id="contactForm" action="https://docs.google.com/forms/d/e/1FAIpQLSd3-CM853sxVOKEfWh7VBD-dqHr9fNKK_B8f8aHzSsdqNOc1Q/formResponse" method="POST" target="formTarget">
       <div class="form-group">
         <label for="name" data-text-zh="您的姓名" data-text-en="Your Name">您的姓名</label>
         <input type="text" id="name" name="entry.2036383228" placeholder="您的姓名" data-placeholder-zh="您的姓名" data-placeholder-en="Your Name" required />
@@ -467,6 +477,9 @@
       </div>
       <button type="submit" id="submitBtn" data-text-zh="送出留言" data-text-en="Send Message">送出留言</button>
     </form>
+
+    <!-- 隐藏的iframe，用于接收表单提交结果 -->
+    <iframe id="formTarget" name="formTarget"></iframe>
   </section>
 
   <footer class="footer">
@@ -485,6 +498,7 @@
     const contactForm = document.getElementById('contactForm');
     const submitBtn = document.getElementById('submitBtn');
     const header = document.querySelector('header');
+    const formTarget = document.getElementById('formTarget'); // 获取隐藏的iframe
 
     // 导航栏滚动效果
     window.addEventListener('scroll', () => {
@@ -565,6 +579,21 @@
       });
     });
 
+    // 监听iframe加载完成（表示表单提交成功）
+    formTarget.addEventListener('load', () => {
+      // 显示感谢提示（根据当前语言）
+      const thankYouMsg = currentLang === 'zh' 
+        ? '感谢您的反馈！我们会尽快回复。即将返回主页...' 
+        : 'Thank you for your feedback! We will reply soon. Redirecting to homepage...';
+      
+      alert(thankYouMsg);
+
+      // 2秒后重定向到主页（根据实际主页URL修改，这里假设主页是index.html）
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 2000);
+    });
+
     // 表单提交处理
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -581,17 +610,8 @@
         submitBtn.disabled = true;
         submitBtn.innerHTML = `<span class="loading"></span> ${currentLang === 'zh' ? '提交中...' : 'Submitting...'}`;
         
-        // 提交表单
-        setTimeout(() => {
-          contactForm.submit();
-          
-          // 重置表单（Google Forms会跳转）
-          setTimeout(() => {
-            contactForm.reset();
-            submitBtn.disabled = false;
-            submitBtn.textContent = currentLang === 'zh' ? '送出留言' : 'Send Message';
-          }, 2000);
-        }, 500);
+        // 提交表单（数据会发送到隐藏的iframe）
+        contactForm.submit();
       }
     });
   </script>
