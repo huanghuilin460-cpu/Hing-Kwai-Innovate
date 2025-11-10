@@ -15,6 +15,31 @@
      --error-color: #dc3545;
      --max-width: 1200px;
    }
+
+   /* 深色模式支持 */
+   @media (prefers-color-scheme: dark) {
+     :root {
+       --primary-color: #689fb9;
+       --secondary-color: #1a1a2e;
+       --text-color: #f2f4f6;
+       --light-text: #ccc;
+       --border-color: #333;
+     }
+     
+     body {
+       background-color: var(--secondary-color);
+       color: var(--text-color);
+     }
+     
+     .product, header {
+       background-color: #24243e;
+     }
+     
+     .product:hover {
+       border-color: var(--accent-color);
+     }
+   }
+
    * { box-sizing: border-box; margin: 0; padding: 0; }
    body {
      font-family: "Helvetica Neue", "Noto Sans TC", "Noto Sans SC", sans-serif;
@@ -22,6 +47,10 @@
      background-color: var(--secondary-color);
      line-height: 1.6;
      transition: all 0.3s ease;
+   }
+   html {
+     scroll-behavior: smooth; /* 平滑滚动 */
+     scroll-padding-top: 80px; /* 避开导航栏 */
    }
    header {
      background-color: white;
@@ -60,7 +89,7 @@
      font-weight: 500;
      transition: color 0.3s ease;
    }
-   .desktop-nav a:hover {
+   .desktop-nav a:hover, .desktop-nav a:focus {
      color: var(--primary-color);
    }
    /* 语言选择下拉框样式 */
@@ -82,7 +111,7 @@
      background-position: right 0.5rem center;
      padding-right: 2rem;
    }
-   .lang-select:hover {
+   .lang-select:hover, .lang-select:focus {
      background-color: var(--primary-color);
      color: white;
      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath fill='white' d='M10.293 0.293a1 1 0 0 1 1.414 1.414L6 6l-5.707-5.293a1 1 0 1 1 1.414-1.414L6 3.172l4.88-4.88z'/%3E%3C/svg%3E");
@@ -119,6 +148,9 @@
    }
    .mobile-nav a:last-child {
      border-bottom: none;
+   }
+   .mobile-nav a:hover, .mobile-nav a:focus {
+     color: var(--primary-color);
    }
    .mobile-nav .lang-selector {
      margin-left: 0;
@@ -164,8 +196,11 @@
      font-size: 1.1rem;
      line-height: 1.8;
    }
+   /* 产品网格（兼容性优化） */
    .products {
+     display: -ms-grid;
      display: grid;
+     -ms-grid-columns: repeat(auto-fit, minmax(280px, 1fr));
      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
      gap: 2rem;
    }
@@ -176,7 +211,9 @@
      padding: 1.5rem;
      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
      border: 2px solid transparent;
+     display: -ms-flexbox;
      display: flex;
+     -ms-flex-direction: column;
      flex-direction: column;
    }
    .product:hover {
@@ -200,6 +237,7 @@
      color: var(--light-text);
      font-size: 0.95rem;
      margin-bottom: 1.2rem;
+     -ms-flex-positive: 1;
      flex-grow: 1;
    }
    .product-btn {
@@ -214,7 +252,7 @@
      transition: background-color 0.3s ease;
      margin-top: auto;
    }
-   .product-btn:hover {
+   .product-btn:hover, .product-btn:focus {
      background-color: #33586e;
      color: white;
    }
@@ -248,15 +286,20 @@
      font-family: inherit;
      transition: border-color 0.3s ease;
    }
-   input:focus, textarea:focus, select:focus {
-     outline: none;
-     border-color: var(--primary-color);
-     box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.1);
+   /* 焦点样式（可访问性） */
+   input:focus, textarea:focus, select:focus, button:focus, a:focus {
+     outline: 2px solid var(--primary-color);
+     outline-offset: 2px;
    }
    .error-message {
      color: var(--error-color);
      font-size: 0.85rem;
      display: none;
+     animation: fadeIn 0.3s ease; /* 错误提示动画 */
+   }
+   @keyframes fadeIn {
+     from { opacity: 0; transform: translateY(5px); }
+     to { opacity: 1; transform: translateY(0); }
    }
    input.invalid, textarea.invalid {
      border-color: var(--error-color);
@@ -282,15 +325,17 @@
      background-color: #f8c48d;
      cursor: not-allowed;
    }
+   /* 优化加载动画 */
    .loading {
      display: inline-block;
-     width: 20px;
-     height: 20px;
+     width: 24px;
+     height: 24px;
      border: 3px solid rgba(255,255,255,.3);
      border-radius: 50%;
      border-top-color: white;
-     animation: spin 1s ease-in-out infinite;
+     animation: spin 0.8s linear infinite;
      margin-right: 0.5rem;
+     vertical-align: middle;
    }
    @keyframes spin {
      to { transform: rotate(360deg); }
@@ -300,6 +345,13 @@
      width: 0;
      height: 0;
      border: none;
+   }
+   /* 字符计数样式 */
+   .char-count {
+     font-size: 0.8rem;
+     color: var(--light-text);
+     text-align: right;
+     margin-top: 0.2rem;
    }
    @media (max-width: 768px) {
      .desktop-nav {
@@ -354,14 +406,14 @@
    data-text-zh-CN="联系我们" 
    data-text-en="Contact Us">聯絡我們</a>
 <div class="lang-selector">
-<select class="lang-select" id="langSelect">
+<select class="lang-select" id="langSelect" aria-label="切换语言">
 <option value="zh">繁體中文</option>
 <option value="zh-CN">简体中文</option>
 <option value="en">English</option>
 </select>
 </div>
 </nav>
-<button class="mobile-menu-btn" id="mobileMenuBtn">
+<button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="打开菜单">
        ☰
 </button>
 </div>
@@ -379,7 +431,7 @@
    data-text-zh-CN="联系我们" 
    data-text-en="Contact Us">聯絡我們</a>
 <div class="lang-selector">
-<select class="lang-select" id="mobileLangSelect">
+<select class="lang-select" id="mobileLangSelect" aria-label="切换语言">
 <option value="zh">繁體中文</option>
 <option value="zh-CN">简体中文</option>
 <option value="en">English</option>
@@ -420,7 +472,9 @@
      class="product-img" 
      data-alt-zh="個性化風鈴" 
      data-alt-zh-CN="个性化风铃" 
-     data-alt-en="Personalized Wind Chime">
+     data-alt-en="Personalized Wind Chime"
+     loading="lazy"
+     onerror="this.src='https://picsum.photos/800/600?fallback'; this.alt='产品图片加载失败';">
 <h3 data-text-zh="個性化風鈴" 
     data-text-zh-CN="个性化风铃" 
     data-text-en="Personalized Wind Chime">個性化風鈴</h3>
@@ -441,7 +495,9 @@
      class="product-img" 
      data-alt-zh="智能安全拐杖" 
      data-alt-zh-CN="智能安全拐杖" 
-     data-alt-en="Smart Safety Cane">
+     data-alt-en="Smart Safety Cane"
+     loading="lazy"
+     onerror="this.src='https://picsum.photos/800/600?fallback'; this.alt='产品图片加载失败';">
 <h3 data-text-zh="智能安全拐杖" 
     data-text-zh-CN="智能安全拐杖" 
     data-text-en="Smart Safety Cane">智能安全拐杖</h3>
@@ -462,7 +518,9 @@
      class="product-img" 
      data-alt-zh="便攜空氣過濾杯" 
      data-alt-zh-CN="便携空气过滤杯" 
-     data-alt-en="Portable Air Filter Cup">
+     data-alt-en="Portable Air Filter Cup"
+     loading="lazy"
+     onerror="this.src='https://picsum.photos/800/600?fallback'; this.alt='产品图片加载失败';">
 <h3 data-text-zh="便攜空氣過濾杯" 
     data-text-zh-CN="便携空气过滤杯" 
     data-text-en="Portable Air Filter Cup">便攜空氣過濾杯</h3>
@@ -528,6 +586,11 @@
       data-text-zh="請輸入您的訊息（不少於10個字元）" 
       data-text-zh-CN="请输入您的消息（不少于10个字符）" 
       data-text-en="Please enter your message (at least 10 characters)">請輸入您的訊息（不少於10個字元）</span>
+<!-- 字符计数 -->
+<span class="char-count" 
+      data-text-zh="剩餘字元: 0" 
+      data-text-zh-CN="剩余字符: 0" 
+      data-text-en="Remaining characters: 0">剩餘字元: 0</span>
 </div>
 <button type="submit" id="submitBtn" 
         data-text-zh="送出留言" 
@@ -544,79 +607,124 @@
 </p>
 </footer>
 <script>
+   // DOM元素缓存（精简重复查询）
+   const cache = {
+     langSelectors: [document.getElementById('langSelect'), document.getElementById('mobileLangSelect')],
+     mobileMenuBtn: document.getElementById('mobileMenuBtn'),
+     mobileNav: document.getElementById('mobileNav'),
+     contactForm: document.getElementById('contactForm'),
+     submitBtn: document.getElementById('submitBtn'),
+     formTarget: document.getElementById('formTarget'),
+     header: document.querySelector('header'),
+     messageField: document.getElementById('message'),
+     charCount: document.querySelector('.char-count'),
+     htmlElement: document.documentElement
+   };
+
    let currentLang = 'zh'; // 默认繁体中文
-   const langSelect = document.getElementById('langSelect');
-   const mobileLangSelect = document.getElementById('mobileLangSelect');
-   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-   const mobileNav = document.getElementById('mobileNav');
-   const contactForm = document.getElementById('contactForm');
-   const submitBtn = document.getElementById('submitBtn');
-   const header = document.querySelector('header');
-   const formTarget = document.getElementById('formTarget');
-   
+   const MAX_MESSAGE_LENGTH = 500; // 文本域最大长度
+
    // 导航栏滚动效果
    window.addEventListener('scroll', () => {
-     if (window.scrollY > 50) {
-       header.classList.add('scrolled');
-     } else {
-       header.classList.remove('scrolled');
-     }
+     cache.header.classList.toggle('scrolled', window.scrollY > 50);
    });
-   
+
    // 移动端菜单切换
-   mobileMenuBtn.addEventListener('click', () => {
-     mobileNav.classList.toggle('active');
-     mobileMenuBtn.textContent = mobileNav.classList.contains('active') ? '✕' : '☰';
+   cache.mobileMenuBtn.addEventListener('click', () => {
+     cache.mobileNav.classList.toggle('active');
+     const isActive = cache.mobileNav.classList.contains('active');
+     cache.mobileMenuBtn.textContent = isActive ? '✕' : '☰';
+     cache.mobileMenuBtn.setAttribute('aria-label', isActive ? '关闭菜单' : '打开菜单');
    });
-   
-   // 语言切换核心函数
+
+   // 统一语言切换函数（完善覆盖所有元素）
    const switchLanguage = (lang) => {
-     if (lang === currentLang) return; // 相同语言不切换
-     
+     if (lang === currentLang) return;
      currentLang = lang;
-     
-     // 同步两个下拉框的选中状态
-     langSelect.value = lang;
-     mobileLangSelect.value = lang;
-     
-     // 更新文本内容
-     document.querySelectorAll(`[data-text-${currentLang}]`).forEach(el => {
-       el.textContent = el.getAttribute(`data-text-${currentLang}`);
+
+     // 1. 更新根元素lang属性（SEO+可访问性）
+     cache.htmlElement.lang = lang;
+
+     // 2. 同步所有下拉框选中状态
+     cache.langSelectors.forEach(selector => selector.value = lang);
+
+     // 3. 更新所有文本内容
+     // 文本元素（标题、段落、按钮等）
+     document.querySelectorAll('[data-text-zh], [data-text-zh-CN], [data-text-en]').forEach(el => {
+       const text = el.getAttribute(`data-text-${lang}`);
+       if (text) el.textContent = text;
      });
-     
-     // 更新占位符
+     // 输入框占位符
      document.querySelectorAll('input, textarea').forEach(el => {
-       if (el.hasAttribute(`data-placeholder-${currentLang}`)) {
-         el.placeholder = el.getAttribute(`data-placeholder-${currentLang}`);
-       }
+       const placeholder = el.getAttribute(`data-placeholder-${lang}`);
+       if (placeholder) el.placeholder = placeholder;
      });
-     
-     // 更新图片alt属性
-     document.querySelectorAll(`[data-alt-${currentLang}]`).forEach(el => {
-       el.alt = el.getAttribute(`data-alt-${currentLang}`);
+     // 图片alt属性
+     document.querySelectorAll('[data-alt-zh], [data-alt-zh-CN], [data-alt-en]').forEach(el => {
+       const alt = el.getAttribute(`data-alt-${lang}`);
+       if (alt) el.alt = alt;
      });
-     
-     // 更新页面标题
-     document.title = currentLang === 'zh' ? '興貴創新 | 以人為本的創新' :
-                     (currentLang === 'zh-CN' ? '兴贵创新 | 以人为本的创新' :
-                     'Hing Kwai Innovate | Human-Centered Innovation');
+     // 错误提示文本
+     document.querySelectorAll('.error-message').forEach(el => {
+       const errorText = el.getAttribute(`data-text-${lang}`);
+       if (errorText) el.textContent = errorText;
+     });
+     // 字符计数文本
+     updateCharCountText();
+
+     // 4. 更新页面标题
+     document.title = lang === 'zh' 
+       ? '興貴創新 | 以人為本的創新' 
+       : lang === 'zh-CN' 
+         ? '兴贵创新 | 以人为本的创新' 
+         : 'Hing Kwai Innovate | Human-Centered Innovation';
    };
-   
-   // 桌面端语言选择事件
-   langSelect.addEventListener('change', (e) => {
-     switchLanguage(e.target.value);
+
+   // 绑定语言下拉框事件（精简重复逻辑）
+   cache.langSelectors.forEach(selector => {
+     selector.addEventListener('change', (e) => switchLanguage(e.target.value));
    });
-   
-   // 移动端语言选择事件
-   mobileLangSelect.addEventListener('change', (e) => {
-     switchLanguage(e.target.value);
-   });
-   
+
+   // 文本域字符计数更新
+   const updateCharCount = () => {
+     const currentLength = cache.messageField.value.length;
+     const remaining = Math.max(0, MAX_MESSAGE_LENGTH - currentLength);
+
+     // 更新计数显示
+     cache.charCount.textContent = currentLang === 'zh' 
+       ? `剩餘字元: ${remaining}` 
+       : currentLang === 'zh-CN' 
+         ? `剩余字符: ${remaining}` 
+         : `Remaining characters: ${remaining}`;
+
+     // 超过最大长度处理
+     if (currentLength > MAX_MESSAGE_LENGTH) {
+       cache.messageField.value = cache.messageField.value.substring(0, MAX_MESSAGE_LENGTH);
+       cache.charCount.style.color = 'var(--error-color)';
+     } else {
+       cache.charCount.style.color = 'var(--light-text)';
+     }
+   };
+
+   // 语言切换时同步字符计数文本
+   const updateCharCountText = () => {
+     const currentLength = cache.messageField.value.length;
+     const remaining = Math.max(0, MAX_MESSAGE_LENGTH - currentLength);
+     cache.charCount.textContent = currentLang === 'zh' 
+       ? `剩餘字元: ${remaining}` 
+       : currentLang === 'zh-CN' 
+         ? `剩余字符: ${remaining}` 
+         : `Remaining characters: ${remaining}`;
+   };
+
+   // 绑定文本域输入事件
+   cache.messageField.addEventListener('input', updateCharCount);
+
    // 表单验证
    const validateField = (field) => {
      let isValid = true;
      const errorMsg = field.nextElementSibling;
-     
+
      if (field.required && !field.value.trim()) {
        isValid = false;
      } else if (field.type === 'email' && field.value.trim()) {
@@ -625,61 +733,102 @@
      } else if (field.id === 'message' && field.value.trim().length < 10) {
        isValid = false;
      }
-     
-     if (isValid) {
-       field.classList.remove('invalid');
-       errorMsg.style.display = 'none';
-     } else {
-       field.classList.add('invalid');
-       errorMsg.style.display = 'block';
-     }
-     
+
+     field.classList.toggle('invalid', !isValid);
+     errorMsg.style.display = isValid ? 'none' : 'block';
      return isValid;
    };
-   
+
+   // 绑定表单字段验证事件
    document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
      field.addEventListener('blur', () => validateField(field));
      field.addEventListener('input', () => {
-       if (field.classList.contains('invalid')) {
-         validateField(field);
-       }
+       if (field.classList.contains('invalid')) validateField(field);
      });
    });
-   
-   // 监听表单提交结果
-   formTarget.addEventListener('load', () => {
-     const thankYouMsg = currentLang === 'zh'
-       ? '感謝您的反饋！我們會盡快回復。即將返回主頁...'
-       : (currentLang === 'zh-CN'
-         ? '感谢您的反馈！我们会尽快回复。即将返回主页...'
-         : 'Thank you for your feedback! We will reply soon. Redirecting to homepage...');
-     
-     alert(thankYouMsg);
-     setTimeout(() => {
-       window.location.href = 'index.html';
-     }, 2000);
-   });
-   
-   // 表单提交处理
-   contactForm.addEventListener('submit', (e) => {
+
+   // 表单提交处理（优化错误处理和重复提交）
+   cache.contactForm.addEventListener('submit', (e) => {
      e.preventDefault();
-     
+
+     // 表单验证
      const fields = document.querySelectorAll('#contactForm input, #contactForm textarea');
      let isFormValid = true;
-     
-     fields.forEach(field => {
-       if (!validateField(field)) isFormValid = false;
-     });
-     
-     if (isFormValid) {
-       submitBtn.disabled = true;
-       submitBtn.innerHTML = `<span class="loading"></span> ${
-         currentLang === 'zh' ? '提交中...' : 
-         (currentLang === 'zh-CN' ? '提交中...' : 'Submitting...')
-       }`;
-       contactForm.submit();
+     fields.forEach(field => !validateField(field) && (isFormValid = false));
+
+     if (!isFormValid) return;
+
+     // 防止重复提交
+     cache.submitBtn.disabled = true;
+     const loadingText = currentLang === 'zh' 
+       ? '提交中...' 
+       : currentLang === 'zh-CN' 
+         ? '提交中...' 
+         : 'Submitting...';
+     cache.submitBtn.innerHTML = `<span class="loading"></span> ${loadingText}`;
+
+     // 监听iframe错误（提交失败处理）
+     cache.formTarget.onerror = () => {
+       const errorMsg = currentLang === 'zh' 
+         ? '提交失敗，請檢查網絡或稍後重試！' 
+         : currentLang === 'zh-CN' 
+           ? '提交失败，请检查网络或稍后重试！' 
+           : 'Submission failed. Check your network or try again later!';
+       alert(errorMsg);
+       cache.submitBtn.disabled = false;
+       cache.submitBtn.textContent = cache.submitBtn.getAttribute(`data-text-${currentLang}`);
+     };
+
+     cache.contactForm.submit();
+   });
+
+   // 表单提交成功处理
+   cache.formTarget.addEventListener('load', () => {
+     try {
+       const iframeContent = cache.formTarget.contentDocument || cache.formTarget.contentWindow.document;
+       const isSuccess = iframeContent.title.includes('Thank you') || iframeContent.title.includes('感謝');
+
+       if (isSuccess) {
+         const thankYouMsg = currentLang === 'zh'
+           ? '感謝您的反饋！我們會盡快回復。即將返回主頁...'
+           : currentLang === 'zh-CN'
+             ? '感谢您的反馈！我们会尽快回复。即将返回主页...'
+             : 'Thank you for your feedback! We will reply soon. Redirecting to homepage...';
+         alert(thankYouMsg);
+         setTimeout(() => window.location.href = 'index.html', 2000);
+       } else {
+         throw new Error('Submission not successful');
+       }
+     } catch (err) {
+       cache.formTarget.onerror(); // 触发错误处理
      }
    });
+
+   // 兼容旧浏览器平滑滚动（可选）
+   if (!('scrollBehavior' in document.documentElement.style)) {
+     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+       anchor.addEventListener('click', function(e) {
+         e.preventDefault();
+         const targetId = this.getAttribute('href');
+         const targetElement = document.querySelector(targetId);
+         if (targetElement) {
+           window.scrollTo({
+             top: targetElement.offsetTop - 80,
+             behavior: 'smooth'
+           });
+           // 移动端关闭菜单
+           if (cache.mobileNav.classList.contains('active')) {
+             cache.mobileNav.classList.remove('active');
+             cache.mobileMenuBtn.textContent = '☰';
+             cache.mobileMenuBtn.setAttribute('aria-label', '打开菜单');
+           }
+         }
+       });
+     });
+   }
+
+   // 初始化字符计数
+   updateCharCount();
 </script>
 </body>
 </html>
