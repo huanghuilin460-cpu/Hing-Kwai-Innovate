@@ -1,782 +1,534 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hing Kwai Innovate | 以人为本的创新</title>
-  <style>
-    :root {
-      --primary-color: #406c84;
-      --secondary-color: #f2f4f6;
-      --accent-color: #f3a953;
-      --text-color: #333;
-      --light-text: #555;
-      --border-color: #e0e0e0;
-      --error-color: #dc3545;
-      --max-width: 1200px;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: "Helvetica Neue", "Noto Sans SC", "Noto Sans TC", sans-serif;
-      color: var(--text-color);
-      background-color: var(--secondary-color);
-      line-height: 1.6;
-    }
-
-    header {
-      background-color: white;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      transition: background-color 0.3s ease;
-    }
-
-    header.scrolled {
-      background-color: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    .nav-container {
-      max-width: var(--max-width);
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: var(--primary-color);
-      white-space: nowrap;
-    }
-
-    .desktop-nav {
-      display: flex;
-      align-items: center;
-    }
-
-    .desktop-nav a {
-      text-decoration: none;
-      color: var(--text-color);
-      margin-left: 1.2rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .desktop-nav a:hover {
-      color: var(--primary-color);
-    }
-
-    .lang-toggle {
-      border: 1px solid var(--primary-color);
-      background: none;
-      color: var(--primary-color);
-      border-radius: 4px;
-      padding: 0.4rem 0.7rem;
-      margin-left: 1.2rem;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s ease;
-    }
-
-    .lang-toggle:hover {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    .mobile-menu-btn {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: var(--primary-color);
-    }
-
-    .mobile-nav {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background-color: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      padding: 1rem 2rem;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .mobile-nav.active {
-      display: flex;
-    }
-
-    .mobile-nav a {
-      text-decoration: none;
-      color: var(--text-color);
-      font-weight: 500;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .mobile-nav a:last-child {
-      border-bottom: none;
-    }
-
-    .mobile-nav .lang-toggle {
-      margin-left: 0;
-      width: 100%;
-      padding: 0.6rem;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, var(--primary-color) 0%, #689fb9 100%);
-      color: white;
-      text-align: center;
-      padding: 6rem 2rem;
-    }
-
-    .hero h1 { font-size: 2rem; margin-bottom: 1rem; }
-    .hero p { font-size: 1.1rem; max-width: 600px; margin: auto; }
-
-    .section {
-      max-width: var(--max-width);
-      margin: 4rem auto;
-      padding: 0 2rem;
-    }
-
-    .section h2 {
-      text-align: center;
-      font-size: 1.8rem;
-      color: var(--primary-color);
-      margin-bottom: 2rem;
-      position: relative;
-    }
-
-    .section h2::after {
-      content: "";
-      display: block;
-      width: 60px;
-      height: 3px;
-      background-color: var(--accent-color);
-      margin: 0.8rem auto 0;
-    }
-
-    .about p {
-      text-align: center;
-      max-width: 700px;
-      margin: auto;
-      color: var(--light-text);
-      font-size: 1.1rem;
-      line-height: 1.8;
-    }
-
-    .products {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-
-    .product {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-      padding: 1.5rem;
-      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-      border: 2px solid transparent;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .product:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-      border-color: var(--primary-color);
-    }
-
-    .product-img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 4px;
-      margin-bottom: 1rem;
-    }
-
-    .product h3 {
-      color: var(--primary-color);
-      margin-bottom: 0.5rem;
-      font-size: 1.2rem;
-    }
-
-    .product p {
-      color: var(--light-text);
-      font-size: 0.95rem;
-      margin-bottom: 1.2rem;
-      flex-grow: 1;
-    }
-
-    .product-btn {
-      display: inline-block;
-      text-decoration: none;
-      background-color: var(--primary-color);
-      color: white;
-      padding: 0.6rem 1.2rem;
-      border-radius: 4px;
-      font-weight: 500;
-      text-align: center;
-      transition: background-color 0.3s ease;
-      margin-top: auto;
-    }
-
-    .product-btn:hover {
-      background-color: #33586e;
-      color: white;
-    }
-
-    .footer {
-      background-color: var(--primary-color);
-      color: white;
-      text-align: center;
-      padding: 2rem 1rem;
-      margin-top: 6rem;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      max-width: 500px;
-      margin: auto;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-
-    label {
-      font-weight: 500;
-      color: var(--text-color);
-    }
-
-    input, textarea, button {
-      padding: 0.8rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-family: inherit;
-      transition: border-color 0.3s ease;
-    }
-
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.1);
-    }
-
-    .error-message {
-      color: var(--error-color);
-      font-size: 0.85rem;
-      display: none;
-    }
-
-    input.invalid, textarea.invalid {
-      border-color: var(--error-color);
-    }
-
-    input.invalid + .error-message,
-    textarea.invalid + .error-message {
-      display: block;
-    }
-
-    button {
-      background-color: var(--accent-color);
-      border: none;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      padding: 0.9rem;
-      font-size: 1rem;
-    }
-
-    button:hover {
-      background-color: #e9953a;
-    }
-
-    button:disabled {
-      background-color: #f8c48d;
-      cursor: not-allowed;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s ease-in-out infinite;
-      margin-right: 0.5rem;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 768px) {
-      .desktop-nav {
-        display: none;
-      }
-
-      .mobile-menu-btn {
-        display: block;
-      }
-
-      .hero h1 { font-size: 1.8rem; }
-      .product-img {
-        height: 150px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .nav-container {
-        padding: 1rem;
-      }
-
-      .hero {
-        padding: 4rem 1rem;
-      }
-
-      .hero h1 { font-size: 1.6rem; }
-      .section {
-        margin: 3rem auto;
-        padding: 0 1rem;
-      }
-
-      .product {
-        padding: 1rem;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hing Kwai Innovate | 以人為本的創新</title>
+<style>
+   :root {
+     --primary-color: #406c84;
+     --secondary-color: #f2f4f6;
+     --accent-color: #f3a953;
+     --text-color: #333;
+     --light-text: #555;
+     --border-color: #e0e0e0;
+     --error-color: #dc3545;
+     --max-width: 1200px;
+   }
+   * { box-sizing: border-box; margin: 0; padding: 0; }
+   body {
+     font-family: "Helvetica Neue", "Noto Sans TC", sans-serif;
+     color: var(--text-color);
+     background-color: var(--secondary-color);
+     line-height: 1.6;
+     transition: all 0.3s ease;
+   }
+   header {
+     background-color: white;
+     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+     position: sticky;
+     top: 0;
+     z-index: 100;
+     transition: background-color 0.3s ease;
+   }
+   header.scrolled {
+     background-color: rgba(255, 255, 255, 0.95);
+     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+   }
+   .nav-container {
+     max-width: var(--max-width);
+     margin: auto;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     padding: 1rem 2rem;
+   }
+   .logo {
+     font-size: 1.5rem;
+     font-weight: bold;
+     color: var(--primary-color);
+     white-space: nowrap;
+   }
+   .desktop-nav {
+     display: flex;
+     align-items: center;
+   }
+   .desktop-nav a {
+     text-decoration: none;
+     color: var(--text-color);
+     margin-left: 1.2rem;
+     font-weight: 500;
+     transition: color 0.3s ease;
+   }
+   .desktop-nav a:hover {
+     color: var(--primary-color);
+   }
+   .lang-toggle {
+     border: 1px solid var(--primary-color);
+     background: none;
+     color: var(--primary-color);
+     border-radius: 4px;
+     padding: 0.4rem 0.7rem;
+     margin-left: 1.2rem;
+     cursor: pointer;
+     font-weight: bold;
+     transition: all 0.3s ease;
+   }
+   .lang-toggle:hover {
+     background-color: var(--primary-color);
+     color: white;
+   }
+   .mobile-menu-btn {
+     display: none;
+     background: none;
+     border: none;
+     font-size: 1.5rem;
+     cursor: pointer;
+     color: var(--primary-color);
+   }
+   .mobile-nav {
+     display: none;
+     position: absolute;
+     top: 100%;
+     left: 0;
+     right: 0;
+     background-color: white;
+     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+     padding: 1rem 2rem;
+     flex-direction: column;
+     gap: 1rem;
+   }
+   .mobile-nav.active {
+     display: flex;
+   }
+   .mobile-nav a {
+     text-decoration: none;
+     color: var(--text-color);
+     font-weight: 500;
+     padding: 0.5rem 0;
+     border-bottom: 1px solid var(--border-color);
+   }
+   .mobile-nav a:last-child {
+     border-bottom: none;
+   }
+   .mobile-nav .lang-toggle {
+     margin-left: 0;
+     width: 100%;
+     padding: 0.6rem;
+   }
+   .hero {
+     background: linear-gradient(135deg, var(--primary-color) 0%, #689fb9 100%);
+     color: white;
+     text-align: center;
+     padding: 6rem 2rem;
+   }
+   .hero h1 { font-size: 2rem; margin-bottom: 1rem; }
+   .hero p { font-size: 1.1rem; max-width: 600px; margin: auto; }
+   .section {
+     max-width: var(--max-width);
+     margin: 4rem auto;
+     padding: 0 2rem;
+   }
+   .section h2 {
+     text-align: center;
+     font-size: 1.8rem;
+     color: var(--primary-color);
+     margin-bottom: 2rem;
+     position: relative;
+   }
+   .section h2::after {
+     content: "";
+     display: block;
+     width: 60px;
+     height: 3px;
+     background-color: var(--accent-color);
+     margin: 0.8rem auto 0;
+   }
+   .about p {
+     text-align: center;
+     max-width: 700px;
+     margin: auto;
+     color: var(--light-text);
+     font-size: 1.1rem;
+     line-height: 1.8;
+   }
+   .products {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+     gap: 2rem;
+   }
+   .product {
+     background: white;
+     border-radius: 8px;
+     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+     padding: 1.5rem;
+     transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+     border: 2px solid transparent;
+     display: flex;
+     flex-direction: column;
+   }
+   .product:hover {
+     transform: translateY(-5px);
+     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+     border-color: var(--primary-color);
+   }
+   .product-img {
+     width: 100%;
+     height: 180px;
+     object-fit: cover;
+     border-radius: 4px;
+     margin-bottom: 1rem;
+   }
+   .product h3 {
+     color: var(--primary-color);
+     margin-bottom: 0.5rem;
+     font-size: 1.2rem;
+   }
+   .product p {
+     color: var(--light-text);
+     font-size: 0.95rem;
+     margin-bottom: 1.2rem;
+     flex-grow: 1;
+   }
+   .product-btn {
+     display: inline-block;
+     text-decoration: none;
+     background-color: var(--primary-color);
+     color: white;
+     padding: 0.6rem 1.2rem;
+     border-radius: 4px;
+     font-weight: 500;
+     text-align: center;
+     transition: background-color 0.3s ease;
+     margin-top: auto;
+   }
+   .product-btn:hover {
+     background-color: #33586e;
+     color: white;
+   }
+   .footer {
+     background-color: var(--primary-color);
+     color: white;
+     text-align: center;
+     padding: 2rem 1rem;
+     margin-top: 6rem;
+   }
+   form {
+     display: flex;
+     flex-direction: column;
+     gap: 1rem;
+     max-width: 500px;
+     margin: auto;
+   }
+   .form-group {
+     display: flex;
+     flex-direction: column;
+     gap: 0.3rem;
+   }
+   label {
+     font-weight: 500;
+     color: var(--text-color);
+   }
+   input, textarea, button {
+     padding: 0.8rem;
+     border-radius: 5px;
+     border: 1px solid #ccc;
+     font-family: inherit;
+     transition: border-color 0.3s ease;
+   }
+   input:focus, textarea:focus {
+     outline: none;
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.1);
+   }
+   .error-message {
+     color: var(--error-color);
+     font-size: 0.85rem;
+     display: none;
+   }
+   input.invalid, textarea.invalid {
+     border-color: var(--error-color);
+   }
+   input.invalid + .error-message,
+   textarea.invalid + .error-message {
+     display: block;
+   }
+   button {
+     background-color: var(--accent-color);
+     border: none;
+     color: white;
+     font-weight: bold;
+     cursor: pointer;
+     transition: background-color 0.3s ease;
+     padding: 0.9rem;
+     font-size: 1rem;
+   }
+   button:hover {
+     background-color: #e9953a;
+   }
+   button:disabled {
+     background-color: #f8c48d;
+     cursor: not-allowed;
+   }
+   .loading {
+     display: inline-block;
+     width: 20px;
+     height: 20px;
+     border: 3px solid rgba(255,255,255,.3);
+     border-radius: 50%;
+     border-top-color: white;
+     animation: spin 1s ease-in-out infinite;
+     margin-right: 0.5rem;
+   }
+   @keyframes spin {
+     to { transform: rotate(360deg); }
+   }
+   /* 隐藏的iframe，用于接收表单提交结果 */
+   #formTarget {
+     display: none;
+     width: 0;
+     height: 0;
+     border: none;
+   }
+   /* 响应式调整 */
+   @media (max-width: 768px) {
+     .desktop-nav {
+       display: none;
+     }
+     .mobile-menu-btn {
+       display: block;
+     }
+     .hero h1 { font-size: 1.8rem; }
+     .product-img {
+       height: 150px;
+     }
+   }
+   @media (max-width: 480px) {
+     .nav-container {
+       padding: 1rem;
+     }
+     .hero {
+       padding: 4rem 1rem;
+     }
+     .hero h1 { font-size: 1.6rem; }
+     .section {
+       margin: 3rem auto;
+       padding: 0 1rem;
+     }
+     .product {
+       padding: 1rem;
+     }
+   }
+</style>
 </head>
-
 <body>
-  <!-- 用于检测JavaScript是否启用 -->
-  <noscript>
-    <div style="background: #ff4444; color: white; padding: 1rem; text-align: center;">
-      您的浏览器未启用JavaScript，语言切换等功能将无法使用，请开启后重试。
-    </div>
-  </noscript>
-
-  <header>
-    <div class="nav-container" id="mainNavContainer">
-      <div class="logo" 
-           data-text-zh-CN="兴贵创新" 
-           data-text-zh="興貴創新" 
-           data-text-en="Hing Kwai Innovate">
-           兴贵创新
-      </div>
-      
-      <!-- 桌面端导航 -->
-      <nav class="desktop-nav">
-        <a href="#about" 
-           data-text-zh-CN="品牌理念" 
-           data-text-zh="品牌理念" 
-           data-text-en="Our Concept">品牌理念</a>
-        <a href="#products" 
-           data-text-zh-CN="产品介绍" 
-           data-text-zh="產品介紹" 
-           data-text-en="Products">产品介绍</a>
-        <a href="#contact" 
-           data-text-zh-CN="联系我们" 
-           data-text-zh="聯絡我們" 
-           data-text-en="Contact Us">联系我们</a>
-        <button class="lang-toggle" data-lang="zh">繁</button>
-        <button class="lang-toggle" data-lang="en">EN</button>
-      </nav>
-      
-      <!-- 移动端菜单按钮 -->
-      <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
-    </div>
-    
-    <!-- 移动端导航菜单 -->
-    <nav class="mobile-nav" id="mobileNav">
-      <a href="#about" 
-         data-text-zh-CN="品牌理念" 
-         data-text-zh="品牌理念" 
-         data-text-en="Our Concept">品牌理念</a>
-      <a href="#products" 
-         data-text-zh-CN="产品介绍" 
-         data-text-zh="產品介紹" 
-         data-text-en="Products">产品介绍</a>
-      <a href="#contact" 
-         data-text-zh-CN="联系我们" 
-         data-text-zh="聯絡我們" 
-         data-text-en="Contact Us">联系我们</a>
-      <div style="display: flex; gap: 0.5rem;">
-        <button class="lang-toggle" data-lang="zh">繁</button>
-        <button class="lang-toggle" data-lang="en">EN</button>
-      </div>
-    </nav>
-  </header>
-
-  <!-- 英雄区 -->
-  <section class="hero">
-    <h1 data-text-zh-CN="以人为本的创新，让科技更有温度" 
-        data-text-zh="以人為本的創新，讓科技更有溫度" 
-        data-text-en="Human-centered Innovation Bringing Warmth to Technology">
-        以人为本的创新，让科技更有温度
-    </h1>
-    <p data-text-zh-CN="Hing Kwai Innovate 致力于结合设计与科技，倾听每个人的真实需求，创造贴近生活的暖心创新产品。"
-       data-text-zh="Hing Kwai Innovate 致力於結合設計與科技，傾聽每個人的真實需求，創造貼近生活的暖心創新產品。"
-       data-text-en="Hing Kwai Innovate merges design and technology, listening to real human needs to create warm, life-inspired innovations.">
-       Hing Kwai Innovate 致力于结合设计与科技，倾听每个人的真实需求，创造贴近生活的暖心创新产品。
-    </p>
-  </section>
-
-  <!-- 品牌理念 -->
-  <section id="about" class="section about">
-    <h2 data-text-zh-CN="品牌理念" 
-        data-text-zh="品牌理念" 
-        data-text-en="Our Concept">品牌理念</h2>
-    <p data-text-zh-CN="我们相信，科技的力量应该来自于对人的理解。「以人为本」不仅是一句口号，更是我们设计每一项产品的出发点。从温度、声音、触感到安全，Hing Kwai Innovate 让每一次创新，都成为生活中细腻的关怀。"
-       data-text-zh="我們相信，科技的力量應該來自於對人的理解。「以人為本」不僅是一句口號，更是我們設計每一項產品的出發點。從溫度、聲音、觸感到安全，Hing Kwai Innovate 讓每一次創新，都成為生活中細膩的關懷。"
-       data-text-en="We believe technology’s true power comes from understanding people. 'Human-centered' is not just a slogan—it’s the starting point of every design. From warmth, sound, and touch to safety, Hing Kwai Innovate turns every innovation into genuine care in life.">
-       我们相信，科技的力量应该来自于对人的理解。「以人为本」不仅是一句口号，更是我们设计每一项产品的出发点。从温度、声音、触感到安全，Hing Kwai Innovate 让每一次创新，都成为生活中细腻的关怀。
-    </p>
-  </section>
-
-  <!-- 产品介绍 -->
-  <section id="products" class="section">
-    <h2 data-text-zh-CN="产品介绍" 
-        data-text-zh="產品介紹" 
-        data-text-en="Our Products">产品介绍</h2>
-    <div class="products">
-      <div class="product">
-        <img src="https://picsum.photos/id/175/800/600" 
-             alt="个性化风铃" 
-             class="product-img" 
-             data-alt-zh-CN="个性化风铃" 
-             data-alt-zh="個性化風鈴" 
-             data-alt-en="Personalized Wind Chime">
-        <h3 data-text-zh-CN="个性化风铃" 
-            data-text-zh="個性化風鈴" 
-            data-text-en="Personalized Wind Chime">个性化风铃</h3>
-        <p data-text-zh-CN="自由选择外观与声音设计的智慧风铃，让每一次微风都成为属于你的旋律。结合声学与设计美学，带来独一无二的陪伴感。"
-           data-text-zh="自由選擇外觀與聲音設計的智慧風鈴，讓每一次微風都成為屬於你的旋律。結合聲音學與設計美學，帶來獨一無二的陪伴感。"
-           data-text-en="A smart wind chime with fully customizable look and sound—turning every breeze into your personal melody. Designed for unique companionship and aesthetic harmony.">
-           自由选择外观与声音设计的智慧风铃，让每一次微风都成为属于你的旋律。结合声学与设计美学，带来独一无二的陪伴感。
-        </p>
-        <a href="wind-chime.html" 
-           class="product-btn" 
-           data-text-zh-CN="了解更多" 
-           data-text-zh="了解更多" 
-           data-text-en="Learn More">了解更多</a>
-      </div>
-      <div class="product">
-        <img src="https://picsum.photos/id/1059/800/600" 
-             alt="智能安全拐杖" 
-             class="product-img" 
-             data-alt-zh-CN="智能安全拐杖" 
-             data-alt-zh="智能安全拐杖" 
-             data-alt-en="Smart Safety Cane">
-        <h3 data-text-zh-CN="智能安全拐杖" 
-            data-text-zh="智能安全拐杖" 
-            data-text-en="Smart Safety Cane">智能安全拐杖</h3>
-        <p data-text-zh-CN="内置跌倒检测与自动求助功能，结合GPS定位与语音提示。让长者在行走间多一份安全，也让家人更安心。"
-           data-text-zh="內建跌倒偵測與自動求助功能，結合GPS 定位與語音提示。讓長者在行走間多一份安全，也讓家人更安心。"
-           data-text-en="Equipped with fall detection and automatic SOS, combining GPS tracking and voice alert. Offering confidence and peace of mind for seniors and their families.">
-           内置跌倒检测与自动求助功能，结合GPS定位与语音提示。让长者在行走间多一份安全，也让家人更安心。
-        </p>
-        <a href="safety-cane.html" 
-           class="product-btn" 
-           data-text-zh-CN="了解更多" 
-           data-text-zh="了解更多" 
-           data-text-en="Learn More">了解更多</a>
-      </div>
-      <div class="product">
-        <img src="https://picsum.photos/id/287/800/600" 
-             alt="便携空气过滤杯" 
-             class="product-img" 
-             data-alt-zh-CN="便携空气过滤杯" 
-             data-alt-zh="便攜空氣過濾杯" 
-             data-alt-en="Portable Air Filter Cup">
-        <h3 data-text-zh-CN="便携空气过滤杯" 
-            data-text-zh="便攜空氣過濾杯" 
-            data-text-en="Portable Air Filter Cup">便携空气过滤杯</h3>
-        <p data-text-zh-CN="一手掌握的微型空气净化器，杯型设计方便携带。无论在办公室、汽车或户外，随时呼吸洁净空气。"
-           data-text-zh="一手掌握的微型空氣淨化器，杯型設計方便攜帶。無論在辦公室、汽車或戶外，隨時呼吸潔淨空氣。"
-           data-text-en="A handheld air purifier in the shape of a cup—designed for mobility and elegance. Clean air within reach, wherever you are.">
-           一手掌握的微型空气净化器，杯型设计方便携带。无论在办公室、汽车或户外，随时呼吸洁净空气。
-        </p>
-        <a href="air-filter.html" 
-           class="product-btn" 
-           data-text-zh-CN="了解更多" 
-           data-text-zh="了解更多" 
-           data-text-en="Learn More">了解更多</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- 反馈表单 -->
-  <section id="contact" class="section">
-    <h2 data-text-zh-CN="联系我们" 
-        data-text-zh="聯絡我們" 
-        data-text-en="Contact Us">联系我们</h2>
-    <form id="contactForm">
-      <!-- 姓名字段 -->
-      <div class="form-group">
-        <label for="name" 
-               data-text-zh-CN="您的姓名" 
-               data-text-zh="您的姓名" 
-               data-text-en="Your Name">您的姓名</label>
-        <input type="text" 
-               id="name" 
-               placeholder="您的姓名" 
-               data-placeholder-zh-CN="您的姓名" 
-               data-placeholder-zh="您的姓名" 
-               data-placeholder-en="Your Name" 
-               required />
-        <span class="error-message" 
-              data-text-zh-CN="请输入您的姓名" 
-              data-text-zh="請輸入您的姓名" 
-              data-text-en="Please enter your name">请输入您的姓名</span>
-      </div>
-
-      <!-- 邮箱字段 -->
-      <div class="form-group">
-        <label for="email" 
-               data-text-zh-CN="您的电子邮件" 
-               data-text-zh="您的電子郵件" 
-               data-text-en="Your Email">您的电子邮件</label>
-        <input type="email" 
-               id="email" 
-               placeholder="您的电子邮件" 
-               data-placeholder-zh-CN="您的电子邮件" 
-               data-placeholder-zh="您的電子郵件" 
-               data-placeholder-en="Your Email" 
-               required />
-        <span class="error-message" 
-              data-text-zh-CN="请输入有效的电子邮件" 
-              data-text-zh="請輸入有效的電子郵件" 
-              data-text-en="Please enter a valid email address">请输入有效的电子邮件</span>
-      </div>
-
-      <!-- 建议字段 -->
-      <div class="form-group">
-        <label for="message" 
-               data-text-zh-CN="您的建议" 
-               data-text-zh="您的建議" 
-               data-text-en="Your Suggestion">您的建议</label>
-        <textarea id="message" 
-                  rows="4" 
-                  placeholder="请输入您的建议" 
-                  data-placeholder-zh-CN="请输入您的建议" 
-                  data-placeholder-zh="請輸入您的建議" 
-                  data-placeholder-en="Your Suggestion" 
-                  required></textarea>
-        <span class="error-message" 
-              data-text-zh-CN="请输入您的建议（不少于10个字符）" 
-              data-text-zh="請輸入您的建議（不少於10個字元）" 
-              data-text-en="Please enter your suggestion (at least 10 characters)">请输入您的建议（不少于10个字符）</span>
-      </div>
-
-      <button type="submit" 
-              id="submitBtn" 
-              data-text-zh-CN="提交建议" 
-              data-text-zh="送出建議" 
-              data-text-en="Send Suggestion">提交建议</button>
-    </form>
-  </section>
-
-  <!-- 页脚 -->
-  <footer class="footer">
-    <p data-text-zh-CN="© 2025 兴贵创新 | 创意 × 科技 × 人文关怀"
-       data-text-zh="© 2025 興貴創新 | 創意 × 科技 × 人文關懷"
-       data-text-en="© 2025 Hing Kwai Innovate | Creativity × Technology × Human Care">
-       © 2025 兴贵创新 | 创意 × 科技 × 人文关怀
-    </p>
-  </footer>
-
-  <script>
-    // 等待DOM完全加载后执行（核心修复）
-    document.addEventListener('DOMContentLoaded', function() {
-      let currentLang = 'zh-CN';
-      const htmlElement = document.documentElement;
-      const mainNavContainer = document.getElementById('mainNavContainer');
-      const mobileNav = document.getElementById('mobileNav');
-      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-      const contactForm = document.getElementById('contactForm');
-      const submitBtn = document.getElementById('submitBtn');
-      const header = document.querySelector('header');
-
-      // 导航栏滚动效果
-      window.addEventListener('scroll', () => {
-        header.classList.toggle('scrolled', window.scrollY > 50);
-      });
-
-      // 移动端菜单切换
-      mobileMenuBtn.addEventListener('click', function() {
-        mobileNav.classList.toggle('active');
-        this.textContent = mobileNav.classList.contains('active') ? '✕' : '☰';
-      });
-
-      // 语言切换核心函数（带完整日志）
-      function updateLanguage(targetLang) {
-        try {
-          console.log('切换语言至:', targetLang);
-          currentLang = targetLang;
-          htmlElement.lang = currentLang;
-
-          // 1. 更新所有文本内容（带data-text属性的元素）
-          document.querySelectorAll('[data-text-zh-CN]').forEach(el => {
-            const text = el.getAttribute(`data-text-${currentLang}`);
-            if (text) {
-              el.textContent = text;
-            } else {
-              console.warn('缺失翻译:', el.tagName, el.textContent);
-            }
-          });
-
-          // 2. 更新输入框占位符
-          document.querySelectorAll('input, textarea').forEach(el => {
-            const placeholder = el.getAttribute(`data-placeholder-${currentLang}`);
-            if (placeholder) el.placeholder = placeholder;
-          });
-
-          // 3. 更新图片alt属性
-          document.querySelectorAll('[data-alt-zh-CN]').forEach(el => {
-            const alt = el.getAttribute(`data-alt-${currentLang}`);
-            if (alt) el.alt = alt;
-          });
-
-          // 4. 更新错误提示文本
-          document.querySelectorAll('.error-message').forEach(el => {
-            const errorText = el.getAttribute(`data-text-${currentLang}`);
-            if (errorText) el.textContent = errorText;
-          });
-
-          // 5. 更新提交按钮文本
-          const btnText = submitBtn.getAttribute(`data-text-${currentLang}`);
-          if (btnText) submitBtn.textContent = btnText;
-
-          // 6. 更新页面标题
-          document.title = currentLang === 'zh-CN' 
-            ? '兴贵创新 | 以人为本的创新' 
-            : currentLang === 'zh' ? '興貴創新 | 以人為本的創新' : 'Hing Kwai Innovate | Human-Centered Innovation';
-
-          console.log('语言切换成功');
-        } catch (error) {
-          console.error('语言切换失败:', error);
-        }
-      }
-
-      // 事件委托：监听所有语言按钮点击（桌面端+移动端）
-      document.body.addEventListener('click', function(event) {
-        if (event.target.classList.contains('lang-toggle')) {
-          const targetLang = event.target.getAttribute('data-lang');
-          if (targetLang) {
-            updateLanguage(targetLang);
-          } else {
-            console.error('语言按钮缺少data-lang属性');
-          }
-        }
-      });
-
-      // 表单验证
-      function validateField(field) {
-        let isValid = true;
-        const errorMsg = field.nextElementSibling;
-
-        if (field.required && !field.value.trim()) {
-          isValid = false;
-        } else if (field.type === 'email' && field.value.trim()) {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          isValid = emailRegex.test(field.value.trim());
-        } else if (field.id === 'message' && field.value.trim().length < 10) {
-          isValid = false;
-        }
-
-        field.classList.toggle('invalid', !isValid);
-        errorMsg.style.display = isValid ? 'none' : 'block';
-        return isValid;
-      }
-
-      document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
-        field.addEventListener('blur', () => validateField(field));
-        field.addEventListener('input', () => {
-          if (field.classList.contains('invalid')) validateField(field);
-        });
-      });
-
-      // 表单提交
-      contactForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        let isFormValid = true;
-        document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
-          if (!validateField(field)) isFormValid = false;
-        });
-
-        if (!isFormValid) return;
-
-        submitBtn.disabled = true;
-        const loadingText = currentLang === 'zh-CN' ? '提交中...' : currentLang === 'zh' ? '提交中...' : 'Submitting...';
-        submitBtn.innerHTML = `<span class="loading"></span> ${loadingText}`;
-
-        try {
-          const formData = {
-            answers: [
-              {
-                questionId: "r707d21ceed3942f2a15435202f3f4312",
-                response: { type: "text", text: document.getElementById('name').value.trim() }
-              },
-              {
-                questionId: "r7c279dbe7de54959a58cddcabfc44d2e",
-                response: { type: "text", text: document.getElementById('email').value.trim() }
-              },
-              {
-                questionId: "rb6b7a740ffda4b89b71d55f25cb7f38e",
-                response: { type: "text", text: document.getElementById('message').value.trim() }
-              }
-            ]
-          };
-
-          const response = await fetch('https://forms.guest.usercontent.microsoft/formapi/api/df2bdc73-c22a-4968-916c-1635d7ebc400/users/0aafb97e-957a-4eb0-b4e8-2885e06d2569/forms('c9wr3yrCaEmRbBY11-vEAH65rwp6lbBOtOgoheBtJWlURUE5Tjg2WU4xOElKTVNaVlNORFZJTkYxOC4u')/responses', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-          });
-
-          if (response.ok) {
-            const msg = currentLang === 'zh-CN' 
-              ? '感谢您的建议！我们已收到反馈，2秒后返回主页...' 
-              : currentLang === 'zh' 
-                ? '感謝您的建議！我們已收到反饋，2秒後返回主頁...' 
-                : 'Thank you for your suggestion! Redirecting in 2s...';
-            alert(msg);
-            setTimeout(() => window.location.href = 'index.html', 2000);
-          } else {
-            alert(currentLang === 'zh-CN' ? '提交失败，请稍后重试！' : currentLang === 'zh' ? '提交失敗，請稍後重試！' : 'Submission failed, please try again later!');
-            submitBtn.disabled = false;
-            submitBtn.textContent = submitBtn.getAttribute(`data-text-${currentLang}`);
-          }
-        } catch (error) {
-          alert(currentLang === 'zh-CN' ? '网络错误，请检查连接！' : currentLang === 'zh' ? '網絡錯誤，請檢查連接！' : 'Network error, please check your connection!');
-          submitBtn.disabled = false;
-          submitBtn.textContent = submitBtn.getAttribute(`data-text-${currentLang}`);
-        }
-      });
-
-      // 初始化语言
-      updateLanguage('zh-CN');
-      console.log('页面初始化完成，语言切换功能已就绪');
-    });
-  </script>
+<header>
+<div class="nav-container">
+<div class="logo"
+          data-text-zh="興貴創新"
+          data-text-en="Hing Kwai Innovate">
+          興貴創新
+</div>
+<nav class="desktop-nav">
+<a href="#about" data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</a>
+<a href="#products" data-text-zh="產品介紹" data-text-en="Products">產品介紹</a>
+<a href="#contact" data-text-zh="聯絡我們" data-text-en="Contact Us">聯絡我們</a>
+<button class="lang-toggle" id="langToggle">EN</button>
+</nav>
+<button class="mobile-menu-btn" id="mobileMenuBtn">
+       ☰
+</button>
+</div>
+<nav class="mobile-nav" id="mobileNav">
+<a href="#about" data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</a>
+<a href="#products" data-text-zh="產品介紹" data-text-en="Products">產品介紹</a>
+<a href="#contact" data-text-zh="聯絡我們" data-text-en="Contact Us">聯絡我們</a>
+<button class="lang-toggle" id="mobileLangToggle">EN</button>
+</nav>
+</header>
+<section class="hero">
+<h1 data-text-zh="以人為本的創新，讓科技更有溫度" data-text-en="Human-centered Innovation Bringing Warmth to Technology">
+     以人為本的創新，讓科技更有溫度
+</h1>
+<p data-text-zh="Hing Kwai Innovate 致力於結合設計與科技，傾聽每個人的真實需求，創造貼近生活的暖心創新產品。"
+      data-text-en="Hing Kwai Innovate merges design and technology, listening to real human needs to create warm, life-inspired innovations.">
+      Hing Kwai Innovate 致力於結合設計與科技，傾聽每個人的真實需求，創造貼近生活的暖心創新產品。
+</p>
+</section>
+<section id="about" class="section about">
+<h2 data-text-zh="品牌理念" data-text-en="Our Concept">品牌理念</h2>
+<p data-text-zh="我們相信，科技的力量應該來自於對人的理解。「以人為本」不僅是一句口號，更是我們設計每一項產品的出發點。從溫度、聲音、觸感到安全，Hing Kwai Innovate 讓每一次創新，都成為生活中細膩的關懷。"
+      data-text-en="We believe technology’s true power comes from understanding people. 'Human-centered' is not just a slogan—it’s the starting point of every design. From warmth, sound, and touch to safety, Hing Kwai Innovate turns every innovation into genuine care in life.">
+      我們相信，科技的力量應該來自於對人的理解。「以人為本」不僅是一句口號，更是我們設計每一項產品的出發點。從溫度、聲音、觸感到安全，Hing Kwai Innovate 讓每一次創新，都成為生活中細膩的關懷。
+</p>
+</section>
+<section id="products" class="section">
+<h2 data-text-zh="產品介紹" data-text-en="Our Products">產品介紹</h2>
+<div class="products">
+<div class="product">
+<img src="https://picsum.photos/id/175/800/600" alt="個性化風鈴" class="product-img" data-alt-zh="個性化風鈴" data-alt-en="Personalized Wind Chime">
+<h3 data-text-zh="個性化風鈴" data-text-en="Personalized Wind Chime">個性化風鈴</h3>
+<p data-text-zh="自由選擇外觀與聲音設計的智慧風鈴，讓每一次微風都成為屬於你的旋律。結合聲音學與設計美學，帶來獨一無二的陪伴感。"
+          data-text-en="A smart wind chime with fully customizable look and sound—turning every breeze into your personal melody. Designed for unique companionship and aesthetic harmony.">
+          自由選擇外觀與聲音設計的智慧風鈴，讓每一次微風都成為屬於你的旋律。結合聲音學與設計美學，帶來獨一無二的陪伴感。
+</p>
+<a href="wind-chime.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+</div>
+<div class="product">
+<img src="https://picsum.photos/id/1059/800/600" alt="智能安全拐杖" class="product-img" data-alt-zh="智能安全拐杖" data-alt-en="Smart Safety Cane">
+<h3 data-text-zh="智能安全拐杖" data-text-en="Smart Safety Cane">智能安全拐杖</h3>
+<p data-text-zh="內建跌倒偵測與自動求助功能，結合GPS 定位與語音提示。讓長者在行走間多一份安全，也讓家人更安心。"
+          data-text-en="Equipped with fall detection and automatic SOS, combining GPS tracking and voice alert. Offering confidence and peace of mind for seniors and their families.">
+          內建跌倒偵測與自動求助功能，結合GPS 定位與語音提示。讓長者在行走間多一份安全，也讓家人更安心。
+</p>
+<a href="safety-cane.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+</div>
+<div class="product">
+<img src="https://picsum.photos/id/287/800/600" alt="便攜空氣過濾杯" class="product-img" data-alt-zh="便攜空氣過濾杯" data-alt-en="Portable Air Filter Cup">
+<h3 data-text-zh="便攜空氣過濾杯" data-text-en="Portable Air Filter Cup">便攜空氣過濾杯</h3>
+<p data-text-zh="一手掌握的微型空氣淨化器，杯型設計方便攜帶。無論在辦公室、汽車或戶外，隨時呼吸潔淨空氣。"
+          data-text-en="A handheld air purifier in the shape of a cup—designed for mobility and elegance. Clean air within reach, wherever you are.">
+          一手掌握的微型空氣淨化器，杯型設計方便攜帶。無論在辦公室、汽車或戶外，隨時呼吸潔淨空氣。
+</p>
+<a href="air-filter.html" class="product-btn" data-text-zh="了解更多" data-text-en="Learn More">了解更多</a>
+</div>
+</div>
+</section>
+<!-- 反馈表单区域 -->
+<section id="contact" class="section">
+<h2 data-text-zh="聯絡我們" data-text-en="Contact Us">聯絡我們</h2>
+<!-- 表单提交目标改为隐藏的iframe，避免页面跳转 -->
+<form id="contactForm" action="https://docs.google.com/forms/d/e/1FAIpQLSd3-CM853sxVOKEfWh7VBD-dqHr9fNKK_B8f8aHzSsdqNOc1Q/formResponse" method="POST" target="formTarget">
+<div class="form-group">
+<label for="name" data-text-zh="您的姓名" data-text-en="Your Name">您的姓名</label>
+<input type="text" id="name" name="entry.2036383228" placeholder="您的姓名" data-placeholder-zh="您的姓名" data-placeholder-en="Your Name" required />
+<span class="error-message" data-text-zh="請輸入您的姓名" data-text-en="Please enter your name">請輸入您的姓名</span>
+</div>
+<div class="form-group">
+<label for="email" data-text-zh="您的電子郵件" data-text-en="Your Email">您的電子郵件</label>
+<input type="email" id="email" name="entry.1860062296" placeholder="您的電子郵件" data-placeholder-zh="您的電子郵件" data-placeholder-en="Your Email" required />
+<span class="error-message" data-text-zh="請輸入有效的電子郵件" data-text-en="Please enter a valid email address">請輸入有效的電子郵件</span>
+</div>
+<div class="form-group">
+<label for="message" data-text-zh="您的訊息" data-text-en="Your Message">您的訊息</label>
+<textarea id="message" name="entry.817479488" rows="4" placeholder="請輸入您的訊息" data-placeholder-zh="請輸入您的訊息" data-placeholder-en="Your Message" required></textarea>
+<span class="error-message" data-text-zh="請輸入您的訊息（不少於10個字元）" data-text-en="Please enter your message (at least 10 characters)">請輸入您的訊息（不少於10個字元）</span>
+</div>
+<button type="submit" id="submitBtn" data-text-zh="送出留言" data-text-en="Send Message">送出留言</button>
+</form>
+<!-- 隐藏的iframe，用于接收表单提交结果 -->
+<iframe id="formTarget" name="formTarget"></iframe>
+</section>
+<footer class="footer">
+<p data-text-zh="© 2025 興貴創新 | 創意 × 科技 × 人文關懷"
+      data-text-en="© 2025 Hing Kwai Innovate | Creativity × Technology × Human Care">
+      © 2025 興貴創新 | 創意 × 科技 × 人文關懷
+</p>
+</footer>
+<script>
+   let currentLang = 'zh';
+   const langToggle = document.getElementById('langToggle');
+   const mobileLangToggle = document.getElementById('mobileLangToggle');
+   const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+   const mobileNav = document.getElementById('mobileNav');
+   const contactForm = document.getElementById('contactForm');
+   const submitBtn = document.getElementById('submitBtn');
+   const header = document.querySelector('header');
+   const formTarget = document.getElementById('formTarget'); // 获取隐藏的iframe
+   // 导航栏滚动效果
+   window.addEventListener('scroll', () => {
+     if (window.scrollY > 50) {
+       header.classList.add('scrolled');
+     } else {
+       header.classList.remove('scrolled');
+     }
+   });
+   // 移动端菜单切换
+   mobileMenuBtn.addEventListener('click', () => {
+     mobileNav.classList.toggle('active');
+     mobileMenuBtn.textContent = mobileNav.classList.contains('active') ? '✕' : '☰';
+   });
+   // 语言切换核心函数
+   const switchLanguage = () => {
+     const isChinese = currentLang === 'zh';
+     currentLang = isChinese ? 'en' : 'zh';
+     langToggle.textContent = isChinese ? '中文' : 'EN';
+     mobileLangToggle.textContent = isChinese ? '中文' : 'EN';
+     document.querySelectorAll('[data-text-zh]').forEach(el => {
+       el.textContent = isChinese ? el.getAttribute('data-text-en') : el.getAttribute('data-text-zh');
+     });
+     document.querySelectorAll('input, textarea').forEach(el => {
+       if (el.hasAttribute('data-placeholder-zh')) {
+         el.placeholder = isChinese ? el.getAttribute('data-placeholder-en') : el.getAttribute('data-placeholder-zh');
+       }
+     });
+     document.querySelectorAll('[data-alt-zh]').forEach(el => {
+       el.alt = isChinese ? el.getAttribute('data-alt-en') : el.getAttribute('data-alt-zh');
+     });
+     document.title = currentLang === 'zh'
+       ? '興貴創新 | 以人為本的創新'
+       : 'Hing Kwai Innovate | Human-Centered Innovation';
+   };
+   langToggle.addEventListener('click', switchLanguage);
+   mobileLangToggle.addEventListener('click', switchLanguage);
+   // 表单验证
+   const validateField = (field) => {
+     let isValid = true;
+     const errorMsg = field.nextElementSibling;
+     if (field.required && !field.value.trim()) {
+       isValid = false;
+     } else if (field.type === 'email' && field.value.trim()) {
+       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+       isValid = emailRegex.test(field.value.trim());
+     } else if (field.id === 'message' && field.value.trim().length < 10) {
+       isValid = false;
+     }
+     if (isValid) {
+       field.classList.remove('invalid');
+       errorMsg.style.display = 'none';
+     } else {
+       field.classList.add('invalid');
+       errorMsg.style.display = 'block';
+     }
+     return isValid;
+   };
+   document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
+     field.addEventListener('blur', () => validateField(field));
+     field.addEventListener('input', () => {
+       if (field.classList.contains('invalid')) {
+         validateField(field);
+       }
+     });
+   });
+   // 监听iframe加载完成（表示表单提交成功）
+   formTarget.addEventListener('load', () => {
+     // 显示感谢提示（根据当前语言）
+     const thankYouMsg = currentLang === 'zh'
+       ? '感谢您的反馈！我们会尽快回复。即将返回主页...'
+       : 'Thank you for your feedback! We will reply soon. Redirecting to homepage...';
+     alert(thankYouMsg);
+     // 2秒后重定向到主页（根据实际主页URL修改，这里假设主页是index.html）
+     setTimeout(() => {
+       window.location.href = 'index.html';
+     }, 2000);
+   });
+   // 表单提交处理
+   contactForm.addEventListener('submit', (e) => {
+     e.preventDefault();
+     // 验证所有字段
+     const fields = document.querySelectorAll('#contactForm input, #contactForm textarea');
+     let isFormValid = true;
+     fields.forEach(field => {
+       if (!validateField(field)) isFormValid = false;
+     });
+     if (isFormValid) {
+       // 显示加载状态
+       submitBtn.disabled = true;
+       submitBtn.innerHTML = `<span class="loading"></span> ${currentLang === 'zh' ? '提交中...' : 'Submitting...'}`;
+       // 提交表单（数据会发送到隐藏的iframe）
+       contactForm.submit();
+     }
+   });
+</script>
 </body>
 </html>
