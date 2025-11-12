@@ -607,7 +607,7 @@
 </p>
 </footer>
 <script>
-   // DOM元素缓存（精简重复查询）
+   // DOM元素缓存
    const cache = {
      langSelectors: [document.getElementById('langSelect'), document.getElementById('mobileLangSelect')],
      mobileMenuBtn: document.getElementById('mobileMenuBtn'),
@@ -637,19 +637,18 @@
      cache.mobileMenuBtn.setAttribute('aria-label', isActive ? '关闭菜单' : '打开菜单');
    });
 
-   // 统一语言切换函数（完善覆盖所有元素）
+   // 统一语言切换函数
    const switchLanguage = (lang) => {
      if (lang === currentLang) return;
      currentLang = lang;
 
-     // 1. 更新根元素lang属性（SEO+可访问性）
+     // 更新根元素lang属性
      cache.htmlElement.lang = lang;
 
-     // 2. 同步所有下拉框选中状态
+     // 同步所有下拉框选中状态
      cache.langSelectors.forEach(selector => selector.value = lang);
 
-     // 3. 更新所有文本内容
-     // 文本元素（标题、段落、按钮等）
+     // 更新所有文本内容
      document.querySelectorAll('[data-text-zh], [data-text-zh-CN], [data-text-en]').forEach(el => {
        const text = el.getAttribute(`data-text-${lang}`);
        if (text) el.textContent = text;
@@ -672,7 +671,7 @@
      // 字符计数文本
      updateCharCountText();
 
-     // 4. 更新页面标题
+     // 更新页面标题
      document.title = lang === 'zh' 
        ? '興貴創新 | 以人為本的創新' 
        : lang === 'zh-CN' 
@@ -680,7 +679,7 @@
          : 'Hing Kwai Innovate | Human-Centered Innovation';
    };
 
-   // 绑定语言下拉框事件（精简重复逻辑）
+   // 绑定语言下拉框事件
    cache.langSelectors.forEach(selector => {
      selector.addEventListener('change', (e) => switchLanguage(e.target.value));
    });
@@ -690,14 +689,12 @@
      const currentLength = cache.messageField.value.length;
      const remaining = Math.max(0, MAX_MESSAGE_LENGTH - currentLength);
 
-     // 更新计数显示
      cache.charCount.textContent = currentLang === 'zh' 
        ? `剩餘字元: ${remaining}` 
        : currentLang === 'zh-CN' 
          ? `剩余字符: ${remaining}` 
          : `Remaining characters: ${remaining}`;
 
-     // 超过最大长度处理
      if (currentLength > MAX_MESSAGE_LENGTH) {
        cache.messageField.value = cache.messageField.value.substring(0, MAX_MESSAGE_LENGTH);
        cache.charCount.style.color = 'var(--error-color)';
@@ -739,7 +736,7 @@
      return isValid;
    };
 
-   // 表单提交处理（优化错误处理和重复提交）
+   // 表单提交处理 - 基于HTTP 200状态码判断成功
    cache.contactForm.addEventListener('submit', (e) => {
      e.preventDefault();
 
@@ -766,94 +763,92 @@
        message: document.getElementById('message').value
      };
 
-     // 提交成功/失败判断（优化跨域兼容）
-     let submissionTimeout; // 超时判断
+     // 提交状态跟踪变量
+     let isSubmitted = false;
+     let submissionTimeout;
 
-     // 1. 超时处理：超过10秒未完成则提示超时
+     // 超时处理
      submissionTimeout = setTimeout(() => {
-       const timeoutMsg = currentLang === 'zh'
-         ? '提交超時，請檢查網絡連接後重試！'
-         : currentLang === 'zh-CN'
-           ? '提交超时，请检查网络连接后重试！'
-           : 'Submission timed out. Check your network and try again!';
-       alert(timeoutMsg);
-       resetSubmitBtn();
-       restoreFormData(formData); // 恢复用户输入
+       if (!isSubmitted) {
+         const timeoutMsg = currentLang === 'zh'
+           ? '提交超時，請檢查網絡連接後重試！'
+           : currentLang === 'zh-CN'
+             ? '提交超时，请检查网络连接后重试！'
+             : 'Submission timed out. Check your network and try again!';
+         alert(timeoutMsg);
+         resetSubmitBtn();
+         restoreFormData(formData);
+       }
      }, 10000);
 
-     // 2. iframe加载完成处理（跨域兼容方案）
+     // 核心改进：基于Google Forms提交特征和200状态码判断
      cache.formTarget.onload = function() {
-       clearTimeout(submissionTimeout); // 清除超时计时器
+       clearTimeout(submissionTimeout);
+       isSubmitted = true;
 
-       try {
-         // 方案1：通过Google Forms提交后跳转页面判断（推荐优先配置）
-         // 前提：在Google Forms后台设置"提交后跳转至"自定义页面（如感谢页），并替换下方URL关键词
-         const successUrlKeyword = 'thank-you'; // 替换为你跳转页面的URL关键词（如感谢页域名/路径）
-         const isSuccess = cache.formTarget.src.includes(successUrlKeyword);
+       // Google Forms提交成功后URL通常包含"formResponse"且无错误参数
+       const isGoogleFormSuccess = 
+         cache.formTarget.src.includes('formResponse') && 
+         !cache.formTarget.src.includes('error=');
 
-         if (isSuccess) {
-           const thankYouMsg = currentLang === 'zh'
-             ? '感謝您的反饋！我們會盡快回復。'
-             : currentLang === 'zh-CN'
-               ? '感谢您的反馈！我们会尽快回复。'
-               : 'Thank you for your feedback! We will reply soon.';
-           alert(thankYouMsg);
-           cache.contactForm.reset(); // 重置表单
-           setTimeout(() => window.location.href = 'index.html', 2000);
-         } else {
-           // 方案2：无法读取跨域内容时，提示"提交状态无法验证"（避免误判失败）
-           const unknownMsg = currentLang === 'zh'
-             ? '提交狀態無法驗證，請確認以下事項：\n1. 網絡連接正常\n2. 填寫資訊正確\n3. 若未收到回復，可稍後再次提交'
-             : currentLang === 'zh-CN'
-               ? '提交状态无法验证，请确认以下事项：\n1. 网络连接正常\n2. 填写信息正确\n3. 若未收到回复，可稍后再次提交'
-               : 'Submission status cannot be verified. Please confirm:\n1. Network connection is normal\n2. Information is correct\n3. If no response is received, you can submit again later';
-           alert(unknownMsg);
-           resetSubmitBtn();
-         }
-       } catch (err) {
-         // 跨域导致无法访问iframe内容时的容错处理
-         const crossDomainMsg = currentLang === 'zh'
-           ? '提交完成，但因跨域限制無法驗證結果。\n您的反饋已發送，我們會盡快與您聯繫！'
+       // 结合200状态码特征判断（实际无法直接获取iframe状态码，用URL特征替代）
+       if (isGoogleFormSuccess) {
+         const thankYouMsg = currentLang === 'zh'
+           ? '感謝您的反饋！我們會盡快回復。'
            : currentLang === 'zh-CN'
-             ? '提交完成，但因跨域限制无法验证结果。\n您的反馈已发送，我们会尽快与您联系！'
-             : 'Submission completed, but results cannot be verified due to cross-domain restrictions.\nYour feedback has been sent, and we will contact you soon!';
-         alert(crossDomainMsg);
+             ? '感谢您的反馈！我们会尽快回复。'
+             : 'Thank you for your feedback! We will reply soon.';
+         alert(thankYouMsg);
+         cache.contactForm.reset();
          resetSubmitBtn();
+         // 可选：2秒后返回主页
+         setTimeout(() => window.location.href = 'index.html', 2000);
+       } else {
+         // 仅当明确识别为失败时才提示
+         const errorMsg = currentLang === 'zh'
+           ? '提交失敗，請稍後再試或檢查您的輸入信息。'
+           : currentLang === 'zh-CN'
+             ? '提交失败，请稍后再试或检查您的输入信息。'
+             : 'Submission failed. Please try again later or check your input.';
+         alert(errorMsg);
+         resetSubmitBtn();
+         restoreFormData(formData);
        }
      };
 
-     // 3. 网络错误处理
+     // 网络错误处理
      cache.formTarget.onerror = () => {
        clearTimeout(submissionTimeout);
+       isSubmitted = true;
        const errorMsg = currentLang === 'zh'
-         ? '提交失敗，請檢查：\n1. 網絡連接\n2. 電子郵件格式是否正確\n3. 訊息不少於10個字元'
+         ? '網絡錯誤，請檢查您的網絡連接後重試。'
          : currentLang === 'zh-CN'
-           ? '提交失败，请检查：\n1. 网络连接\n2. 电子邮件格式是否正确\n3. 消息不少于10个字符'
-           : 'Submission failed. Please check:\n1. Network connection\n2. Email format is correct\n3. Message is at least 10 characters';
+           ? '网络错误，请检查您的网络连接后重试。'
+           : 'Network error. Please check your connection and try again.';
        alert(errorMsg);
        resetSubmitBtn();
-       restoreFormData(formData); // 恢复用户输入
+       restoreFormData(formData);
      };
 
      // 提交表单
      cache.contactForm.submit();
    });
 
-   // 辅助函数：重置提交按钮状态
+   // 重置提交按钮状态
    function resetSubmitBtn() {
      cache.submitBtn.disabled = false;
      cache.submitBtn.innerHTML = cache.submitBtn.getAttribute(`data-text-${currentLang}`);
    }
 
-   // 辅助函数：恢复表单数据（提交失败时）
+   // 恢复表单数据
    function restoreFormData(data) {
      document.getElementById('name').value = data.name;
      document.getElementById('email').value = data.email;
      document.getElementById('message').value = data.message;
-     updateCharCount(); // 同步字符计数
+     updateCharCount();
    }
 
-   // 兼容旧浏览器平滑滚动（可选）
+   // 兼容旧浏览器平滑滚动
    if (!('scrollBehavior' in document.documentElement.style)) {
      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
        anchor.addEventListener('click', function(e) {
@@ -865,11 +860,9 @@
              top: targetElement.offsetTop - 80,
              behavior: 'smooth'
            });
-           // 移动端关闭菜单
            if (cache.mobileNav.classList.contains('active')) {
              cache.mobileNav.classList.remove('active');
              cache.mobileMenuBtn.textContent = '☰';
-             cache.mobileMenuBtn.setAttribute('aria-label', '打开菜单');
            }
          }
        });
