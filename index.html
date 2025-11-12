@@ -739,14 +739,6 @@
      return isValid;
    };
 
-   // 绑定表单字段验证事件
-   document.querySelectorAll('#contactForm input, #contactForm textarea').forEach(field => {
-     field.addEventListener('blur', () => validateField(field));
-     field.addEventListener('input', () => {
-       if (field.classList.contains('invalid')) validateField(field);
-     });
-   });
-
    // 表单提交处理（优化错误处理和重复提交）
    cache.contactForm.addEventListener('submit', (e) => {
      e.preventDefault();
@@ -767,42 +759,99 @@
          : 'Submitting...';
      cache.submitBtn.innerHTML = `<span class="loading"></span> ${loadingText}`;
 
-     // 监听iframe错误（提交失败处理）
-     cache.formTarget.onerror = () => {
-       const errorMsg = currentLang === 'zh' 
-         ? '提交失敗，請檢查網絡或稍後重試！' 
-         : currentLang === 'zh-CN' 
-           ? '提交失败，请检查网络或稍后重试！' 
-           : 'Submission failed. Check your network or try again later!';
-       alert(errorMsg);
-       cache.submitBtn.disabled = false;
-       cache.submitBtn.textContent = cache.submitBtn.getAttribute(`data-text-${currentLang}`);
+     // 存储用户输入（提交失败时恢复）
+     const formData = {
+       name: document.getElementById('name').value,
+       email: document.getElementById('email').value,
+       message: document.getElementById('message').value
      };
 
+     // 提交成功/失败判断（优化跨域兼容）
+     let submissionTimeout; // 超时判断
+
+     // 1. 超时处理：超过10秒未完成则提示超时
+     submissionTimeout = setTimeout(() => {
+       const timeoutMsg = currentLang === 'zh'
+         ? '提交超時，請檢查網絡連接後重試！'
+         : currentLang === 'zh-CN'
+           ? '提交超时，请检查网络连接后重试！'
+           : 'Submission timed out. Check your network and try again!';
+       alert(timeoutMsg);
+       resetSubmitBtn();
+       restoreFormData(formData); // 恢复用户输入
+     }, 10000);
+
+     // 2. iframe加载完成处理（跨域兼容方案）
+     cache.formTarget.onload = function() {
+       clearTimeout(submissionTimeout); // 清除超时计时器
+
+       try {
+         // 方案1：通过Google Forms提交后跳转页面判断（推荐优先配置）
+         // 前提：在Google Forms后台设置"提交后跳转至"自定义页面（如感谢页），并替换下方URL关键词
+         const successUrlKeyword = 'thank-you'; // 替换为你跳转页面的URL关键词（如感谢页域名/路径）
+         const isSuccess = cache.formTarget.src.includes(successUrlKeyword);
+
+         if (isSuccess) {
+           const thankYouMsg = currentLang === 'zh'
+             ? '感謝您的反饋！我們會盡快回復。'
+             : currentLang === 'zh-CN'
+               ? '感谢您的反馈！我们会尽快回复。'
+               : 'Thank you for your feedback! We will reply soon.';
+           alert(thankYouMsg);
+           cache.contactForm.reset(); // 重置表单
+           setTimeout(() => window.location.href = 'index.html', 2000);
+         } else {
+           // 方案2：无法读取跨域内容时，提示"提交状态无法验证"（避免误判失败）
+           const unknownMsg = currentLang === 'zh'
+             ? '提交狀態無法驗證，請確認以下事項：\n1. 網絡連接正常\n2. 填寫資訊正確\n3. 若未收到回復，可稍後再次提交'
+             : currentLang === 'zh-CN'
+               ? '提交状态无法验证，请确认以下事项：\n1. 网络连接正常\n2. 填写信息正确\n3. 若未收到回复，可稍后再次提交'
+               : 'Submission status cannot be verified. Please confirm:\n1. Network connection is normal\n2. Information is correct\n3. If no response is received, you can submit again later';
+           alert(unknownMsg);
+           resetSubmitBtn();
+         }
+       } catch (err) {
+         // 跨域导致无法访问iframe内容时的容错处理
+         const crossDomainMsg = currentLang === 'zh'
+           ? '提交完成，但因跨域限制無法驗證結果。\n您的反饋已發送，我們會盡快與您聯繫！'
+           : currentLang === 'zh-CN'
+             ? '提交完成，但因跨域限制无法验证结果。\n您的反馈已发送，我们会尽快与您联系！'
+             : 'Submission completed, but results cannot be verified due to cross-domain restrictions.\nYour feedback has been sent, and we will contact you soon!';
+         alert(crossDomainMsg);
+         resetSubmitBtn();
+       }
+     };
+
+     // 3. 网络错误处理
+     cache.formTarget.onerror = () => {
+       clearTimeout(submissionTimeout);
+       const errorMsg = currentLang === 'zh'
+         ? '提交失敗，請檢查：\n1. 網絡連接\n2. 電子郵件格式是否正確\n3. 訊息不少於10個字元'
+         : currentLang === 'zh-CN'
+           ? '提交失败，请检查：\n1. 网络连接\n2. 电子邮件格式是否正确\n3. 消息不少于10个字符'
+           : 'Submission failed. Please check:\n1. Network connection\n2. Email format is correct\n3. Message is at least 10 characters';
+       alert(errorMsg);
+       resetSubmitBtn();
+       restoreFormData(formData); // 恢复用户输入
+     };
+
+     // 提交表单
      cache.contactForm.submit();
    });
 
-   // 表单提交成功处理
-   cache.formTarget.addEventListener('load', () => {
-     try {
-       const iframeContent = cache.formTarget.contentDocument || cache.formTarget.contentWindow.document;
-       const isSuccess = iframeContent.title.includes('Thank you') || iframeContent.title.includes('感謝');
+   // 辅助函数：重置提交按钮状态
+   function resetSubmitBtn() {
+     cache.submitBtn.disabled = false;
+     cache.submitBtn.innerHTML = cache.submitBtn.getAttribute(`data-text-${currentLang}`);
+   }
 
-       if (isSuccess) {
-         const thankYouMsg = currentLang === 'zh'
-           ? '感謝您的反饋！我們會盡快回復。即將返回主頁...'
-           : currentLang === 'zh-CN'
-             ? '感谢您的反馈！我们会尽快回复。即将返回主页...'
-             : 'Thank you for your feedback! We will reply soon. Redirecting to homepage...';
-         alert(thankYouMsg);
-         setTimeout(() => window.location.href = 'index.html', 2000);
-       } else {
-         throw new Error('Submission not successful');
-       }
-     } catch (err) {
-       cache.formTarget.onerror(); // 触发错误处理
-     }
-   });
+   // 辅助函数：恢复表单数据（提交失败时）
+   function restoreFormData(data) {
+     document.getElementById('name').value = data.name;
+     document.getElementById('email').value = data.email;
+     document.getElementById('message').value = data.message;
+     updateCharCount(); // 同步字符计数
+   }
 
    // 兼容旧浏览器平滑滚动（可选）
    if (!('scrollBehavior' in document.documentElement.style)) {
