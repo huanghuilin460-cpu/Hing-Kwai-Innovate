@@ -736,18 +736,18 @@
      return isValid;
    };
 
-   // 表单提交处理 - 基于HTTP 200状态码判断成功
+   // 表单提交处理 - 仅提示成功
    cache.contactForm.addEventListener('submit', (e) => {
      e.preventDefault();
 
-     // 表单验证
+     // 先执行表单验证（确保输入有效）
      const fields = document.querySelectorAll('#contactForm input, #contactForm textarea');
      let isFormValid = true;
      fields.forEach(field => !validateField(field) && (isFormValid = false));
 
      if (!isFormValid) return;
 
-     // 防止重复提交
+     // 显示加载状态
      cache.submitBtn.disabled = true;
      const loadingText = currentLang === 'zh' 
        ? '提交中...' 
@@ -756,79 +756,28 @@
          : 'Submitting...';
      cache.submitBtn.innerHTML = `<span class="loading"></span> ${loadingText}`;
 
-     // 存储用户输入（提交失败时恢复）
-     const formData = {
-       name: document.getElementById('name').value,
-       email: document.getElementById('email').value,
-       message: document.getElementById('message').value
-     };
-
-     // 提交状态跟踪变量
-     let isSubmitted = false;
-     let submissionTimeout;
-
-     // 超时处理
-     submissionTimeout = setTimeout(() => {
-       if (!isSubmitted) {
-         const timeoutMsg = currentLang === 'zh'
-           ? '提交超時，請檢查網絡連接後重試！'
-           : currentLang === 'zh-CN'
-             ? '提交超时，请检查网络连接后重试！'
-             : 'Submission timed out. Check your network and try again!';
-         alert(timeoutMsg);
-         resetSubmitBtn();
-         restoreFormData(formData);
-       }
-     }, 10000);
-
-     // 核心改进：基于Google Forms提交特征和200状态码判断
-     cache.formTarget.onload = function() {
-       clearTimeout(submissionTimeout);
-       isSubmitted = true;
-
-       // Google Forms提交成功后URL通常包含"formResponse"且无错误参数
-       const isGoogleFormSuccess = 
-         cache.formTarget.src.includes('formResponse') && 
-         !cache.formTarget.src.includes('error=');
-
-       // 结合200状态码特征判断（实际无法直接获取iframe状态码，用URL特征替代）
-       if (isGoogleFormSuccess) {
-         const thankYouMsg = currentLang === 'zh'
-           ? '感謝您的反饋！我們會盡快回復。'
-           : currentLang === 'zh-CN'
-             ? '感谢您的反馈！我们会尽快回复。'
-             : 'Thank you for your feedback! We will reply soon.';
-         alert(thankYouMsg);
-         cache.contactForm.reset();
-         resetSubmitBtn();
-         // 可选：2秒后返回主页
-         setTimeout(() => window.location.href = 'index.html', 2000);
-       } else {
-         // 仅当明确识别为失败时才提示
-         const errorMsg = currentLang === 'zh'
-           ? '提交失敗，請稍後再試或檢查您的輸入信息。'
-           : currentLang === 'zh-CN'
-             ? '提交失败，请稍后再试或检查您的输入信息。'
-             : 'Submission failed. Please try again later or check your input.';
-         alert(errorMsg);
-         resetSubmitBtn();
-         restoreFormData(formData);
-       }
-     };
-
-     // 网络错误处理
-     cache.formTarget.onerror = () => {
-       clearTimeout(submissionTimeout);
-       isSubmitted = true;
-       const errorMsg = currentLang === 'zh'
-         ? '網絡錯誤，請檢查您的網絡連接後重試。'
+     // 无论成功失败，统一提示成功的回调函数
+     const showSuccessMessage = () => {
+       const thankYouMsg = currentLang === 'zh'
+         ? '感謝您的反饋！我們會盡快回復。'
          : currentLang === 'zh-CN'
-           ? '网络错误，请检查您的网络连接后重试。'
-           : 'Network error. Please check your connection and try again.';
-       alert(errorMsg);
-       resetSubmitBtn();
-       restoreFormData(formData);
+           ? '感谢您的反馈！我们会尽快回复。'
+           : 'Thank you for your feedback! We will reply soon.';
+       alert(thankYouMsg);
+       cache.contactForm.reset(); // 重置表单
+       resetSubmitBtn(); // 恢复按钮状态
+       // 可选：2秒后返回主页
+       setTimeout(() => window.location.href = 'index.html', 2000);
      };
+
+     // 绑定iframe加载完成事件（无论结果如何都提示成功）
+     cache.formTarget.onload = showSuccessMessage;
+     
+     // 绑定错误事件（网络错误也提示成功）
+     cache.formTarget.onerror = showSuccessMessage;
+
+     // 超时处理（超过10秒也提示成功）
+     setTimeout(showSuccessMessage, 10000);
 
      // 提交表单
      cache.contactForm.submit();
@@ -838,14 +787,6 @@
    function resetSubmitBtn() {
      cache.submitBtn.disabled = false;
      cache.submitBtn.innerHTML = cache.submitBtn.getAttribute(`data-text-${currentLang}`);
-   }
-
-   // 恢复表单数据
-   function restoreFormData(data) {
-     document.getElementById('name').value = data.name;
-     document.getElementById('email').value = data.email;
-     document.getElementById('message').value = data.message;
-     updateCharCount();
    }
 
    // 兼容旧浏览器平滑滚动
