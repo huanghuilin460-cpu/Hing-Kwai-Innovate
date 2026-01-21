@@ -4,22 +4,39 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>風愈鈴 | Hing Kwai Innovate</title>
+<!-- 增加网站图标，提升品牌辨识度 -->
+<link rel="icon" href="https://picsum.photos/id/237/32/32" type="image/png">
+<!-- 引入专业图标库，替换emoji -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- 引入Google字体，提升排版质感 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
    :root {
      --primary-color: #406c84;
+     --primary-light: #689fb9;
+     --primary-dark: #2d4e60;
      --secondary-color: #f2f4f6;
      --accent-color: #f3a953;
+     --accent-dark: #e9953a;
      --text-color: #333;
      --light-text: #555;
      --border-color: #e0e0e0;
      --error-color: #dc3545;
+     --success-color: #28a745;
      --max-width: 1200px;
+     --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+     --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+     --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
    }
 
    /* 深色模式支持 */
    @media (prefers-color-scheme: dark) {
      :root {
        --primary-color: #689fb9;
+       --primary-light: #8cb8cc;
+       --primary-dark: #508aa8;
        --secondary-color: #1a1a2e;
        --text-color: #f2f4f6;
        --light-text: #ccc;
@@ -31,7 +48,7 @@
        color: var(--text-color);
      }
      
-     .feature-card, .scene-card, .review-card, header {
+     .feature-card, .scene-card, .review-card, header, .customization {
        background-color: #24243e;
      }
      
@@ -40,30 +57,73 @@
      }
    }
 
-   * { box-sizing: border-box; margin: 0; padding: 0; }
+   * { 
+     box-sizing: border-box; 
+     margin: 0; 
+     padding: 0; 
+     font-family: "Inter", "Noto Sans TC", "Noto Sans SC", sans-serif;
+   }
+   
    body {
-     font-family: "Helvetica Neue", "Noto Sans TC", "Noto Sans SC", sans-serif;
      color: var(--text-color);
      background-color: var(--secondary-color);
      line-height: 1.6;
      transition: all 0.3s ease;
    }
+   
    html {
      scroll-behavior: smooth;
      scroll-padding-top: 80px;
    }
+   
+   /* 加载动画 */
+   .loader {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-color: var(--secondary-color);
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     z-index: 9999;
+     transition: opacity 0.5s ease-out;
+   }
+   
+   .loader.hidden {
+     opacity: 0;
+     pointer-events: none;
+   }
+   
+   .loader-spinner {
+     width: 48px;
+     height: 48px;
+     border: 5px solid var(--primary-color);
+     border-bottom-color: var(--accent-color);
+     border-radius: 50%;
+     animation: spin 1s linear infinite;
+   }
+   
+   @keyframes spin {
+     0% { transform: rotate(0deg); }
+     100% { transform: rotate(360deg); }
+   }
+
    header {
      background-color: white;
-     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+     box-shadow: var(--shadow-sm);
      position: sticky;
      top: 0;
      z-index: 100;
-     transition: background-color 0.3s ease;
+     transition: all 0.3s ease;
    }
+   
    header.scrolled {
-     background-color: rgba(255, 255, 255, 0.95);
-     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+     background-color: rgba(255, 255, 255, 0.98);
+     box-shadow: var(--shadow-md);
    }
+   
    .nav-container {
      max-width: var(--max-width);
      margin: auto;
@@ -72,57 +132,102 @@
      align-items: center;
      padding: 1rem 2rem;
    }
+   
    .logo {
      font-size: 1.5rem;
-     font-weight: bold;
+     font-weight: 700;
      color: var(--primary-color);
      white-space: nowrap;
+     display: flex;
+     align-items: center;
+     gap: 0.5rem;
    }
+   
+   .logo-icon {
+     font-size: 1.8rem;
+     color: var(--accent-color);
+   }
+   
    .desktop-nav {
      display: flex;
      align-items: center;
    }
+   
    .desktop-nav a {
      text-decoration: none;
      color: var(--text-color);
-     margin-left: 1.2rem;
+     margin-left: 1.5rem;
      font-weight: 500;
-     transition: color 0.3s ease;
+     transition: all 0.3s ease;
+     position: relative;
    }
-   .desktop-nav a:hover, .desktop-nav a:focus {
+   
+   .desktop-nav a::after {
+     content: '';
+     position: absolute;
+     bottom: -4px;
+     left: 0;
+     width: 0;
+     height: 2px;
+     background-color: var(--primary-color);
+     transition: width 0.3s ease;
+   }
+   
+   .desktop-nav a:hover::after, 
+   .desktop-nav a:focus::after {
+     width: 100%;
+   }
+   
+   .desktop-nav a:hover, 
+   .desktop-nav a:focus {
      color: var(--primary-color);
    }
+   
    .lang-selector {
-     margin-left: 1.2rem;
+     margin-left: 1.5rem;
    }
+   
    .lang-select {
      border: 1px solid var(--primary-color);
      background: white;
      color: var(--primary-color);
-     border-radius: 4px;
-     padding: 0.4rem 0.7rem;
+     border-radius: 6px;
+     padding: 0.5rem 0.8rem;
      cursor: pointer;
-     font-weight: bold;
+     font-weight: 500;
      transition: all 0.3s ease;
      appearance: none;
      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath fill='%23406c84' d='M10.293 0.293a1 1 0 0 1 1.414 1.414L6 6l-5.707-5.293a1 1 0 1 1 1.414-1.414L6 3.172l4.88-4.88z'/%3E%3C/svg%3E");
      background-repeat: no-repeat;
-     background-position: right 0.5rem center;
-     padding-right: 2rem;
+     background-position: right 0.8rem center;
+     padding-right: 2.5rem;
    }
-   .lang-select:hover, .lang-select:focus {
+   
+   .lang-select:hover, 
+   .lang-select:focus {
      background-color: var(--primary-color);
      color: white;
+     outline: none;
+     box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.2);
      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath fill='white' d='M10.293 0.293a1 1 0 0 1 1.414 1.414L6 6l-5.707-5.293a1 1 0 1 1 1.414-1.414L6 3.172l4.88-4.88z'/%3E%3C/svg%3E");
    }
+   
    .mobile-menu-btn {
      display: none;
      background: none;
      border: none;
-     font-size: 1.5rem;
+     font-size: 1.8rem;
      cursor: pointer;
      color: var(--primary-color);
+     padding: 0.2rem 0.5rem;
+     border-radius: 4px;
+     transition: background-color 0.3s ease;
    }
+   
+   .mobile-menu-btn:hover {
+     background-color: rgba(64, 108, 132, 0.1);
+   }
+   
    .mobile-nav {
      display: none;
      position: absolute;
@@ -130,167 +235,299 @@
      left: 0;
      right: 0;
      background-color: white;
-     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-     padding: 1rem 2rem;
+     box-shadow: var(--shadow-md);
+     padding: 1.5rem 2rem;
      flex-direction: column;
      gap: 1rem;
+     z-index: 99;
    }
+   
    .mobile-nav.active {
      display: flex;
    }
+   
    .mobile-nav a {
      text-decoration: none;
      color: var(--text-color);
      font-weight: 500;
-     padding: 0.5rem 0;
+     padding: 0.8rem 0;
      border-bottom: 1px solid var(--border-color);
+     transition: color 0.3s ease;
    }
+   
    .mobile-nav a:last-child {
      border-bottom: none;
    }
-   .mobile-nav a:hover, .mobile-nav a:focus {
+   
+   .mobile-nav a:hover, 
+   .mobile-nav a:focus {
      color: var(--primary-color);
    }
+   
    .mobile-nav .lang-selector {
      margin-left: 0;
      margin-top: 0.5rem;
    }
+   
    .mobile-nav .lang-select {
      width: 100%;
-     padding: 0.6rem;
+     padding: 0.8rem;
    }
+   
    /* 产品英雄区 */
    .product-hero {
-     background: linear-gradient(135deg, var(--primary-color) 0%, #689fb9 100%);
+     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
      color: white;
-     padding: 4rem 2rem;
+     padding: 5rem 2rem;
      display: flex;
      flex-wrap: wrap;
      align-items: center;
-     gap: 2rem;
+     gap: 3rem;
      justify-content: center;
+     position: relative;
+     overflow: hidden;
    }
+   
+   .product-hero::before {
+     content: '';
+     position: absolute;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+     opacity: 0.3;
+   }
+   
    .product-hero-img {
      flex: 1 1 400px;
      max-width: 600px;
+     position: relative;
+     z-index: 1;
    }
+   
    .product-hero-img img {
      width: 100%;
-     border-radius: 12px;
-     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+     border-radius: 16px;
+     box-shadow: var(--shadow-lg);
+     transition: transform 0.5s ease;
    }
+   
+   .product-hero-img img:hover {
+     transform: scale(1.02);
+   }
+   
    .product-hero-content {
      flex: 1 1 400px;
      max-width: 600px;
      text-align: left;
+     position: relative;
+     z-index: 1;
    }
+   
    .product-hero h1 {
-     font-size: 2.2rem;
-     margin-bottom: 1rem;
+     font-size: 2.5rem;
+     margin-bottom: 1.5rem;
      line-height: 1.3;
+     font-weight: 700;
    }
+   
    .product-hero .tagline {
-     font-size: 1.2rem;
-     margin-bottom: 2rem;
-     opacity: 0.9;
+     font-size: 1.25rem;
+     margin-bottom: 2.5rem;
+     opacity: 0.95;
+     line-height: 1.8;
    }
+   
    .product-cta {
      display: inline-block;
      background-color: var(--accent-color);
      color: white;
-     padding: 0.8rem 1.8rem;
-     border-radius: 6px;
+     padding: 1rem 2rem;
+     border-radius: 8px;
      text-decoration: none;
-     font-weight: bold;
+     font-weight: 600;
      font-size: 1.1rem;
-     transition: background-color 0.3s ease, transform 0.3s ease;
-     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+     transition: all 0.3s ease;
+     box-shadow: var(--shadow-md);
+     border: none;
+     cursor: pointer;
    }
-   .product-cta:hover, .product-cta:focus {
-     background-color: #e9953a;
+   
+   .product-cta:hover, 
+   .product-cta:focus {
+     background-color: var(--accent-dark);
      transform: translateY(-3px);
+     box-shadow: var(--shadow-lg);
      color: white;
+     outline: none;
    }
+   
+   .product-cta.secondary {
+     background-color: white;
+     color: var(--primary-color);
+     margin-left: 1rem;
+   }
+   
+   .product-cta.secondary:hover {
+     background-color: var(--secondary-color);
+   }
+   
+   /* 信任标识 */
+   .trust-badges {
+     max-width: var(--max-width);
+     margin: 2rem auto;
+     padding: 0 2rem;
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: center;
+     align-items: center;
+     gap: 2rem;
+     opacity: 0.8;
+   }
+   
+   .trust-badge {
+     display: flex;
+     align-items: center;
+     gap: 0.5rem;
+     color: var(--light-text);
+     font-size: 0.9rem;
+   }
+   
+   .trust-badge i {
+     font-size: 1.2rem;
+     color: var(--primary-color);
+   }
+   
    /* 通用区块样式 */
    .section {
      max-width: var(--max-width);
-     margin: 5rem auto;
+     margin: 6rem auto;
      padding: 0 2rem;
    }
-   .section h2 {
+   
+   .section-header {
      text-align: center;
-     font-size: 1.8rem;
-     color: var(--primary-color);
-     margin-bottom: 2.5rem;
-     position: relative;
+     margin-bottom: 3rem;
    }
+   
+   .section h2 {
+     font-size: 2rem;
+     color: var(--primary-color);
+     margin-bottom: 1rem;
+     position: relative;
+     font-weight: 700;
+   }
+   
    .section h2::after {
      content: "";
      display: block;
-     width: 60px;
-     height: 3px;
+     width: 80px;
+     height: 4px;
      background-color: var(--accent-color);
-     margin: 0.8rem auto 0;
+     margin: 1rem auto 0;
+     border-radius: 2px;
    }
+   
+   .section-subtitle {
+     color: var(--light-text);
+     max-width: 700px;
+     margin: 0 auto;
+     font-size: 1.1rem;
+   }
+   
    /* 产品特点 */
    .features {
      display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-     gap: 2rem;
+     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+     gap: 2.5rem;
      margin-top: 2rem;
    }
+   
    .feature-card {
      background: white;
-     border-radius: 8px;
-     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-     padding: 1.8rem;
-     transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-     border: 2px solid transparent;
+     border-radius: 12px;
+     box-shadow: var(--shadow-sm);
+     padding: 2rem;
+     transition: all 0.3s ease;
+     border: 1px solid var(--border-color);
      text-align: center;
    }
+   
    .feature-card:hover {
-     transform: translateY(-5px);
-     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+     transform: translateY(-8px);
+     box-shadow: var(--shadow-lg);
      border-color: var(--primary-color);
    }
+   
    .feature-icon {
-     font-size: 2.5rem;
+     width: 70px;
+     height: 70px;
+     background-color: rgba(64, 108, 132, 0.1);
+     border-radius: 50%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     margin: 0 auto 1.5rem;
      color: var(--primary-color);
-     margin-bottom: 1.2rem;
+     font-size: 2rem;
    }
+   
    .feature-card h3 {
      color: var(--primary-color);
-     margin-bottom: 1rem;
-     font-size: 1.3rem;
+     margin-bottom: 1.2rem;
+     font-size: 1.4rem;
+     font-weight: 600;
    }
+   
    .feature-card p {
      color: var(--light-text);
-     font-size: 0.95rem;
-     line-height: 1.7;
+     font-size: 1rem;
+     line-height: 1.8;
    }
+   
    /* 自定义功能展示 */
    .customization {
      background-color: white;
-     border-radius: 12px;
-     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-     padding: 3rem 2rem;
+     border-radius: 16px;
+     box-shadow: var(--shadow-md);
+     padding: 4rem 2rem;
      margin-top: 2rem;
+     border: 1px solid var(--border-color);
    }
+   
    .customization-steps {
      display: flex;
      flex-wrap: wrap;
      gap: 2rem;
      justify-content: center;
+     position: relative;
    }
+   
+   .customization-steps::before {
+     content: '';
+     position: absolute;
+     top: 40px;
+     left: 50%;
+     width: 80%;
+     height: 2px;
+     background-color: var(--border-color);
+     transform: translateX(-50%);
+     z-index: 0;
+   }
+   
    .step-card {
      flex: 1 1 250px;
      max-width: 300px;
      text-align: center;
      position: relative;
+     z-index: 1;
+     padding: 0 1rem;
    }
+   
    .step-number {
-     width: 40px;
-     height: 40px;
+     width: 50px;
+     height: 50px;
      background-color: var(--primary-color);
      color: white;
      border-radius: 50%;
@@ -298,228 +535,631 @@
      align-items: center;
      justify-content: center;
      font-weight: bold;
-     margin: 0 auto 1.5rem;
-     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+     margin: 0 auto 1.8rem;
+     box-shadow: var(--shadow-md);
+     font-size: 1.2rem;
+     position: relative;
+     z-index: 2;
    }
+   
    .step-card h3 {
      color: var(--primary-color);
-     margin-bottom: 0.8rem;
+     margin-bottom: 1rem;
+     font-size: 1.3rem;
+     font-weight: 600;
    }
+   
    .step-card p {
      color: var(--light-text);
-     font-size: 0.95rem;
+     font-size: 1rem;
+     line-height: 1.7;
    }
+   
    /* 使用场景 */
    .scenes {
      display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-     gap: 2rem;
+     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+     gap: 2.5rem;
      margin-top: 2rem;
    }
+   
    .scene-card {
      background: white;
-     border-radius: 8px;
+     border-radius: 12px;
      overflow: hidden;
-     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-     transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-     border: 2px solid transparent;
+     box-shadow: var(--shadow-sm);
+     transition: all 0.3s ease;
+     border: 1px solid var(--border-color);
    }
+   
    .scene-card:hover {
-     transform: translateY(-5px);
-     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+     transform: translateY(-8px);
+     box-shadow: var(--shadow-lg);
      border-color: var(--primary-color);
    }
+   
    .scene-img {
      width: 100%;
-     height: 200px;
+     height: 220px;
      object-fit: cover;
+     transition: transform 0.5s ease;
    }
+   
+   .scene-card:hover .scene-img {
+     transform: scale(1.05);
+   }
+   
    .scene-content {
-     padding: 1.5rem;
+     padding: 2rem 1.8rem;
    }
+   
    .scene-content h3 {
+     color: var(--primary-color);
+     margin-bottom: 1rem;
+     font-size: 1.3rem;
+     font-weight: 600;
+   }
+   
+   .scene-content p {
+     color: var(--light-text);
+     font-size: 1rem;
+     line-height: 1.7;
+   }
+   
+   /* 用户评价 */
+   .reviews {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+     gap: 2.5rem;
+     margin-top: 2rem;
+   }
+   
+   .review-card {
+     background: white;
+     border-radius: 12px;
+     padding: 2rem;
+     box-shadow: var(--shadow-sm);
+     transition: all 0.3s ease;
+     border: 1px solid var(--border-color);
+   }
+   
+   .review-card:hover {
+     transform: translateY(-8px);
+     box-shadow: var(--shadow-lg);
+     border-color: var(--primary-color);
+   }
+   
+   .review-rating {
+     color: var(--accent-color);
+     font-size: 1.4rem;
+     margin-bottom: 1.2rem;
+   }
+   
+   .review-text {
+     color: var(--light-text);
+     font-size: 1rem;
+     margin-bottom: 2rem;
+     font-style: italic;
+     line-height: 1.8;
+     position: relative;
+   }
+   
+   .review-text::before {
+     content: '"';
+     font-size: 3rem;
+     color: rgba(64, 108, 132, 0.1);
+     position: absolute;
+     top: -1rem;
+     left: -0.5rem;
+   }
+   
+   .review-author {
+     display: flex;
+     align-items: center;
+     gap: 1.2rem;
+   }
+   
+   .author-avatar {
+     width: 60px;
+     height: 60px;
+     border-radius: 50%;
+     object-fit: cover;
+     border: 2px solid var(--primary-color);
+     box-shadow: var(--shadow-sm);
+   }
+   
+   .author-info h4 {
+     color: var(--primary-color);
+     font-size: 1.1rem;
+     font-weight: 600;
+   }
+   
+   .author-info p {
+     color: var(--light-text);
+     font-size: 0.9rem;
+   }
+   
+   /* 产品规格 */
+   .specs {
+     background-color: white;
+     border-radius: 16px;
+     box-shadow: var(--shadow-md);
+     padding: 3rem 2rem;
+     margin-top: 2rem;
+     border: 1px solid var(--border-color);
+   }
+   
+   .specs-table {
+     width: 100%;
+     border-collapse: collapse;
+     margin-top: 2rem;
+   }
+   
+   .specs-table th,
+   .specs-table td {
+     padding: 1.2rem 1.5rem;
+     text-align: left;
+     border-bottom: 1px solid var(--border-color);
+   }
+   
+   .specs-table th {
+     color: var(--primary-color);
+     font-weight: 600;
+     width: 30%;
+   }
+   
+   .specs-table td {
+     color: var(--light-text);
+   }
+   
+   .specs-table tr:last-child td,
+   .specs-table tr:last-child th {
+     border-bottom: none;
+   }
+   
+   /* FAQ 常见问题 */
+   .faq {
+     margin-top: 2rem;
+   }
+   
+   .faq-item {
+     margin-bottom: 1rem;
+     border: 1px solid var(--border-color);
+     border-radius: 8px;
+     overflow: hidden;
+   }
+   
+   .faq-question {
+     padding: 1.2rem 1.5rem;
+     background-color: white;
+     color: var(--primary-color);
+     font-weight: 600;
+     cursor: pointer;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     transition: background-color 0.3s ease;
+   }
+   
+   .faq-question:hover {
+     background-color: rgba(64, 108, 132, 0.05);
+   }
+   
+   .faq-answer {
+     padding: 0 1.5rem;
+     max-height: 0;
+     overflow: hidden;
+     transition: max-height 0.5s ease, padding 0.5s ease;
+     background-color: var(--secondary-color);
+   }
+   
+   .faq-answer p {
+     padding: 1.2rem 0;
+     color: var(--light-text);
+     line-height: 1.8;
+   }
+   
+   .faq-item.active .faq-answer {
+     max-height: 500px;
+     padding: 0 1.5rem 1.5rem;
+   }
+   
+   .faq-icon {
+     font-size: 1.2rem;
+     transition: transform 0.3s ease;
+   }
+   
+   .faq-item.active .faq-icon {
+     transform: rotate(180deg);
+   }
+   
+   /* 联系咨询 */
+   .contact-section {
+     background: linear-gradient(135deg, rgba(64, 108, 132, 0.08) 0%, rgba(104, 159, 185, 0.08) 100%);
+     border-radius: 16px;
+     padding: 4rem 2rem;
+     text-align: center;
+     border: 1px solid var(--border-color);
+   }
+   
+   .contact-section p {
+     max-width: 700px;
+     margin: 0 auto 2.5rem;
+     color: var(--light-text);
+     font-size: 1.1rem;
+     line-height: 1.8;
+   }
+   
+   .contact-form {
+     max-width: 600px;
+     margin: 2rem auto 0;
+     background-color: white;
+     padding: 2rem;
+     border-radius: 12px;
+     box-shadow: var(--shadow-md);
+   }
+   
+   .form-group {
+     margin-bottom: 1.5rem;
+     text-align: left;
+   }
+   
+   .form-group label {
+     display: block;
+     margin-bottom: 0.5rem;
+     color: var(--primary-color);
+     font-weight: 500;
+   }
+   
+   .form-control {
+     width: 100%;
+     padding: 0.8rem 1rem;
+     border: 1px solid var(--border-color);
+     border-radius: 6px;
+     font-size: 1rem;
+     color: var(--text-color);
+     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+   }
+   
+   .form-control:focus {
+     outline: none;
+     border-color: var(--primary-color);
+     box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.2);
+   }
+   
+   textarea.form-control {
+     min-height: 120px;
+     resize: vertical;
+   }
+   
+   /* 公司信息 */
+   .company-info {
+     max-width: var(--max-width);
+     margin: 4rem auto;
+     padding: 0 2rem;
+     display: flex;
+     flex-wrap: wrap;
+     gap: 3rem;
+     justify-content: center;
+     text-align: center;
+   }
+   
+   .info-card {
+     flex: 1 1 250px;
+     max-width: 300px;
+   }
+   
+   .info-card i {
+     font-size: 2rem;
+     color: var(--primary-color);
+     margin-bottom: 1rem;
+   }
+   
+   .info-card h3 {
      color: var(--primary-color);
      margin-bottom: 0.8rem;
      font-size: 1.2rem;
    }
-   .scene-content p {
+   
+   .info-card p {
      color: var(--light-text);
-     font-size: 0.95rem;
-   }
-   /* 用户评价 */
-   .reviews {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-     gap: 2rem;
-     margin-top: 2rem;
-   }
-   .review-card {
-     background: white;
-     border-radius: 8px;
-     padding: 1.8rem;
-     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-     transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-     border: 2px solid transparent;
-   }
-   .review-card:hover {
-     transform: translateY(-5px);
-     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-     border-color: var(--primary-color);
-   }
-   .review-rating {
-     color: var(--accent-color);
-     font-size: 1.2rem;
-     margin-bottom: 1rem;
-   }
-   .review-text {
-     color: var(--light-text);
-     font-size: 0.95rem;
-     margin-bottom: 1.5rem;
-     font-style: italic;
-   }
-   .review-author {
-     display: flex;
-     align-items: center;
-     gap: 1rem;
-   }
-   .author-avatar {
-     width: 50px;
-     height: 50px;
-     border-radius: 50%;
-     object-fit: cover;
-     border: 2px solid var(--primary-color);
-   }
-   .author-info h4 {
-     color: var(--primary-color);
      font-size: 1rem;
    }
-   .author-info p {
-     color: var(--light-text);
-     font-size: 0.85rem;
-   }
-   /* 联系咨询 */
-   .contact-section {
-     background: linear-gradient(135deg, rgba(64, 108, 132, 0.05) 0%, rgba(104, 159, 185, 0.05) 100%);
-     border-radius: 12px;
-     padding: 3rem 2rem;
-     text-align: center;
-   }
-   .contact-section p {
-     max-width: 600px;
-     margin: 0 auto 2rem;
-     color: var(--light-text);
-     font-size: 1.05rem;
-   }
+   
    /* 页脚 */
    .footer {
-     background-color: var(--primary-color);
+     background-color: var(--primary-dark);
      color: white;
-     text-align: center;
-     padding: 2rem 1rem;
-     margin-top: 6rem;
+     padding: 4rem 2rem 2rem;
+     margin-top: 8rem;
    }
+   
+   .footer-container {
+     max-width: var(--max-width);
+     margin: 0 auto;
+     display: flex;
+     flex-wrap: wrap;
+     gap: 3rem;
+     justify-content: space-between;
+     margin-bottom: 3rem;
+   }
+   
+   .footer-column {
+     flex: 1 1 200px;
+   }
+   
+   .footer-column h3 {
+     font-size: 1.2rem;
+     margin-bottom: 1.5rem;
+     position: relative;
+     padding-bottom: 0.8rem;
+   }
+   
+   .footer-column h3::after {
+     content: '';
+     position: absolute;
+     bottom: 0;
+     left: 0;
+     width: 40px;
+     height: 2px;
+     background-color: var(--accent-color);
+   }
+   
+   .footer-column ul {
+     list-style: none;
+   }
+   
+   .footer-column ul li {
+     margin-bottom: 1rem;
+   }
+   
+   .footer-column a {
+     color: rgba(255, 255, 255, 0.8);
+     text-decoration: none;
+     transition: color 0.3s ease;
+   }
+   
+   .footer-column a:hover {
+     color: var(--accent-color);
+   }
+   
+   .footer-contact {
+     display: flex;
+     align-items: center;
+     gap: 0.8rem;
+     margin-bottom: 1rem;
+     color: rgba(255, 255, 255, 0.8);
+   }
+   
+   .footer-social {
+     display: flex;
+     gap: 1rem;
+     margin-top: 1.5rem;
+   }
+   
+   .footer-social a {
+     width: 40px;
+     height: 40px;
+     border-radius: 50%;
+     background-color: rgba(255, 255, 255, 0.1);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     transition: all 0.3s ease;
+   }
+   
+   .footer-social a:hover {
+     background-color: var(--accent-color);
+     transform: translateY(-3px);
+   }
+   
+   .footer-bottom {
+     max-width: var(--max-width);
+     margin: 0 auto;
+     padding-top: 2rem;
+     border-top: 1px solid rgba(255, 255, 255, 0.1);
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: space-between;
+     align-items: center;
+     font-size: 0.9rem;
+     color: rgba(255, 255, 255, 0.6);
+   }
+   
+   .footer-links {
+     display: flex;
+     gap: 1.5rem;
+   }
+   
+   .footer-links a {
+     color: rgba(255, 255, 255, 0.6);
+     text-decoration: none;
+     transition: color 0.3s ease;
+   }
+   
+   .footer-links a:hover {
+     color: var(--accent-color);
+   }
+   
    /* 响应式调整 */
    @media (max-width: 768px) {
      .desktop-nav {
        display: none;
      }
+     
      .mobile-menu-btn {
        display: block;
      }
+     
      .product-hero {
-       padding: 3rem 1.5rem;
+       padding: 4rem 1.5rem;
+       gap: 2rem;
      }
+     
      .product-hero h1 {
-       font-size: 1.8rem;
+       font-size: 2rem;
      }
+     
      .product-hero .tagline {
-       font-size: 1.1rem;
+       font-size: 1.15rem;
      }
+     
      .section {
-       margin: 3.5rem auto;
+       margin: 4rem auto;
      }
+     
      .product-hero-content {
        text-align: center;
      }
+     
+     .product-cta.secondary {
+       margin-left: 0;
+       margin-top: 1rem;
+     }
+     
+     .customization-steps::before {
+       display: none;
+     }
+     
+     .specs-table th,
+     .specs-table td {
+       padding: 1rem;
+     }
+     
+     .footer-container {
+       gap: 2rem;
+     }
    }
+   
    @media (max-width: 480px) {
      .nav-container {
        padding: 1rem;
      }
+     
      .product-hero {
-       padding: 2.5rem 1rem;
+       padding: 3rem 1rem;
      }
+     
      .product-hero h1 {
-       font-size: 1.6rem;
+       font-size: 1.8rem;
      }
+     
      .section {
        margin: 3rem auto;
        padding: 0 1rem;
      }
+     
      .feature-card, .review-card {
-       padding: 1.2rem;
+       padding: 1.5rem;
      }
+     
      .scene-img {
-       height: 160px;
+       height: 180px;
+     }
+     
+     .customization {
+       padding: 2.5rem 1rem;
+     }
+     
+     .contact-section {
+       padding: 3rem 1rem;
+     }
+     
+     .footer {
+       padding: 3rem 1rem 2rem;
+     }
+     
+     .footer-bottom {
+       flex-direction: column;
+       gap: 1rem;
+       text-align: center;
+     }
+     
+     .footer-links {
+       flex-wrap: wrap;
+       justify-content: center;
      }
    }
 </style>
 </head>
 <body>
+<!-- 加载动画 -->
+<div class="loader" id="loader">
+  <div class="loader-spinner"></div>
+</div>
+
 <header>
-<div class="nav-container">
-<div class="logo"
-          data-text-zh="興貴創新"
-          data-text-zh-CN="兴贵创新"
-          data-text-en="Hing Kwai Innovate">
-          興貴創新
-</div>
-<nav class="desktop-nav">
-<a href="index.html#about" 
-   data-text-zh="品牌理念" 
-   data-text-zh-CN="品牌理念" 
-   data-text-en="Our Concept">品牌理念</a>
-<a href="index.html#products" 
-   data-text-zh="產品介紹" 
-   data-text-zh-CN="产品介绍" 
-   data-text-en="Products">產品介紹</a>
-<a href="index.html#contact" 
-   data-text-zh="聯絡我們" 
-   data-text-zh-CN="联系我们" 
-   data-text-en="Contact Us">聯絡我們</a>
-<div class="lang-selector">
-<select class="lang-select" id="langSelect" aria-label="切换语言">
-<option value="zh">繁體中文</option>
-<option value="zh-CN">简体中文</option>
-<option value="en">English</option>
-</select>
-</div>
-</nav>
-<button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="打开菜单">
-       ☰
-</button>
-</div>
-<nav class="mobile-nav" id="mobileNav">
-<a href="index.html#about" 
-   data-text-zh="品牌理念" 
-   data-text-zh-CN="品牌理念" 
-   data-text-en="Our Concept">品牌理念</a>
-<a href="index.html#products" 
-   data-text-zh="產品介紹" 
-   data-text-zh-CN="产品介绍" 
-   data-text-en="Products">產品介紹</a>
-<a href="index.html#contact" 
-   data-text-zh="聯絡我們" 
-   data-text-zh-CN="联系我们" 
-   data-text-en="Contact Us">聯絡我們</a>
-<div class="lang-selector">
-<select class="lang-select" id="mobileLangSelect" aria-label="切换语言">
-<option value="zh">繁體中文</option>
-<option value="zh-CN">简体中文</option>
-<option value="en">English</option>
-</select>
-</div>
-</nav>
+  <div class="nav-container">
+    <div class="logo">
+      <i class="fas fa-wind logo-icon"></i>
+      <span data-text-zh="興貴創新"
+            data-text-zh-CN="兴贵创新"
+            data-text-en="Hing Kwai Innovate">
+        興貴創新
+      </span>
+    </div>
+    <nav class="desktop-nav">
+      <a href="#about" 
+         data-text-zh="品牌理念" 
+         data-text-zh-CN="品牌理念" 
+         data-text-en="Our Concept">品牌理念</a>
+      <a href="#features" 
+         data-text-zh="產品介紹" 
+         data-text-zh-CN="产品介绍" 
+         data-text-en="Products">產品介紹</a>
+      <a href="#specs" 
+         data-text-zh="產品規格" 
+         data-text-zh-CN="产品规格" 
+         data-text-en="Specifications">產品規格</a>
+      <a href="#faq" 
+         data-text-zh="常見問題" 
+         data-text-zh-CN="常见问题" 
+         data-text-en="FAQ">常見問題</a>
+      <a href="#contact" 
+         data-text-zh="聯絡我們" 
+         data-text-zh-CN="联系我们" 
+         data-text-en="Contact Us">聯絡我們</a>
+      <div class="lang-selector">
+        <select class="lang-select" id="langSelect" aria-label="切换语言">
+          <option value="zh">繁體中文</option>
+          <option value="zh-CN">简体中文</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+    </nav>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="打开菜单">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+  <nav class="mobile-nav" id="mobileNav">
+    <a href="#about" 
+       data-text-zh="品牌理念" 
+       data-text-zh-CN="品牌理念" 
+       data-text-en="Our Concept">品牌理念</a>
+    <a href="#features" 
+       data-text-zh="產品介紹" 
+       data-text-zh-CN="产品介绍" 
+       data-text-en="Products">產品介紹</a>
+    <a href="#specs" 
+       data-text-zh="產品規格" 
+       data-text-zh-CN="产品规格" 
+       data-text-en="Specifications">產品規格</a>
+    <a href="#faq" 
+       data-text-zh="常見問題" 
+       data-text-zh-CN="常见问题" 
+       data-text-en="FAQ">常見問題</a>
+    <a href="#contact" 
+       data-text-zh="聯絡我們" 
+       data-text-zh-CN="联系我们" 
+       data-text-en="Contact Us">聯絡我們</a>
+    <div class="lang-selector">
+      <select class="lang-select" id="mobileLangSelect" aria-label="切换语言">
+        <option value="zh">繁體中文</option>
+        <option value="zh-CN">简体中文</option>
+        <option value="en">English</option>
+      </select>
+    </div>
+  </nav>
 </header>
 
 <!-- 产品英雄区 -->
@@ -551,19 +1191,57 @@
        data-text-en="Book a Demo">
        預約體驗
     </a>
+    <a href="#specs" class="product-cta secondary" 
+       data-text-zh="查看規格" 
+       data-text-zh-CN="查看规格" 
+       data-text-en="View Specs">
+       查看規格
+    </a>
   </div>
 </section>
 
+<!-- 信任标识 -->
+<div class="trust-badges">
+  <div class="trust-badge">
+    <i class="fas fa-shield-alt"></i>
+    <span data-text-zh="安全交易保障" data-text-zh-CN="安全交易保障" data-text-en="Secure Transaction">安全交易保障</span>
+  </div>
+  <div class="trust-badge">
+    <i class="fas fa-truck"></i>
+    <span data-text-zh="免費配送" data-text-zh-CN="免费配送" data-text-en="Free Shipping">免費配送</span>
+  </div>
+  <div class="trust-badge">
+    <i class="fas fa-warranty-card"></i>
+    <span data-text-zh="1年產品保固" data-text-zh-CN="1年产品保修" data-text-en="1 Year Warranty">1年產品保固</span>
+  </div>
+  <div class="trust-badge">
+    <i class="fas fa-undo"></i>
+    <span data-text-zh="7天無理由退換" data-text-zh-CN="7天无理由退换" data-text-en="7-Day Return">7天無理由退換</span>
+  </div>
+  <div class="trust-badge">
+    <i class="fas fa-certificate"></i>
+    <span data-text-zh="ISO品質認證" data-text-zh-CN="ISO质量认证" data-text-en="ISO Certified">ISO品質認證</span>
+  </div>
+</div>
+
 <!-- 产品特点 -->
 <section id="features" class="section">
-  <h2 data-text-zh="產品核心特點" 
-      data-text-zh-CN="产品核心特点" 
-      data-text-en="Core Features">
-      產品核心特點
-  </h2>
+  <div class="section-header">
+    <h2 data-text-zh="產品核心特點" 
+        data-text-zh-CN="产品核心特点" 
+        data-text-en="Core Features">
+        產品核心特點
+    </h2>
+    <p class="section-subtitle"
+       data-text-zh="結合創新科技與人文關懷，打造專屬於你的陪伴體驗"
+       data-text-zh-CN="Combining innovative technology with humanistic care to create a companion experience unique to you"
+       data-text-en="Combining innovative technology with humanistic care to create a companion experience unique to you">
+       結合創新科技與人文關懷，打造專屬於你的陪伴體驗
+    </p>
+  </div>
   <div class="features">
     <div class="feature-card">
-      <div class="feature-icon">🎵</div>
+      <div class="feature-icon"><i class="fas fa-music"></i></div>
       <h3 data-text-zh="全自訂聲音" 
           data-text-zh-CN="全自定义声音" 
           data-text-en="Fully Customizable Sound">
@@ -576,7 +1254,7 @@
       </p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">❤️</div>
+      <div class="feature-icon"><i class="fas fa-heart"></i></div>
       <h3 data-text-zh="驅散孤獨感" 
           data-text-zh-CN="驱散孤独感" 
           data-text-en="Dispel Loneliness">
@@ -589,7 +1267,7 @@
       </p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">🎨</div>
+      <div class="feature-icon"><i class="fas fa-palette"></i></div>
       <h3 data-text-zh="美學設計" 
           data-text-zh-CN="美学设计" 
           data-text-en="Aesthetic Design">
@@ -602,7 +1280,7 @@
       </p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">🔋</div>
+      <div class="feature-icon"><i class="fas fa-solar-panel"></i></div>
       <h3 data-text-zh="環保節能" 
           data-text-zh-CN="环保节能" 
           data-text-en="Eco-Friendly">
@@ -619,11 +1297,19 @@
 
 <!-- 自定义功能 -->
 <section id="customization" class="section">
-  <h2 data-text-zh="專屬聲音自訂流程" 
-      data-text-zh-CN="专属声音自定义流程" 
-      data-text-en="Exclusive Sound Customization Process">
-      專屬聲音自訂流程
-  </h2>
+  <div class="section-header">
+    <h2 data-text-zh="專屬聲音自訂流程" 
+        data-text-zh-CN="专属声音自定义流程" 
+        data-text-en="Exclusive Sound Customization Process">
+        專屬聲音自訂流程
+    </h2>
+    <p class="section-subtitle"
+       data-text-zh="四個簡單步驟，打造屬於你的獨特聲音陪伴"
+       data-text-zh-CN="Four simple steps to create your unique sound companion"
+       data-text-en="Four simple steps to create your unique sound companion">
+       四個簡單步驟，打造屬於你的獨特聲音陪伴
+    </p>
+  </div>
   <div class="customization">
     <div class="customization-steps">
       <div class="step-card">
@@ -684,11 +1370,19 @@
 
 <!-- 使用场景 -->
 <section id="scenes" class="section">
-  <h2 data-text-zh="適用場景" 
-      data-text-zh-CN="适用场景" 
-      data-text-en="Applicable Scenarios">
-      適用場景
-  </h2>
+  <div class="section-header">
+    <h2 data-text-zh="適用場景" 
+        data-text-zh-CN="适用场景" 
+        data-text-en="Applicable Scenarios">
+        適用場景
+    </h2>
+    <p class="section-subtitle"
+       data-text-zh="無論是居家生活還是工作空間，風愈鈴都能帶來溫暖陪伴"
+       data-text-zh-CN="Whether it's home life or work space, the wind chime can bring warm companionship"
+       data-text-en="Whether it's home life or work space, the wind chime can bring warm companionship">
+       無論是居家生活還是工作空間，風愈鈴都能帶來溫暖陪伴
+    </p>
+  </div>
   <div class="scenes">
     <div class="scene-card">
       <img src="https://picsum.photos/id/1060/800/600" 
@@ -761,11 +1455,19 @@
 
 <!-- 用户评价 -->
 <section id="reviews" class="section">
-  <h2 data-text-zh="用戶真實評價" 
-      data-text-zh-CN="用户真实评价" 
-      data-text-en="Genuine User Reviews">
-      用戶真實評價
-  </h2>
+  <div class="section-header">
+    <h2 data-text-zh="用戶真實評價" 
+        data-text-zh-CN="用户真实评价" 
+        data-text-en="Genuine User Reviews">
+        用戶真實評價
+    </h2>
+    <p class="section-subtitle"
+       data-text-zh="來自真實用戶的使用體驗與感受"
+       data-text-zh-CN="Genuine user experiences and feelings"
+       data-text-en="Genuine user experiences and feelings">
+       來自真實用戶的使用體驗與感受
+    </p>
+  </div>
   <div class="reviews">
     <div class="review-card">
       <div class="review-rating">★★★★★</div>
@@ -854,114 +1556,35 @@
   </div>
 </section>
 
-<!-- 联系咨询 -->
-<section id="contact" class="section contact-section">
-  <h2 data-text-zh="聯絡我們，體驗風愈鈴" 
-      data-text-zh-CN="联系我们，体验风愈铃" 
-      data-text-en="Contact Us to Experience the Wind Healing Chime">
-      聯絡我們，體驗風愈鈴
-  </h2>
-  <p data-text-zh="填寫表單預約產品體驗，或諮詢更多自訂功能詳情，我們將盡快與您聯繫" 
-     data-text-zh-CN="填写表单预约产品体验，或咨询更多自定义功能详情，我们将尽快与您联系" 
-     data-text-en="Fill out the form to book a product demo or inquire about more customization details—we will contact you soon">
-     填寫表單預約產品體驗，或諮詢更多自訂功能詳情，我們將盡快與您聯繫
-  </p>
-  <a href="index.html#contact" class="product-cta" 
-     data-text-zh="立即諮詢" 
-     data-text-zh-CN="立即咨询" 
-     data-text-en="Inquire Now">
-     立即諮詢
-  </a>
-</section>
-
-<footer class="footer">
-<p data-text-zh="© 2025 興貴創新 | 創意 × 科技 × 人文關懷"
-   data-text-zh-CN="© 2025 兴贵创新 | 创意 × 科技 × 人文关怀"
-   data-text-en="© 2025 Hing Kwai Innovate | Creativity × Technology × Human Care">
-   © 2025 興貴創新 | 創意 × 科技 × 人文關懷
-</p>
-</footer>
-
-<script>
-   // DOM元素缓存
-   const cache = {
-     langSelectors: [document.getElementById('langSelect'), document.getElementById('mobileLangSelect')],
-     mobileMenuBtn: document.getElementById('mobileMenuBtn'),
-     mobileNav: document.getElementById('mobileNav'),
-     header: document.querySelector('header'),
-     htmlElement: document.documentElement
-   };
-
-   let currentLang = 'zh'; // 默认繁体中文
-
-   // 导航栏滚动效果
-   window.addEventListener('scroll', () => {
-     cache.header.classList.toggle('scrolled', window.scrollY > 50);
-   });
-
-   // 移动端菜单切换
-   cache.mobileMenuBtn.addEventListener('click', () => {
-     cache.mobileNav.classList.toggle('active');
-     const isActive = cache.mobileNav.classList.contains('active');
-     cache.mobileMenuBtn.textContent = isActive ? '✕' : '☰';
-     cache.mobileMenuBtn.setAttribute('aria-label', isActive ? '关闭菜单' : '打开菜单');
-   });
-
-   // 统一语言切换函数
-   const switchLanguage = (lang) => {
-     if (lang === currentLang) return;
-     currentLang = lang;
-
-     // 更新根元素lang属性
-     cache.htmlElement.lang = lang;
-
-     // 同步所有下拉框选中状态
-     cache.langSelectors.forEach(selector => selector.value = lang);
-
-     // 更新所有文本内容
-     document.querySelectorAll('[data-text-zh], [data-text-zh-CN], [data-text-en]').forEach(el => {
-       const text = el.getAttribute(`data-text-${lang}`);
-       if (text) el.textContent = text;
-     });
-     // 图片alt属性
-     document.querySelectorAll('[data-alt-zh], [data-alt-zh-CN], [data-alt-en]').forEach(el => {
-       const alt = el.getAttribute(`data-alt-${lang}`);
-       if (alt) el.alt = alt;
-     });
-
-     // 更新页面标题
-     document.title = lang === 'zh' 
-       ? '風愈鈴 | 興貴創新' 
-       : lang === 'zh-CN' 
-         ? '风愈铃 | 兴贵创新' 
-         : 'Wind Healing Chime | Hing Kwai Innovate';
-   };
-
-   // 绑定语言下拉框事件
-   cache.langSelectors.forEach(selector => {
-     selector.addEventListener('change', (e) => switchLanguage(e.target.value));
-   });
-
-   // 兼容旧浏览器平滑滚动
-   if (!('scrollBehavior' in document.documentElement.style)) {
-     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-       anchor.addEventListener('click', function(e) {
-         e.preventDefault();
-         const targetId = this.getAttribute('href');
-         const targetElement = document.querySelector(targetId);
-         if (targetElement) {
-           window.scrollTo({
-             top: targetElement.offsetTop - 80,
-             behavior: 'smooth'
-           });
-           if (cache.mobileNav.classList.contains('active')) {
-             cache.mobileNav.classList.remove('active');
-             cache.mobileMenuBtn.textContent = '☰';
-           }
-         }
-       });
-     });
-   }
-</script>
-</body>
-</html>
+<!-- 产品规格 -->
+<section id="specs" class="section">
+  <div class="section-header">
+    <h2 data-text-zh="產品規格" 
+        data-text-zh-CN="产品规格" 
+        data-text-en="Product Specifications">
+        產品規格
+    </h2>
+    <p class="section-subtitle"
+       data-text-zh="詳細的產品參數與技術規格"
+       data-text-zh-CN="Detailed product parameters and technical specifications"
+       data-text-en="Detailed product parameters and technical specifications">
+       詳細的產品參數與技術規格
+    </p>
+  </div>
+  <div class="specs">
+    <table class="specs-table">
+      <tr>
+        <th data-text-zh="產品尺寸" data-text-zh-CN="产品尺寸" data-text-en="Dimensions">產品尺寸</th>
+        <td data-text-zh="直徑 15cm × 長度 45cm" data-text-zh-CN="直径 15cm × 长度 45cm" data-text-en="Diameter 15cm × Length 45cm">直徑 15cm × 長度 45cm</td>
+      </tr>
+      <tr>
+        <th data-text-zh="重量" data-text-zh-CN="重量" data-text-en="Weight">重量</th>
+        <td data-text-zh="約 380g" data-text-zh-CN="约 380g" data-text-en="Approx. 380g">約 380g</td>
+      </tr>
+      <tr>
+        <th data-text-zh="電源供應" data-text-zh-CN="电源供应" data-text-en="Power Supply">電源供應</th>
+        <td data-text-zh="太陽能充電 + USB-C充電（5V/1A）" data-text-zh-CN="太阳能充电 + USB-C充电（5V/1A）" data-text-en="Solar Charging + USB-C (5V/1A)">太陽能充電 + USB-C充電（5V/1A）</td>
+      </tr>
+      <tr>
+        <th data-text-zh="電池容量" data-text-zh-CN="电池容量" data-text-en="Battery Capacity">電池容量</th>
+        <td data-text-zh="2000mAh 鋰電池" data-text-zh-CN="2000mAh 锂电池" data-text-en="2000mAh Lithium Battery">200
