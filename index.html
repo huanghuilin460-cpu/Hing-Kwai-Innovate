@@ -4,11 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>風愈鈴 | Hing Kwai Innovate</title>
-<!-- 增加网站图标，提升品牌辨识度 -->
+<!-- 网站图标 -->
 <link rel="icon" href="https://picsum.photos/id/237/32/32" type="image/png">
-<!-- 引入专业图标库，替换emoji -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- 引入Google字体，提升排版质感 -->
+<!-- 引入Font Awesome图标库（确保可访问） -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+<!-- 引入Google字体 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -48,7 +48,7 @@
        color: var(--text-color);
      }
      
-     .feature-card, .scene-card, .review-card, header, .customization {
+     .feature-card, .scene-card, .review-card, header, .customization, .specs {
        background-color: #24243e;
      }
      
@@ -1091,7 +1091,7 @@
 <header>
   <div class="nav-container">
     <div class="logo">
-      <i class="fas fa-wind logo-icon"></i>
+      <i class="fa fa-wind logo-icon"></i>
       <span data-text-zh="興貴創新"
             data-text-zh-CN="兴贵创新"
             data-text-en="Hing Kwai Innovate">
@@ -1128,7 +1128,7 @@
       </div>
     </nav>
     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="打开菜单">
-      <i class="fas fa-bars"></i>
+      <i class="fa fa-bars"></i>
     </button>
   </div>
   <nav class="mobile-nav" id="mobileNav">
@@ -1203,23 +1203,23 @@
 <!-- 信任标识 -->
 <div class="trust-badges">
   <div class="trust-badge">
-    <i class="fas fa-shield-alt"></i>
+    <i class="fa fa-shield"></i>
     <span data-text-zh="安全交易保障" data-text-zh-CN="安全交易保障" data-text-en="Secure Transaction">安全交易保障</span>
   </div>
   <div class="trust-badge">
-    <i class="fas fa-truck"></i>
+    <i class="fa fa-truck"></i>
     <span data-text-zh="免費配送" data-text-zh-CN="免费配送" data-text-en="Free Shipping">免費配送</span>
   </div>
   <div class="trust-badge">
-    <i class="fas fa-warranty-card"></i>
+    <i class="fa fa-shield-square-o"></i>
     <span data-text-zh="1年產品保固" data-text-zh-CN="1年产品保修" data-text-en="1 Year Warranty">1年產品保固</span>
   </div>
   <div class="trust-badge">
-    <i class="fas fa-undo"></i>
+    <i class="fa fa-undo"></i>
     <span data-text-zh="7天無理由退換" data-text-zh-CN="7天无理由退换" data-text-en="7-Day Return">7天無理由退換</span>
   </div>
   <div class="trust-badge">
-    <i class="fas fa-certificate"></i>
+    <i class="fa fa-certificate"></i>
     <span data-text-zh="ISO品質認證" data-text-zh-CN="ISO质量认证" data-text-en="ISO Certified">ISO品質認證</span>
   </div>
 </div>
@@ -1241,7 +1241,7 @@
   </div>
   <div class="features">
     <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-music"></i></div>
+      <div class="feature-icon"><i class="fa fa-music"></i></div>
       <h3 data-text-zh="全自訂聲音" 
           data-text-zh-CN="全自定义声音" 
           data-text-en="Fully Customizable Sound">
@@ -1254,7 +1254,7 @@
       </p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-heart"></i></div>
+      <div class="feature-icon"><i class="fa fa-heart"></i></div>
       <h3 data-text-zh="驅散孤獨感" 
           data-text-zh-CN="驱散孤独感" 
           data-text-en="Dispel Loneliness">
@@ -1267,7 +1267,7 @@
       </p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-palette"></i></div>
+      <div class="feature-icon"><i class="fa fa-paint-brush"></i></div>
       <h3 data-text-zh="美學設計" 
           data-text-zh-CN="美学设计" 
           data-text-en="Aesthetic Design">
@@ -1280,7 +1280,7 @@
       </p>
     </div>
     <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-solar-panel"></i></div>
+      <div class="feature-icon"><i class="fa fa-solar-panel"></i></div>
       <h3 data-text-zh="環保節能" 
           data-text-zh-CN="环保节能" 
           data-text-en="Eco-Friendly">
@@ -1587,4 +1587,20 @@
       </tr>
       <tr>
         <th data-text-zh="電池容量" data-text-zh-CN="电池容量" data-text-en="Battery Capacity">電池容量</th>
-        <td data-text-zh="2000mAh 鋰電池" data-text-zh-CN="2000mAh 锂电池" data-text-en="2000mAh Lithium Battery">200
+        <td data-text-zh="2000mAh 鋰電池" data-text-zh-CN="2000mAh 锂电池" data-text-en="2000mAh Lithium Battery">2000mAh 鋰電池</td>
+      </tr>
+      <tr>
+        <th data-text-zh="續航時間" data-text-zh-CN="续航时间" data-text-en="Battery Life">續航時間</th>
+        <td data-text-zh="滿電狀態下可連續使用15天（待機）" data-text-zh-CN="15 days of standby on full charge" data-text-en="15 days of standby on full charge">滿電狀態下可連續使用15天（待機）</td>
+      </tr>
+      <tr>
+        <th data-text-zh="藍牙版本" data-text-zh-CN="蓝牙版本" data-text-en="Bluetooth Version">藍牙版本</th>
+        <td data-text-zh="Bluetooth 5.0" data-text-zh-CN="Bluetooth 5.0" data-text-en="Bluetooth 5.0">Bluetooth 5.0</td>
+      </tr>
+      <tr>
+        <th data-text-zh="防水等級" data-text-zh-CN="防水等级" data-text-en="Waterproof Rating">防水等級</th>
+        <td data-text-zh="IPX5 防水" data-text-zh-CN="IPX5 Waterproof" data-text-en="IPX5 Waterproof">IPX5 防水</td>
+      </tr>
+      <tr>
+        <th data-text-zh="材質" data-text-zh-CN="材质" data-text-en="Material">材質</th>
+        <td data
