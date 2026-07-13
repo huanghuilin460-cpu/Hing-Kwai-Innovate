@@ -4,6 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>風愈鈴 | Hing Kwai Innovate</title>
+<script>
+  // 尽早套用已保存的深浅色 / 字体大小偏好，避免刷新时颜色闪烁
+  (function () {
+    try {
+      var theme = localStorage.getItem("hingkwai-theme");
+      if (!theme) {
+        theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", theme);
+
+      var fontSize = localStorage.getItem("hingkwai-fontsize");
+      if (fontSize) {
+        document.documentElement.style.setProperty("--base-font-size", fontSize);
+      }
+    } catch (e) {
+      /* localStorage 不可用时，使用默认浅色主题与字体大小 */
+    }
+  })();
+</script>
 <!-- 网站图标 -->
 <link rel="icon" href="https://picsum.photos/id/237/32/32" type="image/png">
 <!-- 引入Font Awesome图标库（确保可访问） -->
@@ -18,44 +37,54 @@
      --primary-light: #689fb9;
      --primary-dark: #2d4e60;
      --secondary-color: #f2f4f6;
+     --card-bg: #ffffff;
+     --input-bg: #ffffff;
      --accent-color: #f3a953;
      --accent-dark: #e9953a;
-     --text-color: #333;
-     --light-text: #555;
-     --border-color: #e0e0e0;
+     --text-color: #1f1f1f;
+     --light-text: #4a4a4a;
+     --border-color: #d8dde1;
      --error-color: #dc3545;
      --success-color: #28a745;
      --max-width: 1200px;
      --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
      --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+     --base-font-size: 100%;
    }
 
-   /* 深色模式支持 */
-   @media (prefers-color-scheme: dark) {
-     :root {
-       --primary-color: #689fb9;
-       --primary-light: #8cb8cc;
-       --primary-dark: #508aa8;
-       --secondary-color: #1a1a2e;
-       --text-color: #f2f4f6;
-       --light-text: #ccc;
-       --border-color: #333;
-     }
+   /* 深色模式：改由 [data-theme="dark"] 手动/记忆式控制，
+      不再单独依赖系统 prefers-color-scheme，
+      避免部分卡片背景写死为白色、导致深色文字配白底看不清的问题 */
+   html[data-theme="dark"] {
+     --primary-color: #7fb3cd;
+     --primary-light: #9dc8dc;
+     --primary-dark: #5c93ac;
+     --secondary-color: #14141f;
+     --card-bg: #232338;
+     --input-bg: #2b2b42;
+     --text-color: #f2f4f6;
+     --light-text: #d3d7db;
+     --border-color: #3a3a52;
+     --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
+     --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+     --shadow-lg: 0 8px 24px rgba(0,0,0,0.45);
+   }
 
-     body {
-       background-color: var(--secondary-color);
-       color: var(--text-color);
-     }
+   html[data-theme="dark"] body {
+     background-color: var(--secondary-color);
+     color: var(--text-color);
+   }
 
-     .feature-card, .scene-card, .review-card, header, .customization, .specs,
-     .faq-question, .contact-form { background-color: #24243e; }
+   html[data-theme="dark"] .feature-card:hover,
+   html[data-theme="dark"] .scene-card:hover,
+   html[data-theme="dark"] .review-card:hover {
+     border-color: var(--accent-color);
+   }
 
-     .feature-card:hover, .scene-card:hover, .review-card:hover {
-       border-color: var(--accent-color);
-     }
-
-     .mobile-nav { background-color: #24243e; }
+   /* 字体大小调节：作用在根字号上，页面内使用 rem 的文字会跟着等比缩放 */
+   html {
+     font-size: var(--base-font-size);
    }
 
    * {
@@ -112,7 +141,7 @@
    }
 
    header {
-     background-color: white;
+     background-color: var(--card-bg);
      box-shadow: var(--shadow-sm);
      position: sticky;
      top: 0;
@@ -121,7 +150,7 @@
    }
 
    header.scrolled {
-     background-color: rgba(255, 255, 255, 0.98);
+     background-color: var(--card-bg);
      box-shadow: var(--shadow-md);
    }
 
@@ -190,7 +219,7 @@
 
    .lang-select {
      border: 1px solid var(--primary-color);
-     background: white;
+     background: var(--card-bg);
      color: var(--primary-color);
      border-radius: 6px;
      padding: 0.5rem 0.8rem;
@@ -229,13 +258,84 @@
      background-color: rgba(64, 108, 132, 0.1);
    }
 
+   /* 显示/字体调整工具组 */
+   .utility-controls {
+     display: flex;
+     align-items: center;
+     gap: 0.6rem;
+     margin-left: 1.5rem;
+   }
+
+   .theme-toggle-btn {
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     width: 40px;
+     height: 40px;
+     border: 1px solid var(--primary-color);
+     background: var(--card-bg);
+     color: var(--primary-color);
+     border-radius: 6px;
+     cursor: pointer;
+     font-size: 1.1rem;
+     transition: all 0.3s ease;
+   }
+
+   .theme-toggle-btn:hover,
+   .theme-toggle-btn:focus {
+     background-color: var(--primary-color);
+     color: white;
+     outline: none;
+     box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.2);
+   }
+
+   .font-size-group {
+     display: inline-flex;
+     border: 1px solid var(--primary-color);
+     border-radius: 6px;
+     overflow: hidden;
+   }
+
+   .font-size-btn {
+     background: var(--card-bg);
+     color: var(--primary-color);
+     border: none;
+     width: 36px;
+     height: 40px;
+     cursor: pointer;
+     font-weight: 700;
+     font-size: 0.85rem;
+     line-height: 1;
+     transition: all 0.3s ease;
+   }
+
+   .font-size-btn + .font-size-btn {
+     border-left: 1px solid var(--primary-color);
+   }
+
+   .font-size-btn:hover,
+   .font-size-btn:focus {
+     background-color: var(--primary-color);
+     color: white;
+     outline: none;
+   }
+
+   .font-size-btn.small { font-size: 0.7rem; }
+   .font-size-btn.large { font-size: 1.05rem; }
+
+   .mobile-nav .utility-controls {
+     margin-left: 0;
+     margin-top: 0.5rem;
+     justify-content: flex-start;
+   }
+
    .mobile-nav {
      display: none;
      position: absolute;
      top: 100%;
      left: 0;
      right: 0;
-     background-color: white;
+     background-color: var(--card-bg);
      box-shadow: var(--shadow-md);
      padding: 1.5rem 2rem;
      flex-direction: column;
@@ -446,7 +546,7 @@
    }
 
    .feature-card {
-     background: white;
+     background: var(--card-bg);
      border-radius: 12px;
      box-shadow: var(--shadow-sm);
      padding: 2rem;
@@ -489,7 +589,7 @@
 
    /* 自定义功能展示 */
    .customization {
-     background-color: white;
+     background-color: var(--card-bg);
      border-radius: 16px;
      box-shadow: var(--shadow-md);
      padding: 4rem 2rem;
@@ -565,7 +665,7 @@
    }
 
    .scene-card {
-     background: white;
+     background: var(--card-bg);
      border-radius: 12px;
      overflow: hidden;
      box-shadow: var(--shadow-sm);
@@ -616,7 +716,7 @@
    }
 
    .review-card {
-     background: white;
+     background: var(--card-bg);
      border-radius: 12px;
      padding: 2rem;
      box-shadow: var(--shadow-sm);
@@ -682,7 +782,7 @@
 
    /* 产品规格 */
    .specs {
-     background-color: white;
+     background-color: var(--card-bg);
      border-radius: 16px;
      box-shadow: var(--shadow-md);
      padding: 3rem 2rem;
@@ -732,7 +832,7 @@
 
    .faq-question {
      padding: 1.2rem 1.5rem;
-     background-color: white;
+     background-color: var(--card-bg);
      color: var(--primary-color);
      font-weight: 600;
      cursor: pointer;
@@ -800,7 +900,7 @@
    .contact-form {
      max-width: 600px;
      margin: 2rem auto 0;
-     background-color: white;
+     background-color: var(--card-bg);
      padding: 2rem;
      border-radius: 12px;
      box-shadow: var(--shadow-md);
@@ -826,7 +926,7 @@
      font-size: 1rem;
      color: var(--text-color);
      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-     background-color: white;
+     background-color: var(--input-bg);
    }
 
    .form-control:focus {
@@ -1150,6 +1250,15 @@
           <option value="en">English</option>
         </select>
       </div>
+      <div class="utility-controls">
+        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="切换深浅色主题" title="切换深浅色主题">
+          <i class="fa fa-moon-o" id="themeToggleIcon"></i>
+        </button>
+        <div class="font-size-group" role="group" aria-label="调整字体大小">
+          <button type="button" class="font-size-btn small" id="fontDecreaseBtn" aria-label="缩小字体" title="缩小字體">A-</button>
+          <button type="button" class="font-size-btn large" id="fontIncreaseBtn" aria-label="放大字体" title="放大字體">A+</button>
+        </div>
+      </div>
     </nav>
     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="打开菜单" aria-expanded="false">
       <i class="fa fa-bars"></i>
@@ -1182,6 +1291,15 @@
         <option value="zh-CN">简体中文</option>
         <option value="en">English</option>
       </select>
+    </div>
+    <div class="utility-controls">
+      <button type="button" class="theme-toggle-btn" id="themeToggleBtnMobile" aria-label="切换深浅色主题" title="切换深浅色主题">
+        <i class="fa fa-moon-o" id="themeToggleIconMobile"></i>
+      </button>
+      <div class="font-size-group" role="group" aria-label="调整字体大小">
+        <button type="button" class="font-size-btn small" id="fontDecreaseBtnMobile" aria-label="缩小字体" title="缩小字體">A-</button>
+        <button type="button" class="font-size-btn large" id="fontIncreaseBtnMobile" aria-label="放大字体" title="放大字體">A+</button>
+      </div>
     </div>
   </nav>
 </header>
@@ -2010,6 +2128,74 @@
       contactForm.reset();
     });
   }
+
+  /* ---------- 7. 深浅色主题切换 ---------- */
+  var THEME_KEY = "hingkwai-theme";
+  var themeToggleBtn = document.getElementById("themeToggleBtn");
+  var themeToggleBtnMobile = document.getElementById("themeToggleBtnMobile");
+  var themeToggleIcon = document.getElementById("themeToggleIcon");
+  var themeToggleIconMobile = document.getElementById("themeToggleIconMobile");
+
+  function updateThemeIcon(theme) {
+    var iconClass = theme === "dark" ? "fa fa-sun-o" : "fa fa-moon-o";
+    if (themeToggleIcon) themeToggleIcon.className = iconClass;
+    if (themeToggleIconMobile) themeToggleIconMobile.className = iconClass;
+  }
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    updateThemeIcon(theme);
+    try {
+      localStorage.setItem(THEME_KEY, theme);
+    } catch (e) {
+      /* localStorage 可能不可用，忽略 */
+    }
+  }
+
+  function toggleTheme() {
+    var current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    applyTheme(current === "dark" ? "light" : "dark");
+  }
+
+  // 页面加载时，头部脚本已经提前设置好 data-theme，这里只需同步图标显示
+  updateThemeIcon(document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light");
+
+  if (themeToggleBtn) themeToggleBtn.addEventListener("click", toggleTheme);
+  if (themeToggleBtnMobile) themeToggleBtnMobile.addEventListener("click", toggleTheme);
+
+  /* ---------- 8. 字体大小调节 ---------- */
+  var FONT_KEY = "hingkwai-fontsize";
+  var FONT_STEPS = ["87.5%", "100%", "112.5%", "125%"];
+  var fontDecreaseBtn = document.getElementById("fontDecreaseBtn");
+  var fontIncreaseBtn = document.getElementById("fontIncreaseBtn");
+  var fontDecreaseBtnMobile = document.getElementById("fontDecreaseBtnMobile");
+  var fontIncreaseBtnMobile = document.getElementById("fontIncreaseBtnMobile");
+
+  function getCurrentFontIndex() {
+    var current = getComputedStyle(document.documentElement).getPropertyValue("--base-font-size").trim();
+    var idx = FONT_STEPS.indexOf(current);
+    return idx === -1 ? 1 : idx; // 默认落在 100%
+  }
+
+  function applyFontSize(index) {
+    index = Math.max(0, Math.min(FONT_STEPS.length - 1, index));
+    var value = FONT_STEPS[index];
+    document.documentElement.style.setProperty("--base-font-size", value);
+    try {
+      localStorage.setItem(FONT_KEY, value);
+    } catch (e) {
+      /* localStorage 可能不可用，忽略 */
+    }
+  }
+
+  function changeFontSize(delta) {
+    applyFontSize(getCurrentFontIndex() + delta);
+  }
+
+  if (fontDecreaseBtn) fontDecreaseBtn.addEventListener("click", function () { changeFontSize(-1); });
+  if (fontIncreaseBtn) fontIncreaseBtn.addEventListener("click", function () { changeFontSize(1); });
+  if (fontDecreaseBtnMobile) fontDecreaseBtnMobile.addEventListener("click", function () { changeFontSize(-1); });
+  if (fontIncreaseBtnMobile) fontIncreaseBtnMobile.addEventListener("click", function () { changeFontSize(1); });
 })();
 </script>
 </body>
