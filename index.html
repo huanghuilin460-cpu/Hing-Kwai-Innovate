@@ -803,13 +803,13 @@
 
     mctx.restore();
 
-    // 选中状态：轴对齐包围盒 + 放大缩放手柄
+    // 选中状态：轴对齐包围盒 + 16px缩放手柄
     if (o.id === selectedId) {
       mctx.strokeStyle = '#5ad1d6';
       mctx.lineWidth = 2;
       mctx.strokeRect(r.x, r.y, r.w, r.h);
       mctx.fillStyle = '#5ad1d6';
-      mctx.fillRect(r.x + r.w - 10, r.y + r.h - 10, 16, 16); // 16px大手柄
+      mctx.fillRect(r.x + r.w - 10, r.y + r.h - 10, 16, 16);
     }
   }
 
@@ -840,7 +840,7 @@
       mctx.lineWidth = 2;
       mctx.strokeRect(r.x-2, r.y-2, r.w+4, r.h+4);
       mctx.fillStyle = '#5ad1d6';
-      mctx.fillRect(r.x + r.w - 10, r.y + r.h - 10, 16, 16); // 16px大手柄
+      mctx.fillRect(r.x + r.w - 10, r.y + r.h - 10, 16, 16);
     }
   }
 
@@ -1011,13 +1011,14 @@
     return null;
   }
 
+  // ===== 修复：缩放手柄判定范围扩大到24px =====
   function hitResizeHandle(fx, fy, o) {
     if (!o || (o.type !== 'wall' && o.type !== 'blower')) return false;
     const hx = (o.x + o.w) * W, hy = (o.y + o.h) * H;
-    return Math.abs(fx * W - hx) < 18 && Math.abs(fy * H - hy) < 18; // 扩大判定范围
+    return Math.abs(fx * W - hx) < 24 && Math.abs(fy * H - hy) < 24;
   }
 
-  // 默认尺寸翻倍
+  // 默认尺寸：原基础上翻倍
   const DEFAULT_WALL_W = 0.06, DEFAULT_WALL_H = 0.32;
   const DEFAULT_BLOWER_W = 0.14, DEFAULT_BLOWER_H = 0.14;
 
@@ -1158,9 +1159,9 @@
   window.addEventListener('resize', resizeCanvases);
   resizeCanvases();
 
-  // 初始场景（适配新尺寸）
-  objects.push({ id: nextId++, type: 'blower', x: 0.05, y: 0.4, w: 0.14, h: 0.14, angle: 0 });
-  objects.push({ id: nextId++, type: 'wall', shape: 'rect', x: 0.45, y: 0.25, w: 0.08, h: 0.5, angle: 0 });
+  // 初始场景（标准默认尺寸）
+  objects.push({ id: nextId++, type: 'blower', x: 0.05, y: 0.43, w: 0.14, h: 0.14, angle: 0 });
+  objects.push({ id: nextId++, type: 'wall', shape: 'rect', x: 0.45, y: 0.34, w: 0.06, h: 0.32, angle: 0 });
   updateStatus();
 
   requestAnimationFrame(loop);
