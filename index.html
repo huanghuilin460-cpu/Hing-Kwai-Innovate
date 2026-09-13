@@ -100,6 +100,22 @@
       image-rendering: -moz-crisp-edges;
       image-rendering: crisp-edges;
     }
+    #topHint {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
+      font-size: 11px;
+      color: #4a5066;
+      background: rgba(255,255,255,0.75);
+      padding: 6px 14px;
+      border: 1px solid rgba(0,0,0,0.15);
+      line-height: 1.5;
+      pointer-events: none;
+      text-align: center;
+      white-space: nowrap;
+    }
     #hint {
       position: absolute; left: 10px; bottom: 10px; z-index: 4;
       font-size: 10px; color: #4a5066; background: rgba(255,255,255,0.55);
@@ -135,7 +151,7 @@
         <canvas width="16" height="16" data-icon="wall-circle"></canvas>
         <span class="lbl">圆形墙</span>
       </button>
-      <button class="tool" data-tool="blower" title="放置鼓风机：点击放置，点击旋转朝向，拖右下角可缩放">
+      <button class="tool" data-tool="blower" title="放置鼓风机：点击放置，双击旋转朝向">
         <canvas width="16" height="16" data-icon="blower"></canvas>
         <span class="lbl">鼓风机</span>
       </button>
@@ -168,7 +184,8 @@
   <div id="stage">
     <canvas id="fluidCanvas"></canvas>
     <canvas id="mainCanvas"></canvas>
-    <div id="hint">拖拽放置墙体和鼓风机，位置完全自由（非网格吸附）。选中物体后拖右下角蓝色小方块可缩放大小；点击鼓风机机身可切换朝向。右键/长按物体可删除。</div>
+    <div id="topHint">双击物体旋转方向 · 拖拽右下角缩放 · 长按/右键删除</div>
+    <div id="hint">拖拽放置墙体和鼓风机，位置完全自由（非网格吸附）。选中物体后拖右下角蓝色小方块可缩放大小；双击物体可切换朝向。右键/长按物体可删除。</div>
     <div id="errorLog"></div>
   </div>
 </div>
@@ -226,6 +243,11 @@
   let fpsLastTime = performance.now();
   const fpsValLabel = document.getElementById('fpsVal');
 
+  // 双击判定
+  let lastTapTime = 0;
+  let lastTapId = null;
+  const DOUBLE_TAP_DELAY = 300;
+
   let params = {
     force: 6.0,
     diff: 0.0002,
@@ -273,35 +295,31 @@
     }
   }
 
-  /* ===== 新增：障碍物边界反弹 + 溅射扰动 ===== */
+  /* 障碍物边界反弹 + 溅射扰动 */
   function obstacleBounceSplash() {
-    const bounce = 0.42;   // 反弹强度
-    const perturb = 0.18;  // 切向扰动强度，产生细碎溅射涡旋
+    const bounce = 0.42;
+    const perturb = 0.18;
     const forceBase = params.force * 0.15;
 
     for (let j = 1; j <= M; j++) {
       for (let i = 1; i <= N; i++) {
         if (!obstacle[IX(i, j)]) continue;
 
-        // 上方流体：向下速度反弹向上 + 水平随机扰动
         if (j > 1 && !obstacle[IX(i, j-1)]) {
           const idx = IX(i, j-1);
           if (v[idx] > 0) v[idx] = -bounce * v[idx];
           u[idx] += (Math.random() - 0.5) * perturb * forceBase;
         }
-        // 下方流体：向上速度反弹向下 + 水平随机扰动
         if (j < M && !obstacle[IX(i, j+1)]) {
           const idx = IX(i, j+1);
           if (v[idx] < 0) v[idx] = -bounce * v[idx];
           u[idx] += (Math.random() - 0.5) * perturb * forceBase;
         }
-        // 左方流体：向右速度反弹向左 + 垂直随机扰动
         if (i > 1 && !obstacle[IX(i-1, j)]) {
           const idx = IX(i-1, j);
           if (u[idx] > 0) u[idx] = -bounce * u[idx];
           v[idx] += (Math.random() - 0.5) * perturb * forceBase;
         }
-        // 右方流体：向左速度反弹向右 + 垂直随机扰动
         if (i < N && !obstacle[IX(i+1, j)]) {
           const idx = IX(i+1, j);
           if (u[idx] < 0) u[idx] = -bounce * u[idx];
@@ -371,7 +389,7 @@
   }
 
   function vorticityConfinement(dt) {
-    const eps = 6.3; // 提升涡旋约束强度，增强溅射尾流
+    const eps = 6.3;
     for (let j = 1; j <= M; j++) {
       for (let i = 1; i <= N; i++) {
         const dudy = (u[IX(i, j+1)] - u[IX(i, j-1)]) * 0.5;
@@ -405,9 +423,8 @@
     advect(2, v, v0, u0, v0, dt);
     project(u, v, u0, v0, 14);
     
-    // 碰撞反弹 + 溅射扰动
     obstacleBounceSplash();
-    project(u, v, u0, v0, 6); // 反弹后修正散度
+    project(u, v, u0, v0, 6);
     
     vorticityConfinement(dt);
 
@@ -417,24 +434,44 @@
     advect(0, dens, dens0, u, v, dt);
 
     for (let k = 0; k < size; k++) {
-      dens[k] *= 0.9985; // 减慢密度衰减，溅射痕迹更明显
+      dens[k] *= 0.9985;
       u[k] *= 0.9995;
       v[k] *= 0.9995;
     }
   }
 
-  /* ===== 障碍物栅格化：与渲染严格对齐 ===== */
+  /* ===== 障碍物栅格化：支持旋转（90°增量） ===== */
+  function getRotatedRect(o) {
+    const cx = o.x + o.w/2;
+    const cy = o.y + o.h/2;
+    const angle = (o.angle || 0) % 360;
+    if (angle === 0 || angle === 180) {
+      return { x: o.x, y: o.y, w: o.w, h: o.h };
+    } else {
+      const newW = o.h;
+      const newH = o.w;
+      return {
+        x: cx - newW/2,
+        y: cy - newH/2,
+        w: newW,
+        h: newH
+      };
+    }
+  }
+
   function rasterizeObstacles() {
     obstacle.fill(0);
     for (const o of objects) {
       if (o.type !== 'wall') continue;
       const shape = o.shape || 'rect';
+      const angle = (o.angle || 0) % 360;
 
       if (shape === 'rect') {
-        const gx0 = clampi(Math.ceil(o.x * N) + 1, 1, N);
-        const gy0 = clampi(Math.ceil(o.y * M) + 1, 1, M);
-        const gx1 = clampi(Math.floor((o.x + o.w) * N), 1, N);
-        const gy1 = clampi(Math.floor((o.y + o.h) * M), 1, M);
+        const rect = getRotatedRect(o);
+        const gx0 = clampi(Math.ceil(rect.x * N) + 1, 1, N);
+        const gy0 = clampi(Math.ceil(rect.y * M) + 1, 1, M);
+        const gx1 = clampi(Math.floor((rect.x + rect.w) * N), 1, N);
+        const gy1 = clampi(Math.floor((rect.y + rect.h) * M), 1, M);
         if (gx0 > gx1 || gy0 > gy1) continue;
         for (let j = gy0; j <= gy1; j++) {
           for (let i = gx0; i <= gx1; i++) {
@@ -470,21 +507,57 @@
         const top = o.y * M + 1;
         const bottom = (o.y + o.h) * M + 1;
         const cx = (left + right) / 2;
+        const cy = (top + bottom) / 2;
         const gx0 = clampi(Math.floor(left), 1, N);
         const gy0 = clampi(Math.floor(top), 1, M);
         const gx1 = clampi(Math.ceil(right), 1, N);
         const gy1 = clampi(Math.ceil(bottom), 1, M);
         const height = Math.max(1, bottom - top);
-        for (let j = gy0; j <= gy1; j++) {
-          const t = clampi((j - top) / height, 0, 1);
-          const halfW = t * (right - left) / 2;
-          const rowLeft = Math.ceil(cx - halfW);
-          const rowRight = Math.floor(cx + halfW);
-          const clampedLeft = clampi(rowLeft, gx0, gx1);
-          const clampedRight = clampi(rowRight, gx0, gx1);
-          if (clampedLeft > clampedRight) continue;
-          for (let i = clampedLeft; i <= clampedRight; i++) {
-            obstacle[IX(i, j)] = 1;
+        const width = Math.max(1, right - left);
+
+        if (angle === 0) {
+          for (let j = gy0; j <= gy1; j++) {
+            const t = clampi((j - top) / height, 0, 1);
+            const halfW = t * (right - left) / 2;
+            const rowLeft = Math.ceil(cx - halfW);
+            const rowRight = Math.floor(cx + halfW);
+            const clampedLeft = clampi(rowLeft, gx0, gx1);
+            const clampedRight = clampi(rowRight, gx0, gx1);
+            if (clampedLeft > clampedRight) continue;
+            for (let i = clampedLeft; i <= clampedRight; i++) obstacle[IX(i, j)] = 1;
+          }
+        } else if (angle === 90) {
+          for (let i = gx0; i <= gx1; i++) {
+            const t = clampi((right - i) / width, 0, 1);
+            const halfH = t * (bottom - top) / 2;
+            const colTop = Math.ceil(cy - halfH);
+            const colBottom = Math.floor(cy + halfH);
+            const clampedTop = clampi(colTop, gy0, gy1);
+            const clampedBottom = clampi(colBottom, gy0, gy1);
+            if (clampedTop > clampedBottom) continue;
+            for (let j = clampedTop; j <= clampedBottom; j++) obstacle[IX(i, j)] = 1;
+          }
+        } else if (angle === 180) {
+          for (let j = gy0; j <= gy1; j++) {
+            const t = clampi((bottom - j) / height, 0, 1);
+            const halfW = t * (right - left) / 2;
+            const rowLeft = Math.ceil(cx - halfW);
+            const rowRight = Math.floor(cx + halfW);
+            const clampedLeft = clampi(rowLeft, gx0, gx1);
+            const clampedRight = clampi(rowRight, gx0, gx1);
+            if (clampedLeft > clampedRight) continue;
+            for (let i = clampedLeft; i <= clampedRight; i++) obstacle[IX(i, j)] = 1;
+          }
+        } else if (angle === 270) {
+          for (let i = gx0; i <= gx1; i++) {
+            const t = clampi((i - left) / width, 0, 1);
+            const halfH = t * (bottom - top) / 2;
+            const colTop = Math.ceil(cy - halfH);
+            const colBottom = Math.floor(cy + halfH);
+            const clampedTop = clampi(colTop, gy0, gy1);
+            const clampedBottom = clampi(colBottom, gy0, gy1);
+            if (clampedTop > clampedBottom) continue;
+            for (let j = clampedTop; j <= clampedBottom; j++) obstacle[IX(i, j)] = 1;
           }
         }
       }
@@ -562,10 +635,9 @@
     }
   }
 
-  /* ===== 渲染优化 ===== */
+  /* ===== 渲染 ===== */
   let fluidImgData = null;
 
-  // 生成像素砖块图案
   function buildBrickPattern() {
     const px = 6;
     const patCanvas = document.createElement('canvas');
@@ -586,7 +658,6 @@
     brickPattern = mctx.createPattern(patCanvas, 'repeat');
   }
 
-  // 预渲染网格背景到缓存
   function renderGridToCache() {
     gridCache.width = Math.round(W);
     gridCache.height = Math.round(H);
@@ -665,103 +736,80 @@
 
   function fracToPx(o) { return { x: o.x * W, y: o.y * H, w: o.w * W, h: o.h * H }; }
 
-  /* ===== 像素化墙体渲染：与流体栅格严格对齐 ===== */
+  /* ===== 像素化墙体渲染：支持90°旋转 ===== */
   function drawWallSprite(o) {
     const r = fracToPx(o);
     const shape = o.shape || 'rect';
     const cellW = W / N;
     const cellH = H / M;
+    const cx = r.x + r.w/2;
+    const cy = r.y + r.h/2;
+    const angle = (o.angle || 0) % 360;
+
+    mctx.save();
+    mctx.translate(cx, cy);
+    mctx.rotate(angle * Math.PI / 180);
+
+    const halfW = r.w / 2;
+    const halfH = r.h / 2;
 
     if (shape === 'rect') {
       mctx.fillStyle = '#6b7280';
-      mctx.fillRect(r.x, r.y, r.w, r.h);
+      mctx.fillRect(-halfW, -halfH, r.w, r.h);
       if (brickPattern) {
         mctx.save();
         mctx.beginPath();
-        mctx.rect(r.x, r.y, r.w, r.h);
+        mctx.rect(-halfW, -halfH, r.w, r.h);
         mctx.clip();
         mctx.fillStyle = brickPattern;
-        mctx.fillRect(r.x, r.y, r.w, r.h);
+        mctx.fillRect(-halfW, -halfH, r.w, r.h);
         mctx.restore();
       }
       mctx.strokeStyle = 'rgba(0,0,0,0.45)';
       mctx.lineWidth = 1;
-      mctx.strokeRect(r.x+1, r.y+1, r.w-2, r.h-2);
+      mctx.strokeRect(-halfW+1, -halfH+1, r.w-2, r.h-2);
     } else if (shape === 'circle') {
-      const cx = (o.x + o.w/2) * N + 1;
-      const cy = (o.y + o.h/2) * M + 1;
-      const rx = Math.max(0.5, (o.w/2) * N);
-      const ry = Math.max(0.5, (o.h/2) * M);
-      const gx0 = clampi(Math.floor(o.x * N) + 1, 1, N);
-      const gy0 = clampi(Math.floor(o.y * M) + 1, 1, M);
-      const gx1 = clampi(Math.ceil((o.x + o.w) * N), 1, N);
-      const gy1 = clampi(Math.ceil((o.y + o.h) * M), 1, M);
-
-      for (let j = gy0; j <= gy1; j++) {
-        const dy = (j - cy) / ry;
-        const dy2 = dy * dy;
+      const rx = halfW;
+      const ry = halfH;
+      const stepsY = Math.round(r.h / cellH);
+      for (let j = 0; j <= stepsY; j++) {
+        const t = (j / stepsY) * 2 - 1;
+        const dy2 = t * t;
         if (dy2 > 1) continue;
         const dxMax = Math.sqrt(1 - dy2);
-        const rowLeft = Math.ceil(cx - dxMax * rx);
-        const rowRight = Math.floor(cx + dxMax * rx);
-        const clampedLeft = clampi(rowLeft, gx0, gx1);
-        const clampedRight = clampi(rowRight, gx0, gx1);
-        if (clampedLeft > clampedRight) continue;
-
-        const sx = (clampedLeft - 1) * cellW;
-        const sy = (j - 1) * cellH;
-        const sw = (clampedRight - clampedLeft + 1) * cellW;
-        const sh = cellH;
-
+        const rowHalfW = dxMax * rx;
+        const sy = -ry + j * cellH;
         mctx.fillStyle = '#6b7280';
-        mctx.fillRect(sx, sy, sw, sh);
+        mctx.fillRect(-rowHalfW, sy, rowHalfW*2, cellH);
         if (brickPattern) {
           mctx.fillStyle = brickPattern;
-          mctx.fillRect(sx, sy, sw, sh);
+          mctx.fillRect(-rowHalfW, sy, rowHalfW*2, cellH);
         }
       }
     } else if (shape === 'triangle') {
-      const left = o.x * N + 1;
-      const right = (o.x + o.w) * N + 1;
-      const top = o.y * M + 1;
-      const bottom = (o.y + o.h) * M + 1;
-      const cx = (left + right) / 2;
-      const gx0 = clampi(Math.floor(left), 1, N);
-      const gy0 = clampi(Math.floor(top), 1, M);
-      const gx1 = clampi(Math.ceil(right), 1, N);
-      const gy1 = clampi(Math.ceil(bottom), 1, M);
-      const height = Math.max(1, bottom - top);
-
-      for (let j = gy0; j <= gy1; j++) {
-        const t = clampi((j - top) / height, 0, 1);
-        const halfW = t * (right - left) / 2;
-        const rowLeft = Math.ceil(cx - halfW);
-        const rowRight = Math.floor(cx + halfW);
-        const clampedLeft = clampi(rowLeft, gx0, gx1);
-        const clampedRight = clampi(rowRight, gx0, gx1);
-        if (clampedLeft > clampedRight) continue;
-
-        const sx = (clampedLeft - 1) * cellW;
-        const sy = (j - 1) * cellH;
-        const sw = (clampedRight - clampedLeft + 1) * cellW;
-        const sh = cellH;
-
+      const stepsY = Math.round(r.h / cellH);
+      for (let j = 0; j <= stepsY; j++) {
+        const t = j / stepsY;
+        const rowHalfW = t * halfW;
+        const sy = -halfH + j * cellH;
         mctx.fillStyle = '#6b7280';
-        mctx.fillRect(sx, sy, sw, sh);
+        mctx.fillRect(-rowHalfW, sy, rowHalfW*2, cellH);
         if (brickPattern) {
           mctx.fillStyle = brickPattern;
-          mctx.fillRect(sx, sy, sw, sh);
+          mctx.fillRect(-rowHalfW, sy, rowHalfW*2, cellH);
         }
       }
     }
 
-    // 选中状态
+    mctx.restore();
+
+    // 选中状态：轴对齐包围盒 + 放大缩放手柄
     if (o.id === selectedId) {
       mctx.strokeStyle = '#5ad1d6';
       mctx.lineWidth = 2;
       mctx.strokeRect(r.x, r.y, r.w, r.h);
       mctx.fillStyle = '#5ad1d6';
-      mctx.fillRect(r.x + r.w - 7, r.y + r.h - 7, 10, 10);
+      mctx.fillRect(r.x + r.w - 10, r.y + r.h - 10, 16, 16); // 16px大手柄
     }
   }
 
@@ -792,7 +840,7 @@
       mctx.lineWidth = 2;
       mctx.strokeRect(r.x-2, r.y-2, r.w+4, r.h+4);
       mctx.fillStyle = '#5ad1d6';
-      mctx.fillRect(r.x + r.w - 6, r.y + r.h - 6, 10, 10);
+      mctx.fillRect(r.x + r.w - 10, r.y + r.h - 10, 16, 16); // 16px大手柄
     }
   }
 
@@ -828,7 +876,6 @@
       const dt = Math.min(0.033, (t - lastT) / 1000) || 0.016;
       lastT = t;
 
-      // FPS 统计
       fpsFrames++;
       if (t - fpsLastTime >= 1000) {
         fps = fpsFrames;
@@ -967,11 +1014,12 @@
   function hitResizeHandle(fx, fy, o) {
     if (!o || (o.type !== 'wall' && o.type !== 'blower')) return false;
     const hx = (o.x + o.w) * W, hy = (o.y + o.h) * H;
-    return Math.abs(fx * W - hx) < 10 && Math.abs(fy * H - hy) < 10;
+    return Math.abs(fx * W - hx) < 18 && Math.abs(fy * H - hy) < 18; // 扩大判定范围
   }
 
-  const DEFAULT_WALL_W = 0.03, DEFAULT_WALL_H = 0.16;
-  const DEFAULT_BLOWER_W = 0.07, DEFAULT_BLOWER_H = 0.07;
+  // 默认尺寸翻倍
+  const DEFAULT_WALL_W = 0.06, DEFAULT_WALL_H = 0.32;
+  const DEFAULT_BLOWER_W = 0.14, DEFAULT_BLOWER_H = 0.14;
 
   mainCanvas.addEventListener('pointerdown', e => {
     mainCanvas.setPointerCapture(e.pointerId);
@@ -1048,8 +1096,8 @@
     } else if (drag.mode === 'resize') {
       const o = objects.find(o => o.id === drag.id);
       if (o) {
-        const minSize = o.type === 'blower' ? 0.035 : 0.02;
-        const maxSize = o.type === 'blower' ? 0.35 : 1;
+        const minSize = o.type === 'blower' ? 0.07 : 0.04;
+        const maxSize = o.type === 'blower' ? 0.5 : 1;
         o.w = clampi(drag.origW + (fx - drag.startX), minSize, Math.min(maxSize, 1 - o.x));
         o.h = clampi(drag.origH + (fy - drag.startY), minSize, Math.min(maxSize, 1 - o.y));
       }
@@ -1063,18 +1111,29 @@
     if (drag && drag.mode === 'new-wall') {
       const x = Math.min(drag.curX, drag.startX), y = Math.min(drag.curY, drag.startY);
       let w = Math.abs(drag.curX - drag.startX), h = Math.abs(drag.curY - drag.startY);
-      if (w < 0.015 && h < 0.015) { w = DEFAULT_WALL_W; h = DEFAULT_WALL_H; }
+      if (w < 0.03 && h < 0.03) { w = DEFAULT_WALL_W; h = DEFAULT_WALL_H; }
       objects.push({
         id: nextId++, type: 'wall', shape: drag.shape,
-        x: clampi(x, 0, 1-w), y: clampi(y, 0, 1-h), w, h
+        x: clampi(x, 0, 1-w), y: clampi(y, 0, 1-h), w, h, angle: 0
       });
       selectedId = nextId - 1;
       updateStatus();
     }
 
+    // 双击旋转逻辑
     if (pointerDownInfo && !pointerDownInfo.moved && drag && drag.mode === 'move') {
       const o = objects.find(o => o.id === drag.id);
-      if (o && o.type === 'blower') o.angle = (o.angle + 90) % 360;
+      if (o && (o.type === 'blower' || o.type === 'wall')) {
+        const now = performance.now();
+        if (now - lastTapTime < DOUBLE_TAP_DELAY && lastTapId === o.id) {
+          o.angle = (o.angle + 90) % 360;
+          lastTapTime = 0;
+          lastTapId = null;
+        } else {
+          lastTapTime = now;
+          lastTapId = o.id;
+        }
+      }
     }
 
     drag = null; pointerDownInfo = null;
@@ -1099,9 +1158,9 @@
   window.addEventListener('resize', resizeCanvases);
   resizeCanvases();
 
-  // 初始场景
-  objects.push({ id: nextId++, type: 'blower', x: 0.06, y: 0.44, w: 0.07, h: 0.07, angle: 0 });
-  objects.push({ id: nextId++, type: 'wall', shape: 'rect', x: 0.45, y: 0.32, w: 0.05, h: 0.36 });
+  // 初始场景（适配新尺寸）
+  objects.push({ id: nextId++, type: 'blower', x: 0.05, y: 0.4, w: 0.14, h: 0.14, angle: 0 });
+  objects.push({ id: nextId++, type: 'wall', shape: 'rect', x: 0.45, y: 0.25, w: 0.08, h: 0.5, angle: 0 });
   updateStatus();
 
   requestAnimationFrame(loop);
