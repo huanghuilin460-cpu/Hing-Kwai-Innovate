@@ -440,25 +440,28 @@
     }
   }
 
-  /* ===== 障碍物栅格化：支持旋转（90°增量） ===== */
-  function getRotatedRect(o) {
-    const cx = o.x + o.w/2;
-    const cy = o.y + o.h/2;
+  // ===== 通用：获取物体旋转后的轴对齐包围盒 =====
+  function getWorldAABB(o) {
+    const cx = o.x + o.w / 2;
+    const cy = o.y + o.h / 2;
     const angle = (o.angle || 0) % 360;
     if (angle === 0 || angle === 180) {
-      return { x: o.x, y: o.y, w: o.w, h: o.h };
+      return { x: o.x, y: o.y, w: o.w, h: o.h, cx: cx, cy: cy };
     } else {
-      const newW = o.h;
-      const newH = o.w;
+      const worldW = o.h;
+      const worldH = o.w;
       return {
-        x: cx - newW/2,
-        y: cy - newH/2,
-        w: newW,
-        h: newH
+        x: cx - worldW / 2,
+        y: cy - worldH / 2,
+        w: worldW,
+        h: worldH,
+        cx: cx,
+        cy: cy
       };
     }
   }
 
+  /* ===== 障碍物栅格化：与渲染严格对齐 ===== */
   function rasterizeObstacles() {
     obstacle.fill(0);
     for (const o of objects) {
@@ -467,7 +470,7 @@
       const angle = (o.angle || 0) % 360;
 
       if (shape === 'rect') {
-        const rect = getRotatedRect(o);
+        const rect = getWorldAABB(o);
         const gx0 = clampi(Math.ceil(rect.x * N) + 1, 1, N);
         const gy0 = clampi(Math.ceil(rect.y * M) + 1, 1, M);
         const gx1 = clampi(Math.floor((rect.x + rect.w) * N), 1, N);
@@ -479,14 +482,15 @@
           }
         }
       } else if (shape === 'circle') {
-        const cx = (o.x + o.w/2) * N + 1;
-        const cy = (o.y + o.h/2) * M + 1;
-        const rx = Math.max(0.5, (o.w/2) * N);
-        const ry = Math.max(0.5, (o.h/2) * M);
-        const gx0 = clampi(Math.floor(o.x * N) + 1, 1, N);
-        const gy0 = clampi(Math.floor(o.y * M) + 1, 1, M);
-        const gx1 = clampi(Math.ceil((o.x + o.w) * N), 1, N);
-        const gy1 = clampi(Math.ceil((o.y + o.h) * M), 1, M);
+        const aabb = getWorldAABB(o);
+        const cx = (aabb.x + aabb.w/2) * N + 1;
+        const cy = (aabb.y + aabb.h/2) * M + 1;
+        const rx = Math.max(0.5, (aabb.w/2) * N);
+        const ry = Math.max(0.5, (aabb.h/2) * M);
+        const gx0 = clampi(Math.floor(aabb.x * N) + 1, 1, N);
+        const gy0 = clampi(Math.floor(aabb.y * M) + 1, 1, M);
+        const gx1 = clampi(Math.ceil((aabb.x + aabb.w) * N), 1, N);
+        const gy1 = clampi(Math.ceil((aabb.y + aabb.h) * M), 1, M);
         for (let j = gy0; j <= gy1; j++) {
           const dy = (j - cy) / ry;
           const dy2 = dy * dy;
@@ -502,10 +506,11 @@
           }
         }
       } else if (shape === 'triangle') {
-        const left = o.x * N + 1;
-        const right = (o.x + o.w) * N + 1;
-        const top = o.y * M + 1;
-        const bottom = (o.y + o.h) * M + 1;
+        const aabb = getWorldAABB(o);
+        const left = aabb.x * N + 1;
+        const right = (aabb.x + aabb.w) * N + 1;
+        const top = aabb.y * M + 1;
+        const bottom = (aabb.y + aabb.h) * M + 1;
         const cx = (left + right) / 2;
         const cy = (top + bottom) / 2;
         const gx0 = clampi(Math.floor(left), 1, N);
@@ -564,21 +569,26 @@
     }
   }
 
+  // ===== 修复：鼓风机出风宽度匹配旋转后尺寸 =====
   function injectBlowers(dt) {
     for (const o of objects) {
       if (o.type !== 'blower') continue;
-      const cx = (o.x + o.w/2) * N + 1;
-      const cy = (o.y + o.h/2) * M + 1;
-      const sizeCellsX = Math.max(2, Math.round(o.w * N));
-      const sizeCellsY = Math.max(2, Math.round(o.h * M));
+      const aabb = getWorldAABB(o);
+      const cx = aabb.cx * N + 1;
+      const cy = aabb.cy * M + 1;
+      const sizeCellsX = Math.max(2, Math.round(aabb.w * N));
+      const sizeCellsY = Math.max(2, Math.round(aabb.h * M));
+
       let dirX = 0, dirY = 0;
       if (o.angle === 0)   dirX = 1;
       if (o.angle === 90)  dirY = 1;
       if (o.angle === 180) dirX = -1;
       if (o.angle === 270) dirY = -1;
+
       const span = Math.max(2, Math.round((dirX !== 0 ? sizeCellsY : sizeCellsX)));
       const forceFactor = 0.5;
       const densityFactor = 0.55;
+
       for (let s = 0; s < span; s++) {
         let gx, gy;
         if (dirX !== 0) {
@@ -736,75 +746,127 @@
 
   function fracToPx(o) { return { x: o.x * W, y: o.y * H, w: o.w * W, h: o.h * H }; }
 
-  /* ===== 像素化墙体渲染：支持90°旋转 ===== */
+  /* ===== 像素化墙体渲染：与栅格严格对齐，消除缝隙 ===== */
   function drawWallSprite(o) {
-    const r = fracToPx(o);
     const shape = o.shape || 'rect';
     const cellW = W / N;
     const cellH = H / M;
-    const cx = r.x + r.w/2;
-    const cy = r.y + r.h/2;
-    const angle = (o.angle || 0) % 360;
-
-    mctx.save();
-    mctx.translate(cx, cy);
-    mctx.rotate(angle * Math.PI / 180);
-
-    const halfW = r.w / 2;
-    const halfH = r.h / 2;
+    const aabb = getWorldAABB(o);
 
     if (shape === 'rect') {
-      mctx.fillStyle = '#6b7280';
-      mctx.fillRect(-halfW, -halfH, r.w, r.h);
-      if (brickPattern) {
-        mctx.save();
-        mctx.beginPath();
-        mctx.rect(-halfW, -halfH, r.w, r.h);
-        mctx.clip();
-        mctx.fillStyle = brickPattern;
-        mctx.fillRect(-halfW, -halfH, r.w, r.h);
-        mctx.restore();
-      }
-      mctx.strokeStyle = 'rgba(0,0,0,0.45)';
-      mctx.lineWidth = 1;
-      mctx.strokeRect(-halfW+1, -halfH+1, r.w-2, r.h-2);
-    } else if (shape === 'circle') {
-      const rx = halfW;
-      const ry = halfH;
-      const stepsY = Math.round(r.h / cellH);
-      for (let j = 0; j <= stepsY; j++) {
-        const t = (j / stepsY) * 2 - 1;
-        const dy2 = t * t;
-        if (dy2 > 1) continue;
-        const dxMax = Math.sqrt(1 - dy2);
-        const rowHalfW = dxMax * rx;
-        const sy = -ry + j * cellH;
+      const gx0 = clampi(Math.ceil(aabb.x * N) + 1, 1, N);
+      const gy0 = clampi(Math.ceil(aabb.y * M) + 1, 1, M);
+      const gx1 = clampi(Math.floor((aabb.x + aabb.w) * N), 1, N);
+      const gy1 = clampi(Math.floor((aabb.y + aabb.h) * M), 1, M);
+      if (gx0 > gx1 || gy0 > gy1) return;
+
+      for (let j = gy0; j <= gy1; j++) {
+        const sx = (gx0 - 1) * cellW;
+        const sy = (j - 1) * cellH;
+        const sw = (gx1 - gx0 + 1) * cellW;
+        const sh = cellH;
         mctx.fillStyle = '#6b7280';
-        mctx.fillRect(-rowHalfW, sy, rowHalfW*2, cellH);
+        mctx.fillRect(sx, sy, sw, sh);
         if (brickPattern) {
           mctx.fillStyle = brickPattern;
-          mctx.fillRect(-rowHalfW, sy, rowHalfW*2, cellH);
+          mctx.fillRect(sx, sy, sw, sh);
+        }
+      }
+    } else if (shape === 'circle') {
+      const cx = (aabb.x + aabb.w/2) * N + 1;
+      const cy = (aabb.y + aabb.h/2) * M + 1;
+      const rx = Math.max(0.5, (aabb.w/2) * N);
+      const ry = Math.max(0.5, (aabb.h/2) * M);
+      const gx0 = clampi(Math.floor(aabb.x * N) + 1, 1, N);
+      const gy0 = clampi(Math.floor(aabb.y * M) + 1, 1, M);
+      const gx1 = clampi(Math.ceil((aabb.x + aabb.w) * N), 1, N);
+      const gy1 = clampi(Math.ceil((aabb.y + aabb.h) * M), 1, M);
+
+      for (let j = gy0; j <= gy1; j++) {
+        const dy = (j - cy) / ry;
+        const dy2 = dy * dy;
+        if (dy2 > 1) continue;
+        const dxMax = Math.sqrt(1 - dy2);
+        const rowLeft = Math.ceil(cx - dxMax * rx);
+        const rowRight = Math.floor(cx + dxMax * rx);
+        const clampedLeft = clampi(rowLeft, gx0, gx1);
+        const clampedRight = clampi(rowRight, gx0, gx1);
+        if (clampedLeft > clampedRight) continue;
+
+        const sx = (clampedLeft - 1) * cellW;
+        const sy = (j - 1) * cellH;
+        const sw = (clampedRight - clampedLeft + 1) * cellW;
+        const sh = cellH;
+
+        mctx.fillStyle = '#6b7280';
+        mctx.fillRect(sx, sy, sw, sh);
+        if (brickPattern) {
+          mctx.fillStyle = brickPattern;
+          mctx.fillRect(sx, sy, sw, sh);
         }
       }
     } else if (shape === 'triangle') {
-      const stepsY = Math.round(r.h / cellH);
-      for (let j = 0; j <= stepsY; j++) {
-        const t = j / stepsY;
-        const rowHalfW = t * halfW;
-        const sy = -halfH + j * cellH;
+      const angle = (o.angle || 0) % 360;
+      const left = aabb.x * N + 1;
+      const right = (aabb.x + aabb.w) * N + 1;
+      const top = aabb.y * M + 1;
+      const bottom = (aabb.y + aabb.h) * M + 1;
+      const cx = (left + right) / 2;
+      const cy = (top + bottom) / 2;
+      const gx0 = clampi(Math.floor(left), 1, N);
+      const gy0 = clampi(Math.floor(top), 1, M);
+      const gx1 = clampi(Math.ceil(right), 1, N);
+      const gy1 = clampi(Math.ceil(bottom), 1, M);
+      const height = Math.max(1, bottom - top);
+      const width = Math.max(1, right - left);
+
+      let rows = [];
+      if (angle === 0) {
+        for (let j = gy0; j <= gy1; j++) {
+          const t = clampi((j - top) / height, 0, 1);
+          const halfW = t * (right - left) / 2;
+          rows.push({ j, left: Math.ceil(cx - halfW), right: Math.floor(cx + halfW) });
+        }
+      } else if (angle === 90) {
+        for (let i = gx0; i <= gx1; i++) {
+          const t = clampi((right - i) / width, 0, 1);
+          const halfH = t * (bottom - top) / 2;
+          rows.push({ j: i, left: Math.ceil(cy - halfH), right: Math.floor(cy + halfH) });
+        }
+      } else if (angle === 180) {
+        for (let j = gy0; j <= gy1; j++) {
+          const t = clampi((bottom - j) / height, 0, 1);
+          const halfW = t * (right - left) / 2;
+          rows.push({ j, left: Math.ceil(cx - halfW), right: Math.floor(cx + halfW) });
+        }
+      } else if (angle === 270) {
+        for (let i = gx0; i <= gx1; i++) {
+          const t = clampi((i - left) / width, 0, 1);
+          const halfH = t * (bottom - top) / 2;
+          rows.push({ j: i, left: Math.ceil(cy - halfH), right: Math.floor(cy + halfH) });
+        }
+      }
+
+      for (const row of rows) {
+        const clampedLeft = clampi(row.left, gx0, gx1);
+        const clampedRight = clampi(row.right, gx0, gx1);
+        if (clampedLeft > clampedRight) continue;
+        const sx = (clampedLeft - 1) * cellW;
+        const sy = (row.j - 1) * cellH;
+        const sw = (clampedRight - clampedLeft + 1) * cellW;
+        const sh = cellH;
         mctx.fillStyle = '#6b7280';
-        mctx.fillRect(-rowHalfW, sy, rowHalfW*2, cellH);
+        mctx.fillRect(sx, sy, sw, sh);
         if (brickPattern) {
           mctx.fillStyle = brickPattern;
-          mctx.fillRect(-rowHalfW, sy, rowHalfW*2, cellH);
+          mctx.fillRect(sx, sy, sw, sh);
         }
       }
     }
 
-    mctx.restore();
-
-    // 选中状态：轴对齐包围盒 + 16px缩放手柄
+    // 选中状态：世界包围盒 + 放大缩放手柄
     if (o.id === selectedId) {
+      const r = { x: aabb.x * W, y: aabb.y * H, w: aabb.w * W, h: aabb.h * H };
       mctx.strokeStyle = '#5ad1d6';
       mctx.lineWidth = 2;
       mctx.strokeRect(r.x, r.y, r.w, r.h);
@@ -835,7 +897,10 @@
     mctx.closePath();
     mctx.fill();
     mctx.restore();
+
     if (o.id === selectedId) {
+      const aabb = getWorldAABB(o);
+      const r = { x: aabb.x * W, y: aabb.y * H, w: aabb.w * W, h: aabb.h * H };
       mctx.strokeStyle = '#5ad1d6';
       mctx.lineWidth = 2;
       mctx.strokeRect(r.x-2, r.y-2, r.w+4, r.h+4);
@@ -1003,18 +1068,21 @@
     };
   }
 
+  // 修复：点击判定基于旋转后的包围盒
   function hitTest(fx, fy) {
     for (let k = objects.length - 1; k >= 0; k--) {
       const o = objects[k];
-      if (fx >= o.x && fx <= o.x + o.w && fy >= o.y && fy <= o.y + o.h) return o;
+      const aabb = getWorldAABB(o);
+      if (fx >= aabb.x && fx <= aabb.x + aabb.w && fy >= aabb.y && fy <= aabb.y + aabb.h) return o;
     }
     return null;
   }
 
-  // ===== 修复：缩放手柄判定范围扩大到24px =====
+  // 修复：缩放手柄判定基于旋转后的包围盒右下角
   function hitResizeHandle(fx, fy, o) {
     if (!o || (o.type !== 'wall' && o.type !== 'blower')) return false;
-    const hx = (o.x + o.w) * W, hy = (o.y + o.h) * H;
+    const aabb = getWorldAABB(o);
+    const hx = (aabb.x + aabb.w) * W, hy = (aabb.y + aabb.h) * H;
     return Math.abs(fx * W - hx) < 24 && Math.abs(fy * H - hy) < 24;
   }
 
@@ -1159,7 +1227,7 @@
   window.addEventListener('resize', resizeCanvases);
   resizeCanvases();
 
-  // 初始场景（标准默认尺寸）
+  // 初始场景
   objects.push({ id: nextId++, type: 'blower', x: 0.05, y: 0.43, w: 0.14, h: 0.14, angle: 0 });
   objects.push({ id: nextId++, type: 'wall', shape: 'rect', x: 0.45, y: 0.34, w: 0.06, h: 0.32, angle: 0 });
   updateStatus();
