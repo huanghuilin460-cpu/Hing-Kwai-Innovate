@@ -1,2201 +1,1110 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>風愈鈴 | Hing Kwai Innovate</title>
-<script>
-  // 尽早套用已保存的深浅色 / 字体大小偏好，避免刷新时颜色闪烁
-  (function () {
-    try {
-      var theme = localStorage.getItem("hingkwai-theme");
-      if (!theme) {
-        theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
-      }
-      document.documentElement.setAttribute("data-theme", theme);
-
-      var fontSize = localStorage.getItem("hingkwai-fontsize");
-      if (fontSize) {
-        document.documentElement.style.setProperty("--base-font-size", fontSize);
-      }
-    } catch (e) {
-      /* localStorage 不可用时，使用默认浅色主题与字体大小 */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>像素风洞沙盒 · Pixel Wind Tunnel</title>
+  <style>
+    :root {
+      --ink: #1b1f2a;
+      --panel: #2b3142;
+      --panel-2: #343b4f;
+      --line: #454d66;
+      --paper: #dfe3ea;
+      --paper-grid: #c9cfdb;
+      --accent: #5ad1d6;
+      --accent-2: #f2a65a;
+      --danger: #e8637a;
+      --text: #eef1f7;
+      --text-dim: #a9b0c3;
     }
-  })();
-</script>
-<!-- 网站图标 -->
-<link rel="icon" href="https://picsum.photos/id/237/32/32" type="image/png">
-<!-- 引入Font Awesome图标库（确保可访问） -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
-<!-- 引入Google字体 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-   :root {
-     --primary-color: #406c84;
-     --primary-light: #689fb9;
-     --primary-dark: #2d4e60;
-     --secondary-color: #f2f4f6;
-     --card-bg: #ffffff;
-     --input-bg: #ffffff;
-     --accent-color: #f3a953;
-     --accent-dark: #e9953a;
-     --text-color: #1f1f1f;
-     --light-text: #4a4a4a;
-     --border-color: #d8dde1;
-     --error-color: #dc3545;
-     --success-color: #28a745;
-     --max-width: 1200px;
-     --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-     --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-     --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-     --base-font-size: 100%;
-   }
-
-   /* 深色模式：改由 [data-theme="dark"] 手动/记忆式控制，
-      不再单独依赖系统 prefers-color-scheme，
-      避免部分卡片背景写死为白色、导致深色文字配白底看不清的问题 */
-   html[data-theme="dark"] {
-     --primary-color: #7fb3cd;
-     --primary-light: #9dc8dc;
-     --primary-dark: #5c93ac;
-     --secondary-color: #14141f;
-     --card-bg: #232338;
-     --input-bg: #2b2b42;
-     --text-color: #f2f4f6;
-     --light-text: #d3d7db;
-     --border-color: #3a3a52;
-     --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
-     --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
-     --shadow-lg: 0 8px 24px rgba(0,0,0,0.45);
-   }
-
-   html[data-theme="dark"] body {
-     background-color: var(--secondary-color);
-     color: var(--text-color);
-   }
-
-   html[data-theme="dark"] .feature-card:hover,
-   html[data-theme="dark"] .scene-card:hover,
-   html[data-theme="dark"] .review-card:hover {
-     border-color: var(--accent-color);
-   }
-
-   /* 字体大小调节：作用在根字号上，页面内使用 rem 的文字会跟着等比缩放 */
-   html {
-     font-size: var(--base-font-size);
-   }
-
-   * {
-     box-sizing: border-box;
-     margin: 0;
-     padding: 0;
-     font-family: "Inter", "Noto Sans TC", "Noto Sans SC", sans-serif;
-   }
-
-   body {
-     color: var(--text-color);
-     background-color: var(--secondary-color);
-     line-height: 1.6;
-     transition: all 0.3s ease;
-   }
-
-   html {
-     scroll-behavior: smooth;
-     scroll-padding-top: 80px;
-   }
-
-   /* 加载动画 */
-   .loader {
-     position: fixed;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     background-color: var(--secondary-color);
-     display: flex;
-     justify-content: center;
-     align-items: center;
-     z-index: 9999;
-     transition: opacity 0.5s ease-out;
-   }
-
-   .loader.hidden {
-     opacity: 0;
-     pointer-events: none;
-   }
-
-   .loader-spinner {
-     width: 48px;
-     height: 48px;
-     border: 5px solid var(--primary-color);
-     border-bottom-color: var(--accent-color);
-     border-radius: 50%;
-     animation: spin 1s linear infinite;
-   }
-
-   @keyframes spin {
-     0% { transform: rotate(0deg); }
-     100% { transform: rotate(360deg); }
-   }
-
-   header {
-     background-color: var(--card-bg);
-     box-shadow: var(--shadow-sm);
-     position: sticky;
-     top: 0;
-     z-index: 100;
-     transition: all 0.3s ease;
-   }
-
-   header.scrolled {
-     background-color: var(--card-bg);
-     box-shadow: var(--shadow-md);
-   }
-
-   .nav-container {
-     max-width: var(--max-width);
-     margin: auto;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     padding: 1rem 2rem;
-   }
-
-   .logo {
-     font-size: 1.5rem;
-     font-weight: 700;
-     color: var(--primary-color);
-     white-space: nowrap;
-     display: flex;
-     align-items: center;
-     gap: 0.5rem;
-   }
-
-   .logo-icon {
-     font-size: 1.8rem;
-     color: var(--accent-color);
-   }
-
-   .desktop-nav {
-     display: flex;
-     align-items: center;
-   }
-
-   .desktop-nav a {
-     text-decoration: none;
-     color: var(--text-color);
-     margin-left: 1.5rem;
-     font-weight: 500;
-     transition: all 0.3s ease;
-     position: relative;
-   }
-
-   .desktop-nav a::after {
-     content: '';
-     position: absolute;
-     bottom: -4px;
-     left: 0;
-     width: 0;
-     height: 2px;
-     background-color: var(--primary-color);
-     transition: width 0.3s ease;
-   }
-
-   .desktop-nav a:hover::after,
-   .desktop-nav a:focus::after {
-     width: 100%;
-   }
-
-   .desktop-nav a:hover,
-   .desktop-nav a:focus {
-     color: var(--primary-color);
-   }
-
-   .lang-selector {
-     margin-left: 1.5rem;
-   }
-
-   .lang-select {
-     border: 1px solid var(--primary-color);
-     background: var(--card-bg);
-     color: var(--primary-color);
-     border-radius: 6px;
-     padding: 0.5rem 0.8rem;
-     cursor: pointer;
-     font-weight: 500;
-     transition: all 0.3s ease;
-     appearance: none;
-     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath fill='%23406c84' d='M10.293 0.293a1 1 0 0 1 1.414 1.414L6 6l-5.707-5.293a1 1 0 1 1 1.414-1.414L6 3.172l4.88-4.88z'/%3E%3C/svg%3E");
-     background-repeat: no-repeat;
-     background-position: right 0.8rem center;
-     padding-right: 2.5rem;
-   }
-
-   .lang-select:hover,
-   .lang-select:focus {
-     background-color: var(--primary-color);
-     color: white;
-     outline: none;
-     box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.2);
-     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath fill='white' d='M10.293 0.293a1 1 0 0 1 1.414 1.414L6 6l-5.707-5.293a1 1 0 1 1 1.414-1.414L6 3.172l4.88-4.88z'/%3E%3C/svg%3E");
-   }
-
-   .mobile-menu-btn {
-     display: none;
-     background: none;
-     border: none;
-     font-size: 1.8rem;
-     cursor: pointer;
-     color: var(--primary-color);
-     padding: 0.2rem 0.5rem;
-     border-radius: 4px;
-     transition: background-color 0.3s ease;
-   }
-
-   .mobile-menu-btn:hover {
-     background-color: rgba(64, 108, 132, 0.1);
-   }
-
-   /* 显示/字体调整工具组 */
-   .utility-controls {
-     display: flex;
-     align-items: center;
-     gap: 0.6rem;
-     margin-left: 1.5rem;
-   }
-
-   .theme-toggle-btn {
-     display: inline-flex;
-     align-items: center;
-     justify-content: center;
-     width: 40px;
-     height: 40px;
-     border: 1px solid var(--primary-color);
-     background: var(--card-bg);
-     color: var(--primary-color);
-     border-radius: 6px;
-     cursor: pointer;
-     font-size: 1.1rem;
-     transition: all 0.3s ease;
-   }
-
-   .theme-toggle-btn:hover,
-   .theme-toggle-btn:focus {
-     background-color: var(--primary-color);
-     color: white;
-     outline: none;
-     box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.2);
-   }
-
-   .font-size-group {
-     display: inline-flex;
-     border: 1px solid var(--primary-color);
-     border-radius: 6px;
-     overflow: hidden;
-   }
-
-   .font-size-btn {
-     background: var(--card-bg);
-     color: var(--primary-color);
-     border: none;
-     width: 36px;
-     height: 40px;
-     cursor: pointer;
-     font-weight: 700;
-     font-size: 0.85rem;
-     line-height: 1;
-     transition: all 0.3s ease;
-   }
-
-   .font-size-btn + .font-size-btn {
-     border-left: 1px solid var(--primary-color);
-   }
-
-   .font-size-btn:hover,
-   .font-size-btn:focus {
-     background-color: var(--primary-color);
-     color: white;
-     outline: none;
-   }
-
-   .font-size-btn.small { font-size: 0.7rem; }
-   .font-size-btn.large { font-size: 1.05rem; }
-
-   .mobile-nav .utility-controls {
-     margin-left: 0;
-     margin-top: 0.5rem;
-     justify-content: flex-start;
-   }
-
-   .mobile-nav {
-     display: none;
-     position: absolute;
-     top: 100%;
-     left: 0;
-     right: 0;
-     background-color: var(--card-bg);
-     box-shadow: var(--shadow-md);
-     padding: 1.5rem 2rem;
-     flex-direction: column;
-     gap: 1rem;
-     z-index: 99;
-   }
-
-   .mobile-nav.active {
-     display: flex;
-   }
-
-   .mobile-nav a {
-     text-decoration: none;
-     color: var(--text-color);
-     font-weight: 500;
-     padding: 0.8rem 0;
-     border-bottom: 1px solid var(--border-color);
-     transition: color 0.3s ease;
-   }
-
-   .mobile-nav a:last-child {
-     border-bottom: none;
-   }
-
-   .mobile-nav a:hover,
-   .mobile-nav a:focus {
-     color: var(--primary-color);
-   }
-
-   .mobile-nav .lang-selector {
-     margin-left: 0;
-     margin-top: 0.5rem;
-   }
-
-   .mobile-nav .lang-select {
-     width: 100%;
-     padding: 0.8rem;
-   }
-
-   /* 产品英雄区 */
-   .product-hero {
-     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-     color: white;
-     padding: 5rem 2rem;
-     display: flex;
-     flex-wrap: wrap;
-     align-items: center;
-     gap: 3rem;
-     justify-content: center;
-     position: relative;
-     overflow: hidden;
-   }
-
-   .product-hero::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-     opacity: 0.3;
-   }
-
-   .product-hero-img {
-     flex: 1 1 400px;
-     max-width: 600px;
-     position: relative;
-     z-index: 1;
-   }
-
-   .product-hero-img img {
-     width: 100%;
-     border-radius: 16px;
-     box-shadow: var(--shadow-lg);
-     transition: transform 0.5s ease;
-   }
-
-   .product-hero-img img:hover {
-     transform: scale(1.02);
-   }
-
-   .product-hero-content {
-     flex: 1 1 400px;
-     max-width: 600px;
-     text-align: left;
-     position: relative;
-     z-index: 1;
-   }
-
-   .product-hero h1 {
-     font-size: 2.5rem;
-     margin-bottom: 1.5rem;
-     line-height: 1.3;
-     font-weight: 700;
-   }
-
-   .product-hero .tagline {
-     font-size: 1.25rem;
-     margin-bottom: 2.5rem;
-     opacity: 0.95;
-     line-height: 1.8;
-   }
-
-   .product-cta {
-     display: inline-block;
-     background-color: var(--accent-color);
-     color: white;
-     padding: 1rem 2rem;
-     border-radius: 8px;
-     text-decoration: none;
-     font-weight: 600;
-     font-size: 1.1rem;
-     transition: all 0.3s ease;
-     box-shadow: var(--shadow-md);
-     border: none;
-     cursor: pointer;
-   }
-
-   .product-cta:hover,
-   .product-cta:focus {
-     background-color: var(--accent-dark);
-     transform: translateY(-3px);
-     box-shadow: var(--shadow-lg);
-     color: white;
-     outline: none;
-   }
-
-   .product-cta.secondary {
-     background-color: white;
-     color: var(--primary-color);
-     margin-left: 1rem;
-   }
-
-   .product-cta.secondary:hover {
-     background-color: var(--secondary-color);
-   }
-
-   /* 信任标识 */
-   .trust-badges {
-     max-width: var(--max-width);
-     margin: 2rem auto;
-     padding: 0 2rem;
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: center;
-     align-items: center;
-     gap: 2rem;
-     opacity: 0.8;
-   }
-
-   .trust-badge {
-     display: flex;
-     align-items: center;
-     gap: 0.5rem;
-     color: var(--light-text);
-     font-size: 0.9rem;
-   }
-
-   .trust-badge i {
-     font-size: 1.2rem;
-     color: var(--primary-color);
-   }
-
-   /* 通用区块样式 */
-   .section {
-     max-width: var(--max-width);
-     margin: 6rem auto;
-     padding: 0 2rem;
-   }
-
-   .section-header {
-     text-align: center;
-     margin-bottom: 3rem;
-   }
-
-   .section h2 {
-     font-size: 2rem;
-     color: var(--primary-color);
-     margin-bottom: 1rem;
-     position: relative;
-     font-weight: 700;
-   }
-
-   .section h2::after {
-     content: "";
-     display: block;
-     width: 80px;
-     height: 4px;
-     background-color: var(--accent-color);
-     margin: 1rem auto 0;
-     border-radius: 2px;
-   }
-
-   .section-subtitle {
-     color: var(--light-text);
-     max-width: 700px;
-     margin: 0 auto;
-     font-size: 1.1rem;
-   }
-
-   /* 产品特点 */
-   .features {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-     gap: 2.5rem;
-     margin-top: 2rem;
-   }
-
-   .feature-card {
-     background: var(--card-bg);
-     border-radius: 12px;
-     box-shadow: var(--shadow-sm);
-     padding: 2rem;
-     transition: all 0.3s ease;
-     border: 1px solid var(--border-color);
-     text-align: center;
-   }
-
-   .feature-card:hover {
-     transform: translateY(-8px);
-     box-shadow: var(--shadow-lg);
-     border-color: var(--primary-color);
-   }
-
-   .feature-icon {
-     width: 70px;
-     height: 70px;
-     background-color: rgba(64, 108, 132, 0.1);
-     border-radius: 50%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     margin: 0 auto 1.5rem;
-     color: var(--primary-color);
-     font-size: 2rem;
-   }
-
-   .feature-card h3 {
-     color: var(--primary-color);
-     margin-bottom: 1.2rem;
-     font-size: 1.4rem;
-     font-weight: 600;
-   }
-
-   .feature-card p {
-     color: var(--light-text);
-     font-size: 1rem;
-     line-height: 1.8;
-   }
-
-   /* 自定义功能展示 */
-   .customization {
-     background-color: var(--card-bg);
-     border-radius: 16px;
-     box-shadow: var(--shadow-md);
-     padding: 4rem 2rem;
-     margin-top: 2rem;
-     border: 1px solid var(--border-color);
-   }
-
-   .customization-steps {
-     display: flex;
-     flex-wrap: wrap;
-     gap: 2rem;
-     justify-content: center;
-     position: relative;
-   }
-
-   .customization-steps::before {
-     content: '';
-     position: absolute;
-     top: 40px;
-     left: 50%;
-     width: 80%;
-     height: 2px;
-     background-color: var(--border-color);
-     transform: translateX(-50%);
-     z-index: 0;
-   }
-
-   .step-card {
-     flex: 1 1 250px;
-     max-width: 300px;
-     text-align: center;
-     position: relative;
-     z-index: 1;
-     padding: 0 1rem;
-   }
-
-   .step-number {
-     width: 50px;
-     height: 50px;
-     background-color: var(--primary-color);
-     color: white;
-     border-radius: 50%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-weight: bold;
-     margin: 0 auto 1.8rem;
-     box-shadow: var(--shadow-md);
-     font-size: 1.2rem;
-     position: relative;
-     z-index: 2;
-   }
-
-   .step-card h3 {
-     color: var(--primary-color);
-     margin-bottom: 1rem;
-     font-size: 1.3rem;
-     font-weight: 600;
-   }
-
-   .step-card p {
-     color: var(--light-text);
-     font-size: 1rem;
-     line-height: 1.7;
-   }
-
-   /* 使用场景 */
-   .scenes {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-     gap: 2.5rem;
-     margin-top: 2rem;
-   }
-
-   .scene-card {
-     background: var(--card-bg);
-     border-radius: 12px;
-     overflow: hidden;
-     box-shadow: var(--shadow-sm);
-     transition: all 0.3s ease;
-     border: 1px solid var(--border-color);
-   }
-
-   .scene-card:hover {
-     transform: translateY(-8px);
-     box-shadow: var(--shadow-lg);
-     border-color: var(--primary-color);
-   }
-
-   .scene-img {
-     width: 100%;
-     height: 220px;
-     object-fit: cover;
-     transition: transform 0.5s ease;
-   }
-
-   .scene-card:hover .scene-img {
-     transform: scale(1.05);
-   }
-
-   .scene-content {
-     padding: 2rem 1.8rem;
-   }
-
-   .scene-content h3 {
-     color: var(--primary-color);
-     margin-bottom: 1rem;
-     font-size: 1.3rem;
-     font-weight: 600;
-   }
-
-   .scene-content p {
-     color: var(--light-text);
-     font-size: 1rem;
-     line-height: 1.7;
-   }
-
-   /* 用户评价 */
-   .reviews {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-     gap: 2.5rem;
-     margin-top: 2rem;
-   }
-
-   .review-card {
-     background: var(--card-bg);
-     border-radius: 12px;
-     padding: 2rem;
-     box-shadow: var(--shadow-sm);
-     transition: all 0.3s ease;
-     border: 1px solid var(--border-color);
-   }
-
-   .review-card:hover {
-     transform: translateY(-8px);
-     box-shadow: var(--shadow-lg);
-     border-color: var(--primary-color);
-   }
-
-   .review-rating {
-     color: var(--accent-color);
-     font-size: 1.4rem;
-     margin-bottom: 1.2rem;
-   }
-
-   .review-text {
-     color: var(--light-text);
-     font-size: 1rem;
-     margin-bottom: 2rem;
-     font-style: italic;
-     line-height: 1.8;
-     position: relative;
-   }
-
-   .review-text::before {
-     content: '"';
-     font-size: 3rem;
-     color: rgba(64, 108, 132, 0.1);
-     position: absolute;
-     top: -1rem;
-     left: -0.5rem;
-   }
-
-   .review-author {
-     display: flex;
-     align-items: center;
-     gap: 1.2rem;
-   }
-
-   .author-avatar {
-     width: 60px;
-     height: 60px;
-     border-radius: 50%;
-     object-fit: cover;
-     border: 2px solid var(--primary-color);
-     box-shadow: var(--shadow-sm);
-   }
-
-   .author-info h4 {
-     color: var(--primary-color);
-     font-size: 1.1rem;
-     font-weight: 600;
-   }
-
-   .author-info p {
-     color: var(--light-text);
-     font-size: 0.9rem;
-   }
-
-   /* 产品规格 */
-   .specs {
-     background-color: var(--card-bg);
-     border-radius: 16px;
-     box-shadow: var(--shadow-md);
-     padding: 3rem 2rem;
-     margin-top: 2rem;
-     border: 1px solid var(--border-color);
-   }
-
-   .specs-table {
-     width: 100%;
-     border-collapse: collapse;
-     margin-top: 2rem;
-   }
-
-   .specs-table th,
-   .specs-table td {
-     padding: 1.2rem 1.5rem;
-     text-align: left;
-     border-bottom: 1px solid var(--border-color);
-   }
-
-   .specs-table th {
-     color: var(--primary-color);
-     font-weight: 600;
-     width: 30%;
-   }
-
-   .specs-table td {
-     color: var(--light-text);
-   }
-
-   .specs-table tr:last-child td,
-   .specs-table tr:last-child th {
-     border-bottom: none;
-   }
-
-   /* FAQ 常见问题 */
-   .faq {
-     margin-top: 2rem;
-   }
-
-   .faq-item {
-     margin-bottom: 1rem;
-     border: 1px solid var(--border-color);
-     border-radius: 8px;
-     overflow: hidden;
-   }
-
-   .faq-question {
-     padding: 1.2rem 1.5rem;
-     background-color: var(--card-bg);
-     color: var(--primary-color);
-     font-weight: 600;
-     cursor: pointer;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     transition: background-color 0.3s ease;
-     border: none;
-     width: 100%;
-     text-align: left;
-     font-size: 1rem;
-   }
-
-   .faq-question:hover {
-     background-color: rgba(64, 108, 132, 0.05);
-   }
-
-   .faq-answer {
-     padding: 0 1.5rem;
-     max-height: 0;
-     overflow: hidden;
-     transition: max-height 0.5s ease, padding 0.5s ease;
-     background-color: var(--secondary-color);
-   }
-
-   .faq-answer p {
-     padding: 1.2rem 0;
-     color: var(--light-text);
-     line-height: 1.8;
-   }
-
-   .faq-item.active .faq-answer {
-     max-height: 500px;
-     padding: 0 1.5rem 1.5rem;
-   }
-
-   .faq-icon {
-     font-size: 1.2rem;
-     transition: transform 0.3s ease;
-     flex-shrink: 0;
-     margin-left: 1rem;
-   }
-
-   .faq-item.active .faq-icon {
-     transform: rotate(180deg);
-   }
-
-   /* 联系咨询 */
-   .contact-section {
-     background: linear-gradient(135deg, rgba(64, 108, 132, 0.08) 0%, rgba(104, 159, 185, 0.08) 100%);
-     border-radius: 16px;
-     padding: 4rem 2rem;
-     text-align: center;
-     border: 1px solid var(--border-color);
-   }
-
-   .contact-section p {
-     max-width: 700px;
-     margin: 0 auto 2.5rem;
-     color: var(--light-text);
-     font-size: 1.1rem;
-     line-height: 1.8;
-   }
-
-   .contact-form {
-     max-width: 600px;
-     margin: 2rem auto 0;
-     background-color: var(--card-bg);
-     padding: 2rem;
-     border-radius: 12px;
-     box-shadow: var(--shadow-md);
-   }
-
-   .form-group {
-     margin-bottom: 1.5rem;
-     text-align: left;
-   }
-
-   .form-group label {
-     display: block;
-     margin-bottom: 0.5rem;
-     color: var(--primary-color);
-     font-weight: 500;
-   }
-
-   .form-control {
-     width: 100%;
-     padding: 0.8rem 1rem;
-     border: 1px solid var(--border-color);
-     border-radius: 6px;
-     font-size: 1rem;
-     color: var(--text-color);
-     transition: border-color 0.3s ease, box-shadow 0.3s ease;
-     background-color: var(--input-bg);
-   }
-
-   .form-control:focus {
-     outline: none;
-     border-color: var(--primary-color);
-     box-shadow: 0 0 0 3px rgba(64, 108, 132, 0.2);
-   }
-
-   textarea.form-control {
-     min-height: 120px;
-     resize: vertical;
-   }
-
-   .form-status {
-     margin-top: 1rem;
-     font-size: 0.95rem;
-     display: none;
-   }
-
-   .form-status.success {
-     display: block;
-     color: var(--success-color);
-   }
-
-   .form-status.error {
-     display: block;
-     color: var(--error-color);
-   }
-
-   /* 公司信息 */
-   .company-info {
-     max-width: var(--max-width);
-     margin: 4rem auto;
-     padding: 0 2rem;
-     display: flex;
-     flex-wrap: wrap;
-     gap: 3rem;
-     justify-content: center;
-     text-align: center;
-   }
-
-   .info-card {
-     flex: 1 1 250px;
-     max-width: 300px;
-   }
-
-   .info-card i {
-     font-size: 2rem;
-     color: var(--primary-color);
-     margin-bottom: 1rem;
-   }
-
-   .info-card h3 {
-     color: var(--primary-color);
-     margin-bottom: 0.8rem;
-     font-size: 1.2rem;
-   }
-
-   .info-card p {
-     color: var(--light-text);
-     font-size: 1rem;
-   }
-
-   /* 页脚 */
-   .footer {
-     background-color: var(--primary-dark);
-     color: white;
-     padding: 4rem 2rem 2rem;
-     margin-top: 8rem;
-   }
-
-   .footer-container {
-     max-width: var(--max-width);
-     margin: 0 auto;
-     display: flex;
-     flex-wrap: wrap;
-     gap: 3rem;
-     justify-content: space-between;
-     margin-bottom: 3rem;
-   }
-
-   .footer-column {
-     flex: 1 1 200px;
-   }
-
-   .footer-column h3 {
-     font-size: 1.2rem;
-     margin-bottom: 1.5rem;
-     position: relative;
-     padding-bottom: 0.8rem;
-   }
-
-   .footer-column h3::after {
-     content: '';
-     position: absolute;
-     bottom: 0;
-     left: 0;
-     width: 40px;
-     height: 2px;
-     background-color: var(--accent-color);
-   }
-
-   .footer-column ul {
-     list-style: none;
-   }
-
-   .footer-column ul li {
-     margin-bottom: 1rem;
-   }
-
-   .footer-column a {
-     color: rgba(255, 255, 255, 0.8);
-     text-decoration: none;
-     transition: color 0.3s ease;
-   }
-
-   .footer-column a:hover {
-     color: var(--accent-color);
-   }
-
-   .footer-contact {
-     display: flex;
-     align-items: center;
-     gap: 0.8rem;
-     margin-bottom: 1rem;
-     color: rgba(255, 255, 255, 0.8);
-   }
-
-   .footer-social {
-     display: flex;
-     gap: 1rem;
-     margin-top: 1.5rem;
-   }
-
-   .footer-social a {
-     width: 40px;
-     height: 40px;
-     border-radius: 50%;
-     background-color: rgba(255, 255, 255, 0.1);
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     transition: all 0.3s ease;
-   }
-
-   .footer-social a:hover {
-     background-color: var(--accent-color);
-     transform: translateY(-3px);
-   }
-
-   .footer-bottom {
-     max-width: var(--max-width);
-     margin: 0 auto;
-     padding-top: 2rem;
-     border-top: 1px solid rgba(255, 255, 255, 0.1);
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: space-between;
-     align-items: center;
-     font-size: 0.9rem;
-     color: rgba(255, 255, 255, 0.6);
-   }
-
-   .footer-links {
-     display: flex;
-     gap: 1.5rem;
-   }
-
-   .footer-links a {
-     color: rgba(255, 255, 255, 0.6);
-     text-decoration: none;
-     transition: color 0.3s ease;
-   }
-
-   .footer-links a:hover {
-     color: var(--accent-color);
-   }
-
-   /* 响应式调整 */
-   @media (max-width: 768px) {
-     .desktop-nav {
-       display: none;
-     }
-
-     .mobile-menu-btn {
-       display: block;
-     }
-
-     .product-hero {
-       padding: 4rem 1.5rem;
-       gap: 2rem;
-     }
-
-     .product-hero h1 {
-       font-size: 2rem;
-     }
-
-     .product-hero .tagline {
-       font-size: 1.15rem;
-     }
-
-     .section {
-       margin: 4rem auto;
-     }
-
-     .product-hero-content {
-       text-align: center;
-     }
-
-     .product-cta.secondary {
-       margin-left: 0;
-       margin-top: 1rem;
-     }
-
-     .customization-steps::before {
-       display: none;
-     }
-
-     .specs-table th,
-     .specs-table td {
-       padding: 1rem;
-     }
-
-     .footer-container {
-       gap: 2rem;
-     }
-   }
-
-   @media (max-width: 480px) {
-     .nav-container {
-       padding: 1rem;
-     }
-
-     .product-hero {
-       padding: 3rem 1rem;
-     }
-
-     .product-hero h1 {
-       font-size: 1.8rem;
-     }
-
-     .section {
-       margin: 3rem auto;
-       padding: 0 1rem;
-     }
-
-     .feature-card, .review-card {
-       padding: 1.5rem;
-     }
-
-     .scene-img {
-       height: 180px;
-     }
-
-     .customization {
-       padding: 2.5rem 1rem;
-     }
-
-     .contact-section {
-       padding: 3rem 1rem;
-     }
-
-     .footer {
-       padding: 3rem 1rem 2rem;
-     }
-
-     .footer-bottom {
-       flex-direction: column;
-       gap: 1rem;
-       text-align: center;
-     }
-
-     .footer-links {
-       flex-wrap: wrap;
-       justify-content: center;
-     }
-   }
-</style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+      background: var(--ink);
+      font-family: 'Courier New', ui-monospace, monospace;
+      color: var(--text);
+      -webkit-user-select: none; user-select: none;
+      touch-action: none;
+    }
+    #app { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
+    #toolbar {
+      flex: 0 0 auto;
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 10px;
+      background: var(--panel);
+      border-bottom: 4px solid var(--line);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+      flex-wrap: wrap;
+      position: relative; z-index: 5;
+      image-rendering: pixelated;
+    }
+    #toolbar .title {
+      font-weight: bold; letter-spacing: 1px; font-size: 13px;
+      color: var(--accent); padding-right: 8px; white-space: nowrap;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.35);
+    }
+    .sep { width: 2px; align-self: stretch; background: var(--line); margin: 0 4px; }
+    button.tool {
+      -webkit-appearance: none; appearance: none;
+      border: none; cursor: pointer;
+      width: 44px; height: 44px;
+      background: var(--panel-2);
+      border: 2px solid var(--line);
+      box-shadow: inset -2px -2px 0 rgba(0,0,0,0.35), inset 2px 2px 0 rgba(255,255,255,0.06);
+      image-rendering: pixelated;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      padding: 0;
+    }
+    button.tool canvas { image-rendering: pixelated; width: 24px; height: 24px; pointer-events: none; }
+    button.tool:active { transform: translateY(1px); }
+    button.tool.active {
+      background: var(--accent);
+      box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3), inset 2px 2px 0 rgba(255,255,255,0.35);
+    }
+    button.tool .lbl {
+      position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%);
+      font-size: 9px; color: var(--text-dim); white-space: nowrap;
+    }
+    .tool-group { display: flex; gap: 6px; padding-bottom: 14px; }
+    .ctrl {
+      display: flex; flex-direction: column; align-items: flex-start;
+      font-size: 10px; color: var(--text-dim); gap: 2px;
+      padding-bottom: 14px;
+    }
+    .ctrl input[type=range] { width: 90px; accent-color: var(--accent-2); }
+    .ctrl .val { color: var(--accent); font-weight: bold; }
+    .chk { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text-dim); padding-bottom: 14px; }
+    #playPause {
+      -webkit-appearance: none; appearance: none;
+      width: 44px; height: 44px; background: var(--panel-2); border: 2px solid var(--line);
+      color: var(--text); cursor: pointer; font-size: 16px;
+      box-shadow: inset -2px -2px 0 rgba(0,0,0,0.35), inset 2px 2px 0 rgba(255,255,255,0.06);
+      padding: 0;
+    }
+    #clearBtn {
+      -webkit-appearance: none; appearance: none;
+      height: 44px; padding: 0 10px; background: var(--danger); border: 2px solid #a83b4d;
+      color: #fff; font-weight: bold; cursor: pointer; font-size: 11px;
+    }
+    #status {
+      margin-left: auto; font-size: 10px; color: var(--text-dim); text-align: right; line-height: 1.5;
+      padding-right: 4px;
+    }
+    #status b { color: var(--accent-2); }
+    #stage { position: relative; flex: 1 1 auto; overflow: hidden; background: var(--paper); }
+    #stage canvas {
+      position: absolute; top: 0; left: 0;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+    #hint {
+      position: absolute; left: 10px; bottom: 10px; z-index: 4;
+      font-size: 10px; color: #4a5066; background: rgba(255,255,255,0.55);
+      padding: 6px 8px; border: 1px solid rgba(0,0,0,0.15); max-width: 260px; line-height: 1.5;
+      pointer-events: none;
+    }
+    #errorLog {
+      position: absolute; top: 10px; right: 10px; z-index: 10;
+      background: rgba(255,0,0,0.8); color: white; padding: 8px; font-size: 12px;
+      display: none; max-width: 300px; word-wrap: break-word;
+    }
+  </style>
 </head>
 <body>
-<!-- 加载动画 -->
-<div class="loader" id="loader">
-  <div class="loader-spinner"></div>
-</div>
-
-<header id="siteHeader">
-  <div class="nav-container">
-    <div class="logo">
-      <i class="fa fa-wind logo-icon"></i>
-      <span data-text-zh="興貴創新"
-            data-text-zh-CN="兴贵创新"
-            data-text-en="Hing Kwai Innovate">
-        興貴創新
-      </span>
-    </div>
-    <nav class="desktop-nav">
-      <a href="#about"
-         data-text-zh="品牌理念"
-         data-text-zh-CN="品牌理念"
-         data-text-en="Our Concept">品牌理念</a>
-      <a href="#features"
-         data-text-zh="產品介紹"
-         data-text-zh-CN="产品介绍"
-         data-text-en="Products">產品介紹</a>
-      <a href="#specs"
-         data-text-zh="產品規格"
-         data-text-zh-CN="产品规格"
-         data-text-en="Specifications">產品規格</a>
-      <a href="#faq"
-         data-text-zh="常見問題"
-         data-text-zh-CN="常见问题"
-         data-text-en="FAQ">常見問題</a>
-      <a href="#contact"
-         data-text-zh="聯絡我們"
-         data-text-zh-CN="联系我们"
-         data-text-en="Contact Us">聯絡我們</a>
-      <div class="lang-selector">
-        <select class="lang-select" id="langSelect" aria-label="切换语言">
-          <option value="zh">繁體中文</option>
-          <option value="zh-CN">简体中文</option>
-          <option value="en">English</option>
-        </select>
-      </div>
-      <div class="utility-controls">
-        <button type="button" class="theme-toggle-btn" id="themeToggleBtn" aria-label="切换深浅色主题" title="切换深浅色主题">
-          <i class="fa fa-moon-o" id="themeToggleIcon"></i>
-        </button>
-        <div class="font-size-group" role="group" aria-label="调整字体大小">
-          <button type="button" class="font-size-btn small" id="fontDecreaseBtn" aria-label="缩小字体" title="缩小字體">A-</button>
-          <button type="button" class="font-size-btn large" id="fontIncreaseBtn" aria-label="放大字体" title="放大字體">A+</button>
-        </div>
-      </div>
-    </nav>
-    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="打开菜单" aria-expanded="false">
-      <i class="fa fa-bars"></i>
-    </button>
-  </div>
-  <nav class="mobile-nav" id="mobileNav">
-    <a href="#about"
-       data-text-zh="品牌理念"
-       data-text-zh-CN="品牌理念"
-       data-text-en="Our Concept">品牌理念</a>
-    <a href="#features"
-       data-text-zh="產品介紹"
-       data-text-zh-CN="产品介绍"
-       data-text-en="Products">產品介紹</a>
-    <a href="#specs"
-       data-text-zh="產品規格"
-       data-text-zh-CN="产品规格"
-       data-text-en="Specifications">產品規格</a>
-    <a href="#faq"
-       data-text-zh="常見問題"
-       data-text-zh-CN="常见问题"
-       data-text-en="FAQ">常見問題</a>
-    <a href="#contact"
-       data-text-zh="聯絡我們"
-       data-text-zh-CN="联系我们"
-       data-text-en="Contact Us">聯絡我們</a>
-    <div class="lang-selector">
-      <select class="lang-select" id="mobileLangSelect" aria-label="切换语言">
-        <option value="zh">繁體中文</option>
-        <option value="zh-CN">简体中文</option>
-        <option value="en">English</option>
-      </select>
-    </div>
-    <div class="utility-controls">
-      <button type="button" class="theme-toggle-btn" id="themeToggleBtnMobile" aria-label="切换深浅色主题" title="切换深浅色主题">
-        <i class="fa fa-moon-o" id="themeToggleIconMobile"></i>
+<div id="app">
+  <div id="toolbar">
+    <div class="title">▓ 像素风洞 WIND&nbsp;TUNNEL</div>
+    <div class="sep"></div>
+    <div class="tool-group">
+      <button class="tool" data-tool="select" title="选择/移动/旋转">
+        <canvas width="16" height="16" data-icon="select"></canvas>
+        <span class="lbl">选择</span>
       </button>
-      <div class="font-size-group" role="group" aria-label="调整字体大小">
-        <button type="button" class="font-size-btn small" id="fontDecreaseBtnMobile" aria-label="缩小字体" title="缩小字體">A-</button>
-        <button type="button" class="font-size-btn large" id="fontIncreaseBtnMobile" aria-label="放大字体" title="放大字體">A+</button>
-      </div>
+      <button class="tool" data-tool="wall" title="放置矩形墙体：拖拽画出大小">
+        <canvas width="16" height="16" data-icon="wall"></canvas>
+        <span class="lbl">矩形墙</span>
+      </button>
+      <button class="tool" data-tool="wall-tri" title="放置三角形墙体：拖拽画出大小">
+        <canvas width="16" height="16" data-icon="wall-tri"></canvas>
+        <span class="lbl">三角墙</span>
+      </button>
+      <button class="tool" data-tool="wall-circle" title="放置圆形墙体：拖拽画出大小">
+        <canvas width="16" height="16" data-icon="wall-circle"></canvas>
+        <span class="lbl">圆形墙</span>
+      </button>
+      <button class="tool" data-tool="blower" title="放置鼓风机：点击放置，点击旋转朝向，拖右下角可缩放">
+        <canvas width="16" height="16" data-icon="blower"></canvas>
+        <span class="lbl">鼓风机</span>
+      </button>
+      <button class="tool" data-tool="delete" title="删除：点击物体删除">
+        <canvas width="16" height="16" data-icon="delete"></canvas>
+        <span class="lbl">删除</span>
+      </button>
     </div>
-  </nav>
-</header>
-
-<!-- 产品英雄区 -->
-<section class="product-hero">
-  <div class="product-hero-img">
-    <img src="https://picsum.photos/id/175/1200/800"
-         alt="風愈鈴產品展示"
-         data-alt-zh="風愈鈴產品展示"
-         data-alt-zh-CN="风愈铃产品展示"
-         data-alt-en="Wind Healing Chime Product Display"
-         loading="lazy"
-         onerror="this.onerror=null;this.src='https://picsum.photos/1200/800?fallback'; this.alt='产品图片加载失败';">
+    <div class="sep"></div>
+    <button id="clearBtn" title="清空画布">清空 CLEAR</button>
+    <button id="playPause" title="暂停/继续模拟">⏸</button>
+    <div class="sep"></div>
+    <div class="ctrl">
+      <span>风力 FORCE <span class="val" id="forceVal">6.0</span></span>
+      <input type="range" id="forceSlider" min="1" max="15" step="0.5" value="6">
+    </div>
+    <div class="ctrl">
+      <span>扩散 DIFFUSION <span class="val" id="diffVal">0.0002</span></span>
+      <input type="range" id="diffSlider" min="0" max="20" step="1" value="2">
+    </div>
+    <div class="ctrl">
+      <span>粘度 VISCOSITY <span class="val" id="viscVal">0.0000</span></span>
+      <input type="range" id="viscSlider" min="0" max="20" step="1" value="0">
+    </div>
+    <div class="chk">
+      <label><input type="checkbox" id="streamToggle"> 流线粒子<br>STREAMLINES</label>
+    </div>
+    <div id="status">工具: <b id="toolName">选择</b> · 物体: <b id="objCount">0</b> · FPS: <b id="fpsVal">0</b></div>
   </div>
-  <div class="product-hero-content">
-    <h1 data-text-zh="風愈鈴：讓風成為陪伴的聲音"
-        data-text-zh-CN="风愈铃：让风成为陪伴的声音"
-        data-text-en="Wind Healing Chime: Let the Wind Be Your Companion">
-        風愈鈴：讓風成為陪伴的聲音
-    </h1>
-    <p class="tagline"
-       data-text-zh="自訂專屬聲音，驅散孤獨感，每一次微風都帶來溫暖陪伴"
-       data-text-zh-CN="自定义专属声音，驱散孤独感，每一次微风都带来温暖陪伴"
-       data-text-en="Customize your exclusive sound, dispel loneliness, and let every breeze bring warm companionship">
-       自訂專屬聲音，驅散孤獨感，每一次微風都帶來溫暖陪伴
-    </p>
-    <a href="#contact" class="product-cta"
-       data-text-zh="預約體驗"
-       data-text-zh-CN="预约体验"
-       data-text-en="Book a Demo">
-       預約體驗
-    </a>
-    <a href="#specs" class="product-cta secondary"
-       data-text-zh="查看規格"
-       data-text-zh-CN="查看规格"
-       data-text-en="View Specs">
-       查看規格
-    </a>
-  </div>
-</section>
-
-<!-- 信任标识 -->
-<div class="trust-badges">
-  <div class="trust-badge">
-    <i class="fa fa-shield"></i>
-    <span data-text-zh="安全交易保障" data-text-zh-CN="安全交易保障" data-text-en="Secure Transaction">安全交易保障</span>
-  </div>
-  <div class="trust-badge">
-    <i class="fa fa-truck"></i>
-    <span data-text-zh="免費配送" data-text-zh-CN="免费配送" data-text-en="Free Shipping">免費配送</span>
-  </div>
-  <div class="trust-badge">
-    <i class="fa fa-shield"></i>
-    <span data-text-zh="1年產品保固" data-text-zh-CN="1年产品保修" data-text-en="1 Year Warranty">1年產品保固</span>
-  </div>
-  <div class="trust-badge">
-    <i class="fa fa-undo"></i>
-    <span data-text-zh="7天無理由退換" data-text-zh-CN="7天无理由退换" data-text-en="7-Day Return">7天無理由退換</span>
-  </div>
-  <div class="trust-badge">
-    <i class="fa fa-certificate"></i>
-    <span data-text-zh="ISO品質認證" data-text-zh-CN="ISO质量认证" data-text-en="ISO Certified">ISO品質認證</span>
+  <div id="stage">
+    <canvas id="fluidCanvas"></canvas>
+    <canvas id="mainCanvas"></canvas>
+    <div id="hint">拖拽放置墙体和鼓风机，位置完全自由（非网格吸附）。选中物体后拖右下角蓝色小方块可缩放大小；点击鼓风机机身可切换朝向。右键/长按物体可删除。</div>
+    <div id="errorLog"></div>
   </div>
 </div>
-
-<!-- 产品特点 -->
-<section id="features" class="section">
-  <div class="section-header">
-    <h2 data-text-zh="產品核心特點"
-        data-text-zh-CN="产品核心特点"
-        data-text-en="Core Features">
-        產品核心特點
-    </h2>
-    <p class="section-subtitle"
-       data-text-zh="結合創新科技與人文關懷，打造專屬於你的陪伴體驗"
-       data-text-zh-CN="结合创新科技与人文关怀，打造专属于你的陪伴体验"
-       data-text-en="Combining innovative technology with humanistic care to create a companion experience unique to you">
-       結合創新科技與人文關懷，打造專屬於你的陪伴體驗
-    </p>
-  </div>
-  <div class="features">
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fa fa-music"></i></div>
-      <h3 data-text-zh="全自訂聲音"
-          data-text-zh-CN="全自定义声音"
-          data-text-en="Fully Customizable Sound">
-          全自訂聲音
-      </h3>
-      <p data-text-zh="上傳親人問候、自然音效或音樂片段，風吹時即可聽到專屬陪伴聲"
-          data-text-zh-CN="上传亲人问候、自然音效或音乐片段，风吹时即可听到专属陪伴声"
-          data-text-en="Upload family greetings, natural sounds, or music clips—hear your exclusive companion sound when the wind blows">
-          上傳親人問候、自然音效或音樂片段，風吹時即可聽到專屬陪伴聲
-      </p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fa fa-heart"></i></div>
-      <h3 data-text-zh="驅散孤獨感"
-          data-text-zh-CN="驱散孤独感"
-          data-text-en="Dispel Loneliness">
-          驅散孤獨感
-      </h3>
-      <p data-text-zh="專為獨居人士、上班族或需要陪伴感的用戶設計，讓空間充滿溫暖氛圍"
-          data-text-zh-CN="专为独居人士、上班族或需要陪伴感的用户设计，让空间充满温暖氛围"
-          data-text-en="Designed for seniors living alone, office workers, or anyone needing companionship—fill your space with warmth">
-          專為獨居人士、上班族或需要陪伴感的用戶設計，讓空間充滿溫暖氛圍
-      </p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fa fa-paint-brush"></i></div>
-      <h3 data-text-zh="美學設計"
-          data-text-zh-CN="美学设计"
-          data-text-en="Aesthetic Design">
-          美學設計
-      </h3>
-      <p data-text-zh="結合聲音學與現代設計，輕盈質感與空間完美融合，既是裝飾也是心靈陪伴"
-          data-text-zh-CN="结合声音学与现代设计，轻盈质感与空间完美融合，既是装饰也是心灵陪伴"
-          data-text-en="Combines acoustics and modern design—lightweight texture blends perfectly with space, serving as both decor and spiritual companion">
-          結合聲音學與現代設計，輕盈質感與空間完美融合，既是裝飾也是心靈陪伴
-      </p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fa fa-solar-panel"></i></div>
-      <h3 data-text-zh="環保節能"
-          data-text-zh-CN="环保节能"
-          data-text-en="Eco-Friendly">
-          環保節能
-      </h3>
-      <p data-text-zh="太陽能充電設計，無需頻繁更換電池，戶外室內皆可使用，永續陪伴"
-          data-text-zh-CN="太阳能充电设计，无需频繁更换电池，户外室内皆可使用，永续陪伴"
-          data-text-en="Solar charging design—no frequent battery replacement, usable indoors and outdoors for sustainable companionship">
-          太陽能充電設計，無需頻繁更換電池，戶外室內皆可使用，永續陪伴
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- 自定义功能 -->
-<section id="customization" class="section">
-  <div class="section-header">
-    <h2 data-text-zh="專屬聲音自訂流程"
-        data-text-zh-CN="专属声音自定义流程"
-        data-text-en="Exclusive Sound Customization Process">
-        專屬聲音自訂流程
-    </h2>
-    <p class="section-subtitle"
-       data-text-zh="四個簡單步驟，打造屬於你的獨特聲音陪伴"
-       data-text-zh-CN="四个简单步骤，打造属于你的独特声音陪伴"
-       data-text-en="Four simple steps to create your unique sound companion">
-       四個簡單步驟，打造屬於你的獨特聲音陪伴
-    </p>
-  </div>
-  <div class="customization">
-    <div class="customization-steps">
-      <div class="step-card">
-        <div class="step-number">1</div>
-        <h3 data-text-zh="選擇聲音類型"
-            data-text-zh-CN="选择声音类型"
-            data-text-en="Choose Sound Type">
-            選擇聲音類型
-        </h3>
-        <p data-text-zh="從系統音效庫挑選，或上傳個人錄音（親人問候、寵物叫聲等）"
-            data-text-zh-CN="从系统音效库挑选，或上传个人录音（亲人问候、宠物叫声等）"
-            data-text-en="Select from system sound library or upload personal recordings (family greetings, pet sounds, etc.)">
-            從系統音效庫挑選，或上傳個人錄音（親人問候、寵物叫聲等）
-        </p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">2</div>
-        <h3 data-text-zh="調整音效參數"
-            data-text-zh-CN="调整音效参数"
-            data-text-en="Adjust Sound Parameters">
-            調整音效參數
-        </h3>
-        <p data-text-zh="自訂音量、音調、間隔時間，打造獨一無二的聽覺體驗"
-            data-text-zh-CN="自定义音量、音调、间隔时间，打造独一无二的听觉体验"
-            data-text-en="Customize volume, pitch, and interval time to create a unique auditory experience">
-            自訂音量、音調、間隔時間，打造獨一無二的聽覺體驗
-        </p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">3</div>
-        <h3 data-text-zh="連接設備同步"
-            data-text-zh-CN="连接设备同步"
-            data-text-en="Connect & Sync">
-            連接設備同步
-        </h3>
-        <p data-text-zh="透過藍牙連接手機APP，一鍵同步自訂聲音至風愈鈴"
-            data-text-zh-CN="通过蓝牙连接手机APP，一键同步自定义声音至风愈铃"
-            data-text-en="Connect to mobile APP via Bluetooth and sync your custom sound to the wind chime with one click">
-            透過藍牙連接手機APP，一鍵同步自訂聲音至風愈鈴
-        </p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">4</div>
-        <h3 data-text-zh="享受陪伴時光"
-            data-text-zh-CN="享受陪伴时光"
-            data-text-en="Enjoy Companion Moments">
-            享受陪伴時光
-        </h3>
-        <p data-text-zh="掛置於喜愛的角落，微風吹動即響起專屬聲音，驅散孤獨"
-            data-text-zh-CN="挂置于喜爱的角落，微风吹动即响起专属声音，驱散孤独"
-            data-text-en="Hang it in your favorite corner—your custom sound will play with the breeze to dispel loneliness">
-            掛置於喜愛的角落，微風吹動即響起專屬聲音，驅散孤獨
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 使用场景 -->
-<section id="scenes" class="section">
-  <div class="section-header">
-    <h2 data-text-zh="適用場景"
-        data-text-zh-CN="适用场景"
-        data-text-en="Applicable Scenarios">
-        適用場景
-    </h2>
-    <p class="section-subtitle"
-       data-text-zh="無論是居家生活還是工作空間，風愈鈴都能帶來溫暖陪伴"
-       data-text-zh-CN="无论是居家生活还是工作空间，风愈铃都能带来温暖陪伴"
-       data-text-en="Whether it's home life or work space, the wind chime can bring warm companionship">
-       無論是居家生活還是工作空間，風愈鈴都能帶來溫暖陪伴
-    </p>
-  </div>
-  <div class="scenes">
-    <div class="scene-card">
-      <img src="https://picsum.photos/id/1060/800/600"
-           alt="臥室場景"
-           class="scene-img"
-           data-alt-zh="臥室場景"
-           data-alt-zh-CN="卧室场景"
-           data-alt-en="Bedroom Scene"
-           loading="lazy"
-           onerror="this.onerror=null;this.src='https://picsum.photos/800/600?fallback'; this.alt='场景图片加载失败';">
-      <div class="scene-content">
-        <h3 data-text-zh="臥室陪伴"
-            data-text-zh-CN="卧室陪伴"
-            data-text-en="Bedroom Companion">
-            臥室陪伴
-        </h3>
-        <p data-text-zh="睡前聽著熟悉的聲音，放鬆身心，驅散獨處的孤獨感，提升睡眠品質"
-            data-text-zh-CN="睡前听着熟悉的声音，放松身心，驱散独处的孤独感，提升睡眠品质"
-            data-text-en="Listen to familiar sounds before bed to relax, dispel loneliness, and improve sleep quality">
-            睡前聽著熟悉的聲音，放鬆身心，驅散獨處的孤獨感，提升睡眠品質
-        </p>
-      </div>
-    </div>
-    <div class="scene-card">
-      <img src="https://picsum.photos/id/180/800/600"
-           alt="陽台/庭院場景"
-           class="scene-img"
-           data-alt-zh="陽台/庭院場景"
-           data-alt-zh-CN="阳台/庭院场景"
-           data-alt-en="Balcony/Courtyard Scene"
-           loading="lazy"
-           onerror="this.onerror=null;this.src='https://picsum.photos/800/600?fallback'; this.alt='场景图片加载失败';">
-      <div class="scene-content">
-        <h3 data-text-zh="陽台/庭院"
-            data-text-zh-CN="阳台/庭院"
-            data-text-en="Balcony/Courtyard">
-            陽台/庭院
-        </h3>
-        <p data-text-zh="晨讀或下午茶時，微風帶來專屬聲音，讓放鬆時光更有溫度"
-            data-text-zh-CN="晨读或下午茶时，微风带来专属声音，让放松时光更有温度"
-            data-text-en="During morning reading or afternoon tea, the breeze brings your custom sound, making relaxation time warmer">
-            晨讀或下午茶時，微風帶來專屬聲音，讓放鬆時光更有溫度
-        </p>
-      </div>
-    </div>
-    <div class="scene-card">
-      <img src="https://picsum.photos/id/42/800/600"
-           alt="辦公室場景"
-           class="scene-img"
-           data-alt-zh="辦公室場景"
-           data-alt-zh-CN="办公室场景"
-           data-alt-en="Office Scene"
-           loading="lazy"
-           onerror="this.onerror=null;this.src='https://picsum.photos/800/600?fallback'; this.alt='场景图片加载失败';">
-      <div class="scene-content">
-        <h3 data-text-zh="辦公室"
-            data-text-zh-CN="办公室"
-            data-text-en="Office">
-            辦公室
-        </h3>
-        <p data-text-zh="繁忙工作中，偶爾響起的溫暖聲音，緩解壓力，帶來心靈慰藉"
-            data-text-zh-CN="繁忙工作中，偶尔响起的温暖声音，缓解压力，带来心灵慰藉"
-            data-text-en="Amidst busy work, the occasional warm sound relieves stress and brings spiritual comfort">
-            繁忙工作中，偶爾響起的溫暖聲音，緩解壓力，帶來心靈慰藉
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 用户评价 -->
-<section id="reviews" class="section">
-  <div class="section-header">
-    <h2 data-text-zh="用戶真實評價"
-        data-text-zh-CN="用户真实评价"
-        data-text-en="Genuine User Reviews">
-        用戶真實評價
-    </h2>
-    <p class="section-subtitle"
-       data-text-zh="來自真實用戶的使用體驗與感受"
-       data-text-zh-CN="来自真实用户的使用体验与感受"
-       data-text-en="Genuine user experiences and feelings">
-       來自真實用戶的使用體驗與感受
-    </p>
-  </div>
-  <div class="reviews">
-    <div class="review-card">
-      <div class="review-rating">★★★★★</div>
-      <p class="review-text"
-         data-text-zh="獨自居住後總覺得空蕩蕩的，風愈鈴裡錄了女兒的問候聲，每次吹風都像她在身邊，孤獨感少了很多"
-         data-text-zh-CN="独自居住后总觉得空荡荡的，风愈铃里录了女儿的问候声，每次吹风都像她在身边，孤独感少了很多"
-         data-text-en="I always felt empty after living alone. I recorded my daughter's greetings in the wind chime—every time the wind blows, it feels like she's with me, and the loneliness has decreased a lot">
-         獨自居住後總覺得空蕩蕩的，風愈鈴裡錄了女兒的問候聲，每次吹風都像她在身邊，孤獨感少了很多
-      </p>
-      <div class="review-author">
-        <img src="https://picsum.photos/id/64/100/100"
-             alt="用戶頭像"
-             class="author-avatar"
-             loading="lazy"
-             onerror="this.onerror=null;this.src='https://picsum.photos/100/100?fallback';">
-        <div class="author-info">
-          <h4 data-text-zh="陳女士 62歲"
-              data-text-zh-CN="陈女士 62岁"
-              data-text-en="Ms. Chen, 62">
-              陳女士 62歲
-          </h4>
-          <p data-text-zh="使用3個月"
-              data-text-zh-CN="使用3个月"
-              data-text-en="Used for 3 months">
-              使用3個月
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="review-card">
-      <div class="review-rating">★★★★★</div>
-      <p class="review-text"
-         data-text-zh="上班族獨居，下班回家總是很安靜。上傳了故鄉的溪流聲，現在每次開窗吹風都能感受到家的溫暖，太治愈了"
-         data-text-zh-CN="上班族独居，下班回家总是很安静。上传了故乡的溪流声，现在每次开窗吹风都能感受到家的温暖，太治愈了"
-         data-text-en="I'm an office worker living alone, and it's always quiet when I get home from work. I uploaded the sound of the stream in my hometown—now every time I open the window and feel the wind, I can feel the warmth of home, it's so healing">
-         上班族獨居，下班回家總是很安靜。上傳了故鄉的溪流聲，現在每次開窗吹風都能感受到家的溫暖，太治愈了
-      </p>
-      <div class="review-author">
-        <img src="https://picsum.photos/id/91/100/100"
-             alt="用戶頭像"
-             class="author-avatar"
-             loading="lazy"
-             onerror="this.onerror=null;this.src='https://picsum.photos/100/100?fallback';">
-        <div class="author-info">
-          <h4 data-text-zh="李先生 28歲"
-              data-text-zh-CN="李先生 28岁"
-              data-text-en="Mr. Li, 28">
-              李先生 28歲
-          </h4>
-          <p data-text-zh="使用1個月"
-              data-text-zh-CN="使用1个月"
-              data-text-en="Used for 1 month">
-              使用1個月
-          </p>
-        </div>
-      </div>
-    </div>
-    <div class="review-card">
-      <div class="review-rating">★★★★★</div>
-      <p class="review-text"
-         data-text-zh="買給媽媽的生日禮物，她把爸爸的笑聲錄了進去，現在每天都會掛在陽台。媽媽說，聽到聲音就像爸爸還在身邊一樣"
-         data-text-zh-CN="买给妈妈的生日礼物，她把爸爸的笑声录了进去，现在每天都会挂在阳台。妈妈说，听到声音就像爸爸还在身边一样"
-         data-text-en="I bought it as a birthday gift for my mom. She recorded my dad's laughter and now hangs it on the balcony every day. Mom said hearing the sound feels like dad is still with her">
-         買給媽媽的生日禮物，她把爸爸的笑聲錄了進去，現在每天都會掛在陽台。媽媽說，聽到聲音就像爸爸還在身邊一樣
-      </p>
-      <div class="review-author">
-        <img src="https://picsum.photos/id/54/100/100"
-             alt="用戶頭像"
-             class="author-avatar"
-             loading="lazy"
-             onerror="this.onerror=null;this.src='https://picsum.photos/100/100?fallback';">
-        <div class="author-info">
-          <h4 data-text-zh="王小姐 35歲"
-              data-text-zh-CN="王小姐 35岁"
-              data-text-en="Ms. Wang, 35">
-              王小姐 35歲
-          </h4>
-          <p data-text-zh="使用6個月"
-              data-text-zh-CN="使用6个月"
-              data-text-en="Used for 6 months">
-              使用6個月
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 产品规格 -->
-<section id="specs" class="section">
-  <div class="section-header">
-    <h2 data-text-zh="產品規格"
-        data-text-zh-CN="产品规格"
-        data-text-en="Product Specifications">
-        產品規格
-    </h2>
-    <p class="section-subtitle"
-       data-text-zh="詳細的產品參數與技術規格"
-       data-text-zh-CN="详细的产品参数与技术规格"
-       data-text-en="Detailed product parameters and technical specifications">
-       詳細的產品參數與技術規格
-    </p>
-  </div>
-  <div class="specs">
-    <table class="specs-table">
-      <tr>
-        <th data-text-zh="產品尺寸" data-text-zh-CN="产品尺寸" data-text-en="Dimensions">產品尺寸</th>
-        <td data-text-zh="直徑 15cm × 長度 45cm" data-text-zh-CN="直径 15cm × 长度 45cm" data-text-en="Diameter 15cm × Length 45cm">直徑 15cm × 長度 45cm</td>
-      </tr>
-      <tr>
-        <th data-text-zh="重量" data-text-zh-CN="重量" data-text-en="Weight">重量</th>
-        <td data-text-zh="約 380g" data-text-zh-CN="约 380g" data-text-en="Approx. 380g">約 380g</td>
-      </tr>
-      <tr>
-        <th data-text-zh="電源供應" data-text-zh-CN="电源供应" data-text-en="Power Supply">電源供應</th>
-        <td data-text-zh="太陽能充電 + USB-C充電（5V/1A）" data-text-zh-CN="太阳能充电 + USB-C充电（5V/1A）" data-text-en="Solar Charging + USB-C (5V/1A)">太陽能充電 + USB-C充電（5V/1A）</td>
-      </tr>
-      <tr>
-        <th data-text-zh="電池容量" data-text-zh-CN="电池容量" data-text-en="Battery Capacity">電池容量</th>
-        <td data-text-zh="2000mAh 鋰電池" data-text-zh-CN="2000mAh 锂电池" data-text-en="2000mAh Lithium Battery">2000mAh 鋰電池</td>
-      </tr>
-      <tr>
-        <th data-text-zh="續航時間" data-text-zh-CN="续航时间" data-text-en="Battery Life">續航時間</th>
-        <td data-text-zh="滿電狀態下可連續使用15天（待機）" data-text-zh-CN="满电状态下可连续使用15天（待机）" data-text-en="15 days of standby on full charge">滿電狀態下可連續使用15天（待機）</td>
-      </tr>
-      <tr>
-        <th data-text-zh="藍牙版本" data-text-zh-CN="蓝牙版本" data-text-en="Bluetooth Version">藍牙版本</th>
-        <td data-text-zh="Bluetooth 5.0" data-text-zh-CN="Bluetooth 5.0" data-text-en="Bluetooth 5.0">Bluetooth 5.0</td>
-      </tr>
-      <tr>
-        <th data-text-zh="防水等級" data-text-zh-CN="防水等级" data-text-en="Waterproof Rating">防水等級</th>
-        <td data-text-zh="IPX5 防水" data-text-zh-CN="IPX5 防水" data-text-en="IPX5 Waterproof">IPX5 防水</td>
-      </tr>
-      <tr>
-        <th data-text-zh="材質" data-text-zh-CN="材质" data-text-en="Material">材質</th>
-        <td data-text-zh="鋁合金外殼 + 環保樹脂風鈴片" data-text-zh-CN="铝合金外壳 + 环保树脂风铃片" data-text-en="Aluminum alloy shell + eco-friendly resin chime plates">鋁合金外殼 + 環保樹脂風鈴片</td>
-      </tr>
-      <tr>
-        <th data-text-zh="配對裝置數量" data-text-zh-CN="配对装置数量" data-text-en="Paired Devices">配對裝置數量</th>
-        <td data-text-zh="最多支援 3 台手機同時管理" data-text-zh-CN="最多支持 3 台手机同时管理" data-text-en="Supports up to 3 phones managed simultaneously">最多支援 3 台手機同時管理</td>
-      </tr>
-      <tr>
-        <th data-text-zh="適用溫度" data-text-zh-CN="适用温度" data-text-en="Operating Temperature">適用溫度</th>
-        <td data-text-zh="-10°C 至 50°C" data-text-zh-CN="-10°C 至 50°C" data-text-en="-10°C to 50°C">-10°C 至 50°C</td>
-      </tr>
-      <tr>
-        <th data-text-zh="包裝內容" data-text-zh-CN="包装内容" data-text-en="Package Contents">包裝內容</th>
-        <td data-text-zh="風愈鈴主機 × 1、掛繩 × 1、USB-C 充電線 × 1、說明書 × 1" data-text-zh-CN="风愈铃主机 × 1、挂绳 × 1、USB-C 充电线 × 1、说明书 × 1" data-text-en="Wind chime unit × 1, hanging cord × 1, USB-C cable × 1, manual × 1">風愈鈴主機 × 1、掛繩 × 1、USB-C 充電線 × 1、說明書 × 1</td>
-      </tr>
-    </table>
-  </div>
-</section>
-
-<!-- 常见问题 -->
-<section id="faq" class="section">
-  <div class="section-header">
-    <h2 data-text-zh="常見問題"
-        data-text-zh-CN="常见问题"
-        data-text-en="Frequently Asked Questions">
-        常見問題
-    </h2>
-    <p class="section-subtitle"
-       data-text-zh="關於風愈鈴，你可能想知道的事"
-       data-text-zh-CN="关于风愈铃，你可能想知道的事"
-       data-text-en="Things you might want to know about the Wind Healing Chime">
-       關於風愈鈴，你可能想知道的事
-    </p>
-  </div>
-  <div class="faq">
-    <div class="faq-item">
-      <button class="faq-question" aria-expanded="false">
-        <span data-text-zh="風愈鈴可以上傳多少段自訂聲音？"
-              data-text-zh-CN="风愈铃可以上传多少段自定义声音？"
-              data-text-en="How many custom sound clips can the Wind Healing Chime store?">
-              風愈鈴可以上傳多少段自訂聲音？
-        </span>
-        <i class="fa fa-chevron-down faq-icon"></i>
-      </button>
-      <div class="faq-answer">
-        <p data-text-zh="風愈鈴內建儲存空間可保存最多 20 段聲音片段，每段長度上限為 30 秒，可隨時透過APP新增或替換。"
-           data-text-zh-CN="风愈铃内建储存空间可保存最多 20 段声音片段，每段长度上限为 30 秒，可随时通过APP新增或替换。"
-           data-text-en="The built-in storage holds up to 20 sound clips, each up to 30 seconds long, and can be added or replaced anytime via the app.">
-           風愈鈴內建儲存空間可保存最多 20 段聲音片段，每段長度上限為 30 秒，可隨時透過APP新增或替換。
-        </p>
-      </div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-question" aria-expanded="false">
-        <span data-text-zh="下雨天或潮濕環境可以使用嗎？"
-              data-text-zh-CN="下雨天或潮湿环境可以使用吗？"
-              data-text-en="Can it be used in rain or humid conditions?">
-              下雨天或潮濕環境可以使用嗎？
-        </span>
-        <i class="fa fa-chevron-down faq-icon"></i>
-      </button>
-      <div class="faq-answer">
-        <p data-text-zh="風愈鈴具備 IPX5 防水等級，可承受一般降雨與潮濕環境，但不建議長時間浸泡於水中或放置於淋浴間等高濕度密閉空間。"
-           data-text-zh-CN="风愈铃具备 IPX5 防水等级，可承受一般降雨与潮湿环境，但不建议长时间浸泡于水中或放置于淋浴间等高湿度密闭空间。"
-           data-text-en="It has an IPX5 waterproof rating and can withstand normal rain and humidity, but should not be submerged or placed in enclosed high-humidity spaces such as showers.">
-           風愈鈴具備 IPX5 防水等級，可承受一般降雨與潮濕環境，但不建議長時間浸泡於水中或放置於淋浴間等高濕度密閉空間。
-        </p>
-      </div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-question" aria-expanded="false">
-        <span data-text-zh="太陽能充電需要多久才能充滿？"
-              data-text-zh-CN="太阳能充电需要多久才能充满？"
-              data-text-en="How long does solar charging take to fully charge?">
-              太陽能充電需要多久才能充滿？
-        </span>
-        <i class="fa fa-chevron-down faq-icon"></i>
-      </button>
-      <div class="faq-answer">
-        <p data-text-zh="在充足日照下約需 6-8 小時可充滿；亦可使用隨附的 USB-C 充電線，約 2 小時即可充滿電池。"
-           data-text-zh-CN="在充足日照下约需 6-8 小时可充满；亦可使用随附的 USB-C 充电线，约 2 小时即可充满电池。"
-           data-text-en="Under sufficient sunlight it takes about 6-8 hours to fully charge; alternatively, the included USB-C cable can fully charge it in about 2 hours.">
-           在充足日照下約需 6-8 小時可充滿；亦可使用隨附的 USB-C 充電線，約 2 小時即可充滿電池。
-        </p>
-      </div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-question" aria-expanded="false">
-        <span data-text-zh="保固期內出現故障如何處理？"
-              data-text-zh-CN="保修期内出现故障如何处理？"
-              data-text-en="What if it malfunctions during the warranty period?">
-              保固期內出現故障如何處理？
-        </span>
-        <i class="fa fa-chevron-down faq-icon"></i>
-      </button>
-      <div class="faq-answer">
-        <p data-text-zh="產品提供1年保固，如遇非人為損壞的故障問題，請透過聯絡表單與我們聯繫，我們將安排免費維修或更換。"
-           data-text-zh-CN="产品提供1年保修，如遇非人为损坏的故障问题，请通过联系表单与我们联系，我们将安排免费维修或更换。"
-           data-text-en="The product comes with a 1-year warranty. For non-user-caused defects, please contact us via the form below and we will arrange free repair or replacement.">
-           產品提供1年保固，如遇非人為損壞的故障問題，請透過聯絡表單與我們聯繫，我們將安排免費維修或更換。
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 联系咨询 -->
-<section id="contact" class="section">
-  <div class="contact-section">
-    <h2 data-text-zh="聯絡我們"
-        data-text-zh-CN="联系我们"
-        data-text-en="Contact Us">
-        聯絡我們
-    </h2>
-    <p data-text-zh="想了解更多關於風愈鈴的資訊，或預約體驗？請填寫以下表單，我們將盡快與你聯繫。"
-       data-text-zh-CN="想了解更多关于风愈铃的信息，或预约体验？请填写以下表单，我们将尽快与你联系。"
-       data-text-en="Want to learn more about the Wind Healing Chime, or book a demo? Fill out the form below and we'll get back to you soon.">
-       想了解更多關於風愈鈴的資訊，或預約體驗？請填寫以下表單，我們將盡快與你聯繫。
-    </p>
-    <form class="contact-form" id="contactForm">
-      <div class="form-group">
-        <label for="contactName"
-               data-text-zh="姓名" data-text-zh-CN="姓名" data-text-en="Name">姓名</label>
-        <input type="text" id="contactName" name="name" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="contactEmail"
-               data-text-zh="電子郵件" data-text-zh-CN="电子邮件" data-text-en="Email">電子郵件</label>
-        <input type="email" id="contactEmail" name="email" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label for="contactMessage"
-               data-text-zh="留言內容" data-text-zh-CN="留言内容" data-text-en="Message">留言內容</label>
-        <textarea id="contactMessage" name="message" class="form-control" required></textarea>
-      </div>
-      <button type="submit" class="product-cta"
-              data-text-zh="送出訊息" data-text-zh-CN="发送信息" data-text-en="Send Message">
-              送出訊息
-      </button>
-      <p class="form-status" id="formStatus"></p>
-    </form>
-  </div>
-</section>
-
-<!-- 公司信息 -->
-<div id="about" class="company-info">
-  <div class="info-card">
-    <i class="fa fa-building"></i>
-    <h3 data-text-zh="關於興貴創新" data-text-zh-CN="关于兴贵创新" data-text-en="About Hing Kwai Innovate">關於興貴創新</h3>
-    <p data-text-zh="專注於情感科技產品研發，致力於用聲音連結人與人之間的溫度"
-       data-text-zh-CN="专注于情感科技产品研发，致力于用声音连结人与人之间的温度"
-       data-text-en="Focused on emotional-technology products, dedicated to connecting people through the warmth of sound">
-       專注於情感科技產品研發，致力於用聲音連結人與人之間的溫度
-    </p>
-  </div>
-  <div class="info-card">
-    <i class="fa fa-map-marker"></i>
-    <h3 data-text-zh="辦公地點" data-text-zh-CN="办公地点" data-text-en="Office Location">辦公地點</h3>
-    <p data-text-zh="香港九龍觀塘創新科技園8樓" data-text-zh-CN="香港九龙观塘创新科技园8楼" data-text-en="8/F, Innovation Tech Park, Kwun Tong, Kowloon, Hong Kong">香港九龍觀塘創新科技園8樓</p>
-  </div>
-  <div class="info-card">
-    <i class="fa fa-phone"></i>
-    <h3 data-text-zh="客服專線" data-text-zh-CN="客服专线" data-text-en="Customer Service">客服專線</h3>
-    <p data-text-zh="+852 3123 4567（週一至週五 9:00-18:00）"
-       data-text-zh-CN="+852 3123 4567（周一至周五 9:00-18:00）"
-       data-text-en="+852 3123 4567 (Mon-Fri 9:00-18:00)">
-       +852 3123 4567（週一至週五 9:00-18:00）
-    </p>
-  </div>
-</div>
-
-<!-- 页脚 -->
-<footer class="footer">
-  <div class="footer-container">
-    <div class="footer-column">
-      <h3 data-text-zh="興貴創新" data-text-zh-CN="兴贵创新" data-text-en="Hing Kwai Innovate">興貴創新</h3>
-      <p data-text-zh="讓風成為陪伴的聲音，用科技傳遞溫暖。"
-         data-text-zh-CN="让风成为陪伴的声音，用科技传递温暖。"
-         data-text-en="Let the wind be your companion's voice, delivering warmth through technology.">
-         讓風成為陪伴的聲音，用科技傳遞溫暖。
-      </p>
-      <div class="footer-social">
-        <a href="#" aria-label="Facebook"><i class="fa fa-facebook"></i></a>
-        <a href="#" aria-label="Instagram"><i class="fa fa-instagram"></i></a>
-        <a href="#" aria-label="YouTube"><i class="fa fa-youtube"></i></a>
-      </div>
-    </div>
-    <div class="footer-column">
-      <h3 data-text-zh="快速連結" data-text-zh-CN="快速链接" data-text-en="Quick Links">快速連結</h3>
-      <ul>
-        <li><a href="#about" data-text-zh="品牌理念" data-text-zh-CN="品牌理念" data-text-en="Our Concept">品牌理念</a></li>
-        <li><a href="#features" data-text-zh="產品介紹" data-text-zh-CN="产品介绍" data-text-en="Products">產品介紹</a></li>
-        <li><a href="#specs" data-text-zh="產品規格" data-text-zh-CN="产品规格" data-text-en="Specifications">產品規格</a></li>
-        <li><a href="#faq" data-text-zh="常見問題" data-text-zh-CN="常见问题" data-text-en="FAQ">常見問題</a></li>
-      </ul>
-    </div>
-    <div class="footer-column">
-      <h3 data-text-zh="聯絡方式" data-text-zh-CN="联系方式" data-text-en="Contact">聯絡方式</h3>
-      <div class="footer-contact">
-        <i class="fa fa-map-marker"></i>
-        <span data-text-zh="香港九龍觀塘創新科技園8樓" data-text-zh-CN="香港九龙观塘创新科技园8楼" data-text-en="8/F, Innovation Tech Park, Kwun Tong, Hong Kong">香港九龍觀塘創新科技園8樓</span>
-      </div>
-      <div class="footer-contact">
-        <i class="fa fa-phone"></i>
-        <span>+852 3123 4567</span>
-      </div>
-      <div class="footer-contact">
-        <i class="fa fa-envelope"></i>
-        <span>hello@hingkwai-innovate.example</span>
-      </div>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span data-text-zh="© 2026 興貴創新 版權所有" data-text-zh-CN="© 2026 兴贵创新 版权所有" data-text-en="© 2026 Hing Kwai Innovate. All rights reserved.">© 2026 興貴創新 版權所有</span>
-    <div class="footer-links">
-      <a href="#" data-text-zh="隱私權政策" data-text-zh-CN="隐私权政策" data-text-en="Privacy Policy">隱私權政策</a>
-      <a href="#" data-text-zh="服務條款" data-text-zh-CN="服务条款" data-text-en="Terms of Service">服務條款</a>
-    </div>
-  </div>
-</footer>
-
 <script>
-(function () {
+(function(){
   "use strict";
+  // 捕获运行时错误
+  window.onerror = function(msg, url, line, col, error) {
+    const log = document.getElementById('errorLog');
+    if (log) {
+      log.style.display = 'block';
+      log.textContent = '脚本错误: ' + msg + ' (行 ' + line + ')';
+    }
+    return false;
+  };
 
-  /* ---------- 1. 加载动画 ---------- */
-  var loader = document.getElementById("loader");
-  window.addEventListener("load", function () {
-    if (loader) {
-      loader.classList.add("hidden");
-      setTimeout(function () { loader.style.display = "none"; }, 600);
-    }
-  });
-  // Fallback in case 'load' already fired or takes too long
-  setTimeout(function () {
-    if (loader && !loader.classList.contains("hidden")) {
-      loader.classList.add("hidden");
-      setTimeout(function () { loader.style.display = "none"; }, 600);
-    }
-  }, 2000);
+  const stage = document.getElementById('stage');
+  const fluidCanvas = document.getElementById('fluidCanvas');
+  const mainCanvas = document.getElementById('mainCanvas');
+  const fctx = fluidCanvas.getContext('2d');
+  const mctx = mainCanvas.getContext('2d', { alpha: false });
 
-  /* ---------- 2. Header 滚动阴影 ---------- */
-  var header = document.getElementById("siteHeader");
-  function onScroll() {
-    if (window.scrollY > 10) {
-      header.classList.add("scrolled");
-    } else {
-      header.classList.remove("scrolled");
-    }
+  // 离屏画布：缓存网格背景
+  const gridCache = document.createElement('canvas');
+  const gridCtx = gridCache.getContext('2d');
+
+  // 像素砖块图案缓存
+  let brickPattern = null;
+
+  // 关闭抗锯齿 + 兼容旧版 WebKit
+  function disableSmoothing(ctx) {
+    ctx.imageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
   }
-  window.addEventListener("scroll", onScroll);
-  onScroll();
+  disableSmoothing(mctx);
+  disableSmoothing(fctx);
+  disableSmoothing(gridCtx);
 
-  /* ---------- 3. 移动端菜单 ---------- */
-  var mobileMenuBtn = document.getElementById("mobileMenuBtn");
-  var mobileNav = document.getElementById("mobileNav");
-  mobileMenuBtn.addEventListener("click", function () {
-    var isActive = mobileNav.classList.toggle("active");
-    mobileMenuBtn.setAttribute("aria-expanded", isActive ? "true" : "false");
-    mobileMenuBtn.innerHTML = isActive
-      ? '<i class="fa fa-times"></i>'
-      : '<i class="fa fa-bars"></i>';
-  });
+  let W = 0, H = 0;
+  const SIM_N = 240;
+  let SIM_M = 160;
+  let paused = false;
+  let currentTool = 'select';
+  let objects = [];
+  let nextId = 1;
+  let selectedId = null;
+  let drag = null;
+  let pointerDownInfo = null;
+  let longPressTimer = null;
+  let showStreamlines = false;
 
-  // 点击导航链接后自动收起移动菜单
-  mobileNav.querySelectorAll("a").forEach(function (link) {
-    link.addEventListener("click", function () {
-      mobileNav.classList.remove("active");
-      mobileMenuBtn.setAttribute("aria-expanded", "false");
-      mobileMenuBtn.innerHTML = '<i class="fa fa-bars"></i>';
-    });
-  });
+  // FPS 统计
+  let fps = 0;
+  let fpsFrames = 0;
+  let fpsLastTime = performance.now();
+  const fpsValLabel = document.getElementById('fpsVal');
 
-  /* ---------- 4. 语言切换 ---------- */
-  var STORAGE_KEY = "hingkwai-lang";
-  var langSelect = document.getElementById("langSelect");
-  var mobileLangSelect = document.getElementById("mobileLangSelect");
+  let params = {
+    force: 6.0,
+    diff: 0.0002,
+    visc: 0.0
+  };
 
-  function applyLanguage(lang) {
-    var attrSuffix = lang === "zh-CN" ? "zh-CN" : (lang === "en" ? "en" : "zh");
+  /* 流体求解器 */
+  let N = SIM_N, M = SIM_M;
+  let size = (N+2)*(M+2);
+  let u, v, u0, v0, dens, dens0, curlField, obstacle;
 
-    document.querySelectorAll("[data-text-zh]").forEach(function (el) {
-      var val = el.getAttribute("data-text-" + attrSuffix);
-      if (val !== null) {
-        el.textContent = val;
+  function IX(i,j) { return i + (N+2)*j; }
+
+  function allocateFields() {
+    N = SIM_N; M = SIM_M;
+    size = (N+2)*(M+2);
+    u = new Float32Array(size); v = new Float32Array(size);
+    u0 = new Float32Array(size); v0 = new Float32Array(size);
+    dens = new Float32Array(size); dens0 = new Float32Array(size);
+    curlField = new Float32Array(size);
+    obstacle = new Uint8Array(size);
+  }
+  allocateFields();
+
+  function clampi(x, lo, hi) { return x < lo ? lo : (x > hi ? hi : x); }
+
+  function set_bnd(b, x) {
+    for (let i = 1; i <= N; i++) {
+      x[IX(i, 0)]   = x[IX(i, 1)];
+      x[IX(i, M+1)] = x[IX(i, M)];
+    }
+    for (let j = 1; j <= M; j++) {
+      x[IX(0, j)]   = x[IX(1, j)];
+      x[IX(N+1, j)] = x[IX(N, j)];
+    }
+    x[IX(0, 0)]       = 0.5 * (x[IX(1, 0)] + x[IX(0, 1)]);
+    x[IX(0, M+1)]     = 0.5 * (x[IX(1, M+1)] + x[IX(0, M)]);
+    x[IX(N+1, 0)]     = 0.5 * (x[IX(N, 0)] + x[IX(N+1, 1)]);
+    x[IX(N+1, M+1)]   = 0.5 * (x[IX(N, M+1)] + x[IX(N+1, M)]);
+
+    for (let j = 1; j <= M; j++) {
+      for (let i = 1; i <= N; i++) {
+        if (obstacle[IX(i, j)]) x[IX(i, j)] = 0;
       }
-    });
+    }
+  }
 
-    document.querySelectorAll("[data-alt-zh]").forEach(function (el) {
-      var val = el.getAttribute("data-alt-" + attrSuffix);
-      if (val !== null) {
-        el.setAttribute("alt", val);
+  /* ===== 新增：障碍物边界反弹 + 溅射扰动 ===== */
+  function obstacleBounceSplash() {
+    const bounce = 0.42;   // 反弹强度
+    const perturb = 0.18;  // 切向扰动强度，产生细碎溅射涡旋
+    const forceBase = params.force * 0.15;
+
+    for (let j = 1; j <= M; j++) {
+      for (let i = 1; i <= N; i++) {
+        if (!obstacle[IX(i, j)]) continue;
+
+        // 上方流体：向下速度反弹向上 + 水平随机扰动
+        if (j > 1 && !obstacle[IX(i, j-1)]) {
+          const idx = IX(i, j-1);
+          if (v[idx] > 0) v[idx] = -bounce * v[idx];
+          u[idx] += (Math.random() - 0.5) * perturb * forceBase;
+        }
+        // 下方流体：向上速度反弹向下 + 水平随机扰动
+        if (j < M && !obstacle[IX(i, j+1)]) {
+          const idx = IX(i, j+1);
+          if (v[idx] < 0) v[idx] = -bounce * v[idx];
+          u[idx] += (Math.random() - 0.5) * perturb * forceBase;
+        }
+        // 左方流体：向右速度反弹向左 + 垂直随机扰动
+        if (i > 1 && !obstacle[IX(i-1, j)]) {
+          const idx = IX(i-1, j);
+          if (u[idx] > 0) u[idx] = -bounce * u[idx];
+          v[idx] += (Math.random() - 0.5) * perturb * forceBase;
+        }
+        // 右方流体：向左速度反弹向右 + 垂直随机扰动
+        if (i < N && !obstacle[IX(i+1, j)]) {
+          const idx = IX(i+1, j);
+          if (u[idx] < 0) u[idx] = -bounce * u[idx];
+          v[idx] += (Math.random() - 0.5) * perturb * forceBase;
+        }
       }
-    });
-
-    document.documentElement.lang = lang === "zh-CN" ? "zh-Hans" : (lang === "en" ? "en" : "zh-Hant");
-
-    if (langSelect) langSelect.value = lang;
-    if (mobileLangSelect) mobileLangSelect.value = lang;
-
-    try {
-      localStorage.setItem(STORAGE_KEY, lang);
-    } catch (e) {
-      /* localStorage may be unavailable (e.g. privacy mode); ignore */
     }
   }
 
-  function initLanguage() {
-    var saved = null;
-    try {
-      saved = localStorage.getItem(STORAGE_KEY);
-    } catch (e) {
-      saved = null;
+  function lin_solve(b, x, x0, a, c, iters) {
+    const invC = 1 / c;
+    for (let k = 0; k < iters; k++) {
+      for (let j = 1; j <= M; j++) {
+        for (let i = 1; i <= N; i++) {
+          if (obstacle[IX(i, j)]) { x[IX(i, j)] = 0; continue; }
+          x[IX(i, j)] = (x0[IX(i, j)] + a * (x[IX(i-1, j)] + x[IX(i+1, j)] + x[IX(i, j-1)] + x[IX(i, j+1)])) * invC;
+        }
+      }
+      set_bnd(b, x);
     }
-    var lang = saved || "zh";
-    applyLanguage(lang);
   }
 
-  if (langSelect) {
-    langSelect.addEventListener("change", function (e) {
-      applyLanguage(e.target.value);
-    });
-  }
-  if (mobileLangSelect) {
-    mobileLangSelect.addEventListener("change", function (e) {
-      applyLanguage(e.target.value);
-    });
+  function diffuse(b, x, x0, diffRate, dt, iters) {
+    const a = dt * diffRate * N * M;
+    lin_solve(b, x, x0, a, 1 + 4*a, iters);
   }
 
-  initLanguage();
+  function advect(b, d, d0, velU, velV, dt) {
+    const dt0N = dt * N, dt0M = dt * M;
+    for (let j = 1; j <= M; j++) {
+      for (let i = 1; i <= N; i++) {
+        if (obstacle[IX(i, j)]) { d[IX(i, j)] = 0; continue; }
+        let x = i - dt0N * velU[IX(i, j)];
+        let y = j - dt0M * velV[IX(i, j)];
+        x = clampi(x, 0.5, N+0.5);
+        y = clampi(y, 0.5, M+0.5);
+        const i0 = Math.floor(x), i1 = i0 + 1;
+        const j0 = Math.floor(y), j1 = j0 + 1;
+        const s1 = x - i0, s0 = 1 - s1;
+        const t1 = y - j0, t0 = 1 - t1;
+        d[IX(i, j)] = s0 * (t0 * d0[IX(i0, j0)] + t1 * d0[IX(i0, j1)]) +
+                       s1 * (t0 * d0[IX(i1, j0)] + t1 * d0[IX(i1, j1)]);
+      }
+    }
+    set_bnd(b, d);
+  }
 
-  /* ---------- 5. FAQ 手风琴 ---------- */
-  document.querySelectorAll(".faq-item").forEach(function (item) {
-    var question = item.querySelector(".faq-question");
-    question.addEventListener("click", function () {
-      var wasActive = item.classList.contains("active");
+  function project(velU, velV, p, div, iters) {
+    const h = 1.0 / ((N + M) * 0.5);
+    for (let j = 1; j <= M; j++) {
+      for (let i = 1; i <= N; i++) {
+        if (obstacle[IX(i, j)]) { div[IX(i, j)] = 0; p[IX(i, j)] = 0; continue; }
+        div[IX(i, j)] = -0.5 * h * (velU[IX(i+1, j)] - velU[IX(i-1, j)] + velV[IX(i, j+1)] - velV[IX(i, j-1)]);
+        p[IX(i, j)] = 0;
+      }
+    }
+    set_bnd(0, div); set_bnd(0, p);
+    lin_solve(0, p, div, 1, 4, iters);
+    for (let j = 1; j <= M; j++) {
+      for (let i = 1; i <= N; i++) {
+        if (obstacle[IX(i, j)]) continue;
+        velU[IX(i, j)] -= 0.5 * (p[IX(i+1, j)] - p[IX(i-1, j)]) / h;
+        velV[IX(i, j)] -= 0.5 * (p[IX(i, j+1)] - p[IX(i, j-1)]) / h;
+      }
+    }
+    set_bnd(1, velU); set_bnd(2, velV);
+  }
 
-      // 手风琴模式：先关闭全部
-      document.querySelectorAll(".faq-item").forEach(function (other) {
-        other.classList.remove("active");
-        other.querySelector(".faq-question").setAttribute("aria-expanded", "false");
+  function vorticityConfinement(dt) {
+    const eps = 6.3; // 提升涡旋约束强度，增强溅射尾流
+    for (let j = 1; j <= M; j++) {
+      for (let i = 1; i <= N; i++) {
+        const dudy = (u[IX(i, j+1)] - u[IX(i, j-1)]) * 0.5;
+        const dvdx = (v[IX(i+1, j)] - v[IX(i-1, j)]) * 0.5;
+        curlField[IX(i, j)] = dvdx - dudy;
+      }
+    }
+    for (let j = 2; j < M; j++) {
+      for (let i = 2; i < N; i++) {
+        if (obstacle[IX(i, j)]) continue;
+        let nx = (Math.abs(curlField[IX(i+1, j)]) - Math.abs(curlField[IX(i-1, j)])) * 0.5;
+        let ny = (Math.abs(curlField[IX(i, j+1)]) - Math.abs(curlField[IX(i, j-1)])) * 0.5;
+        const len = Math.sqrt(nx*nx + ny*ny) + 1e-5;
+        nx /= len; ny /= len;
+        const curl = curlField[IX(i, j)];
+        u[IX(i, j)] += eps * dt * ( ny * curl);
+        v[IX(i, j)] += eps * dt * (-nx * curl);
+      }
+    }
+  }
+
+  function fluidStep(dt) {
+    [u0, u] = [u, u0]; [v0, v] = [v, v0];
+    if (params.visc > 0) {
+      diffuse(1, u, u0, params.visc, dt, 4);
+      diffuse(2, v, v0, params.visc, dt, 4);
+      project(u, v, u0, v0, 10);
+    }
+    [u0, u] = [u, u0]; [v0, v] = [v, v0];
+    advect(1, u, u0, u0, v0, dt);
+    advect(2, v, v0, u0, v0, dt);
+    project(u, v, u0, v0, 14);
+    
+    // 碰撞反弹 + 溅射扰动
+    obstacleBounceSplash();
+    project(u, v, u0, v0, 6); // 反弹后修正散度
+    
+    vorticityConfinement(dt);
+
+    [dens0, dens] = [dens, dens0];
+    if (params.diff > 0) diffuse(0, dens, dens0, params.diff, dt, 4);
+    [dens0, dens] = [dens, dens0];
+    advect(0, dens, dens0, u, v, dt);
+
+    for (let k = 0; k < size; k++) {
+      dens[k] *= 0.9985; // 减慢密度衰减，溅射痕迹更明显
+      u[k] *= 0.9995;
+      v[k] *= 0.9995;
+    }
+  }
+
+  /* ===== 障碍物栅格化：与渲染严格对齐 ===== */
+  function rasterizeObstacles() {
+    obstacle.fill(0);
+    for (const o of objects) {
+      if (o.type !== 'wall') continue;
+      const shape = o.shape || 'rect';
+
+      if (shape === 'rect') {
+        const gx0 = clampi(Math.ceil(o.x * N) + 1, 1, N);
+        const gy0 = clampi(Math.ceil(o.y * M) + 1, 1, M);
+        const gx1 = clampi(Math.floor((o.x + o.w) * N), 1, N);
+        const gy1 = clampi(Math.floor((o.y + o.h) * M), 1, M);
+        if (gx0 > gx1 || gy0 > gy1) continue;
+        for (let j = gy0; j <= gy1; j++) {
+          for (let i = gx0; i <= gx1; i++) {
+            obstacle[IX(i, j)] = 1;
+          }
+        }
+      } else if (shape === 'circle') {
+        const cx = (o.x + o.w/2) * N + 1;
+        const cy = (o.y + o.h/2) * M + 1;
+        const rx = Math.max(0.5, (o.w/2) * N);
+        const ry = Math.max(0.5, (o.h/2) * M);
+        const gx0 = clampi(Math.floor(o.x * N) + 1, 1, N);
+        const gy0 = clampi(Math.floor(o.y * M) + 1, 1, M);
+        const gx1 = clampi(Math.ceil((o.x + o.w) * N), 1, N);
+        const gy1 = clampi(Math.ceil((o.y + o.h) * M), 1, M);
+        for (let j = gy0; j <= gy1; j++) {
+          const dy = (j - cy) / ry;
+          const dy2 = dy * dy;
+          if (dy2 > 1) continue;
+          const dxMax = Math.sqrt(1 - dy2);
+          const rowLeft = Math.ceil(cx - dxMax * rx);
+          const rowRight = Math.floor(cx + dxMax * rx);
+          const clampedLeft = clampi(rowLeft, gx0, gx1);
+          const clampedRight = clampi(rowRight, gx0, gx1);
+          if (clampedLeft > clampedRight) continue;
+          for (let i = clampedLeft; i <= clampedRight; i++) {
+            obstacle[IX(i, j)] = 1;
+          }
+        }
+      } else if (shape === 'triangle') {
+        const left = o.x * N + 1;
+        const right = (o.x + o.w) * N + 1;
+        const top = o.y * M + 1;
+        const bottom = (o.y + o.h) * M + 1;
+        const cx = (left + right) / 2;
+        const gx0 = clampi(Math.floor(left), 1, N);
+        const gy0 = clampi(Math.floor(top), 1, M);
+        const gx1 = clampi(Math.ceil(right), 1, N);
+        const gy1 = clampi(Math.ceil(bottom), 1, M);
+        const height = Math.max(1, bottom - top);
+        for (let j = gy0; j <= gy1; j++) {
+          const t = clampi((j - top) / height, 0, 1);
+          const halfW = t * (right - left) / 2;
+          const rowLeft = Math.ceil(cx - halfW);
+          const rowRight = Math.floor(cx + halfW);
+          const clampedLeft = clampi(rowLeft, gx0, gx1);
+          const clampedRight = clampi(rowRight, gx0, gx1);
+          if (clampedLeft > clampedRight) continue;
+          for (let i = clampedLeft; i <= clampedRight; i++) {
+            obstacle[IX(i, j)] = 1;
+          }
+        }
+      }
+    }
+  }
+
+  function injectBlowers(dt) {
+    for (const o of objects) {
+      if (o.type !== 'blower') continue;
+      const cx = (o.x + o.w/2) * N + 1;
+      const cy = (o.y + o.h/2) * M + 1;
+      const sizeCellsX = Math.max(2, Math.round(o.w * N));
+      const sizeCellsY = Math.max(2, Math.round(o.h * M));
+      let dirX = 0, dirY = 0;
+      if (o.angle === 0)   dirX = 1;
+      if (o.angle === 90)  dirY = 1;
+      if (o.angle === 180) dirX = -1;
+      if (o.angle === 270) dirY = -1;
+      const span = Math.max(2, Math.round((dirX !== 0 ? sizeCellsY : sizeCellsX)));
+      const forceFactor = 0.5;
+      const densityFactor = 0.55;
+      for (let s = 0; s < span; s++) {
+        let gx, gy;
+        if (dirX !== 0) {
+          gx = cx + dirX * (sizeCellsX / 2);
+          gy = cy - span/2 + s;
+        } else {
+          gx = cx - span/2 + s;
+          gy = cy + dirY * (sizeCellsY / 2);
+        }
+        gx = clampi(Math.round(gx), 1, N);
+        gy = clampi(Math.round(gy), 1, M);
+        if (obstacle[IX(gx, gy)]) continue;
+        const idx = IX(gx, gy);
+        u[idx] += dirX * params.force * forceFactor;
+        v[idx] += dirY * params.force * forceFactor;
+        dens[idx] = Math.min(1, dens[idx] + 3.2 * dt * 10 * densityFactor);
+      }
+    }
+  }
+
+  /* 流线粒子 */
+  const PARTICLE_COUNT = 300;
+  let particles = [];
+  function initParticles() {
+    particles = [];
+    for (let k = 0; k < PARTICLE_COUNT; k++) {
+      particles.push({
+        x: Math.random() * N + 1,
+        y: Math.random() * M + 1,
+        life: Math.random() * 60
       });
+    }
+  }
+  initParticles();
 
-      if (!wasActive) {
-        item.classList.add("active");
-        question.setAttribute("aria-expanded", "true");
+  function sampleVel(gx, gy) {
+    const i = clampi(Math.floor(gx), 1, N), j = clampi(Math.floor(gy), 1, M);
+    return [u[IX(i, j)], v[IX(i, j)]];
+  }
+
+  function stepParticles(dt) {
+    const SPEED_SCALE = 1.6;
+    for (const p of particles) {
+      const [vu, vv] = sampleVel(p.x, p.y);
+      p.x += vu * dt * N * SPEED_SCALE;
+      p.y += vv * dt * M * SPEED_SCALE;
+      p.life -= 1;
+      const gi = clampi(Math.floor(p.x), 1, N), gj = clampi(Math.floor(p.y), 1, M);
+      if (p.life <= 0 || p.x < 1 || p.x > N || p.y < 1 || p.y > M || obstacle[IX(gi, gj)]) {
+        p.x = 1 + Math.random() * 3;
+        p.y = 1 + Math.random() * (M - 2);
+        p.life = 90 + Math.random() * 90;
       }
-    });
+    }
+  }
+
+  /* ===== 渲染优化 ===== */
+  let fluidImgData = null;
+
+  // 生成像素砖块图案
+  function buildBrickPattern() {
+    const px = 6;
+    const patCanvas = document.createElement('canvas');
+    patCanvas.width = px * 2;
+    patCanvas.height = px * 2;
+    const pctx = patCanvas.getContext('2d');
+    disableSmoothing(pctx);
+
+    pctx.fillStyle = '#7c8494';
+    pctx.fillRect(0, 0, px*2, px);
+    pctx.fillStyle = '#5c6373';
+    pctx.fillRect(px, 0, px, px-1);
+    pctx.fillStyle = '#5c6373';
+    pctx.fillRect(0, px, px*2, px);
+    pctx.fillStyle = '#7c8494';
+    pctx.fillRect(px, px, px, px-1);
+
+    brickPattern = mctx.createPattern(patCanvas, 'repeat');
+  }
+
+  // 预渲染网格背景到缓存
+  function renderGridToCache() {
+    gridCache.width = Math.round(W);
+    gridCache.height = Math.round(H);
+    gridCtx.fillStyle = '#dfe3ea';
+    gridCtx.fillRect(0, 0, W, H);
+    const cell = 18;
+    gridCtx.strokeStyle = '#c9cfdb';
+    gridCtx.lineWidth = 1;
+    gridCtx.beginPath();
+    for (let x = 0; x <= W; x += cell) { gridCtx.moveTo(x+0.5, 0); gridCtx.lineTo(x+0.5, H); }
+    for (let y = 0; y <= H; y += cell) { gridCtx.moveTo(0, y+0.5); gridCtx.lineTo(W, y+0.5); }
+    gridCtx.stroke();
+  }
+
+  function resizeCanvases() {
+    W = stage.clientWidth; H = stage.clientHeight;
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+    mainCanvas.width = Math.round(W * dpr);
+    mainCanvas.height = Math.round(H * dpr);
+    mainCanvas.style.width = W + 'px';
+    mainCanvas.style.height = H + 'px';
+    mctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    disableSmoothing(mctx);
+
+    SIM_M = clampi(Math.round(SIM_N * (H / Math.max(1, W))), 80, 200);
+    allocateFields();
+    initParticles();
+
+    fluidCanvas.width = N;
+    fluidCanvas.height = M;
+    disableSmoothing(fctx);
+    fluidImgData = fctx.createImageData(N, M);
+
+    renderGridToCache();
+    buildBrickPattern();
+  }
+
+  function drawGridBackground() {
+    mctx.drawImage(gridCache, 0, 0);
+  }
+
+  function renderFluidDensity() {
+    const data = fluidImgData.data;
+    for (let j = 1; j <= M; j++) {
+      for (let i = 1; i <= N; i++) {
+        const idx = IX(i, j);
+        const dpix = ((j-1) * N + (i-1)) * 4;
+        if (obstacle[idx]) {
+          data[dpix] = 0; data[dpix+1] = 0; data[dpix+2] = 0; data[dpix+3] = 0;
+          continue;
+        }
+        const d = Math.min(1, dens[idx]);
+        const speed = Math.min(1, Math.hypot(u[idx], v[idx]) * 3);
+        const r = 20 + 60 * d + 190 * speed;
+        const g = 110 + 90 * d + 110 * speed;
+        const b = 210 + 45 * d;
+        data[dpix]   = clampi(r, 0, 255);
+        data[dpix+1] = clampi(g, 0, 255);
+        data[dpix+2] = clampi(b, 0, 255);
+        data[dpix+3] = clampi(Math.round(60 + 255 * Math.pow(d, 0.55)), 0, 255);
+      }
+    }
+    fctx.putImageData(fluidImgData, 0, 0);
+    disableSmoothing(mctx);
+    mctx.drawImage(fluidCanvas, 0, 0, N, M, 0, 0, W, H);
+  }
+
+  function renderParticles() {
+    mctx.fillStyle = 'rgba(30,40,60,0.55)';
+    for (const p of particles) {
+      const px = (p.x / N) * W, py = (p.y / M) * H;
+      mctx.fillRect(px-1, py-1, 2, 2);
+    }
+  }
+
+  function fracToPx(o) { return { x: o.x * W, y: o.y * H, w: o.w * W, h: o.h * H }; }
+
+  /* ===== 像素化墙体渲染：与流体栅格严格对齐 ===== */
+  function drawWallSprite(o) {
+    const r = fracToPx(o);
+    const shape = o.shape || 'rect';
+    const cellW = W / N;
+    const cellH = H / M;
+
+    if (shape === 'rect') {
+      mctx.fillStyle = '#6b7280';
+      mctx.fillRect(r.x, r.y, r.w, r.h);
+      if (brickPattern) {
+        mctx.save();
+        mctx.beginPath();
+        mctx.rect(r.x, r.y, r.w, r.h);
+        mctx.clip();
+        mctx.fillStyle = brickPattern;
+        mctx.fillRect(r.x, r.y, r.w, r.h);
+        mctx.restore();
+      }
+      mctx.strokeStyle = 'rgba(0,0,0,0.45)';
+      mctx.lineWidth = 1;
+      mctx.strokeRect(r.x+1, r.y+1, r.w-2, r.h-2);
+    } else if (shape === 'circle') {
+      const cx = (o.x + o.w/2) * N + 1;
+      const cy = (o.y + o.h/2) * M + 1;
+      const rx = Math.max(0.5, (o.w/2) * N);
+      const ry = Math.max(0.5, (o.h/2) * M);
+      const gx0 = clampi(Math.floor(o.x * N) + 1, 1, N);
+      const gy0 = clampi(Math.floor(o.y * M) + 1, 1, M);
+      const gx1 = clampi(Math.ceil((o.x + o.w) * N), 1, N);
+      const gy1 = clampi(Math.ceil((o.y + o.h) * M), 1, M);
+
+      for (let j = gy0; j <= gy1; j++) {
+        const dy = (j - cy) / ry;
+        const dy2 = dy * dy;
+        if (dy2 > 1) continue;
+        const dxMax = Math.sqrt(1 - dy2);
+        const rowLeft = Math.ceil(cx - dxMax * rx);
+        const rowRight = Math.floor(cx + dxMax * rx);
+        const clampedLeft = clampi(rowLeft, gx0, gx1);
+        const clampedRight = clampi(rowRight, gx0, gx1);
+        if (clampedLeft > clampedRight) continue;
+
+        const sx = (clampedLeft - 1) * cellW;
+        const sy = (j - 1) * cellH;
+        const sw = (clampedRight - clampedLeft + 1) * cellW;
+        const sh = cellH;
+
+        mctx.fillStyle = '#6b7280';
+        mctx.fillRect(sx, sy, sw, sh);
+        if (brickPattern) {
+          mctx.fillStyle = brickPattern;
+          mctx.fillRect(sx, sy, sw, sh);
+        }
+      }
+    } else if (shape === 'triangle') {
+      const left = o.x * N + 1;
+      const right = (o.x + o.w) * N + 1;
+      const top = o.y * M + 1;
+      const bottom = (o.y + o.h) * M + 1;
+      const cx = (left + right) / 2;
+      const gx0 = clampi(Math.floor(left), 1, N);
+      const gy0 = clampi(Math.floor(top), 1, M);
+      const gx1 = clampi(Math.ceil(right), 1, N);
+      const gy1 = clampi(Math.ceil(bottom), 1, M);
+      const height = Math.max(1, bottom - top);
+
+      for (let j = gy0; j <= gy1; j++) {
+        const t = clampi((j - top) / height, 0, 1);
+        const halfW = t * (right - left) / 2;
+        const rowLeft = Math.ceil(cx - halfW);
+        const rowRight = Math.floor(cx + halfW);
+        const clampedLeft = clampi(rowLeft, gx0, gx1);
+        const clampedRight = clampi(rowRight, gx0, gx1);
+        if (clampedLeft > clampedRight) continue;
+
+        const sx = (clampedLeft - 1) * cellW;
+        const sy = (j - 1) * cellH;
+        const sw = (clampedRight - clampedLeft + 1) * cellW;
+        const sh = cellH;
+
+        mctx.fillStyle = '#6b7280';
+        mctx.fillRect(sx, sy, sw, sh);
+        if (brickPattern) {
+          mctx.fillStyle = brickPattern;
+          mctx.fillRect(sx, sy, sw, sh);
+        }
+      }
+    }
+
+    // 选中状态
+    if (o.id === selectedId) {
+      mctx.strokeStyle = '#5ad1d6';
+      mctx.lineWidth = 2;
+      mctx.strokeRect(r.x, r.y, r.w, r.h);
+      mctx.fillStyle = '#5ad1d6';
+      mctx.fillRect(r.x + r.w - 7, r.y + r.h - 7, 10, 10);
+    }
+  }
+
+  function drawBlowerSprite(o) {
+    const r = fracToPx(o);
+    const cx = r.x + r.w/2, cy = r.y + r.h/2;
+    mctx.save();
+    mctx.translate(cx, cy);
+    mctx.rotate(o.angle * Math.PI / 180);
+    mctx.fillStyle = '#3d4a63';
+    mctx.fillRect(-r.w/2, -r.h/2, r.w, r.h);
+    mctx.fillStyle = '#4f5f80';
+    mctx.fillRect(-r.w/2+3, -r.h/2+3, r.w-6, r.h-6);
+    mctx.fillStyle = '#f2a65a';
+    const bw = Math.max(2, r.w * 0.08);
+    mctx.fillRect(-bw/2, -r.h/2+6, bw, r.h-12);
+    mctx.fillRect(-r.w/2+6, -bw/2, r.w-12, bw);
+    mctx.fillStyle = '#fff';
+    mctx.beginPath();
+    mctx.moveTo(r.w/2-2, 0);
+    mctx.lineTo(r.w/2-10, -7);
+    mctx.lineTo(r.w/2-10, 7);
+    mctx.closePath();
+    mctx.fill();
+    mctx.restore();
+    if (o.id === selectedId) {
+      mctx.strokeStyle = '#5ad1d6';
+      mctx.lineWidth = 2;
+      mctx.strokeRect(r.x-2, r.y-2, r.w+4, r.h+4);
+      mctx.fillStyle = '#5ad1d6';
+      mctx.fillRect(r.x + r.w - 6, r.y + r.h - 6, 10, 10);
+    }
+  }
+
+  function render() {
+    drawGridBackground();
+    renderFluidDensity();
+    for (const o of objects) {
+      if (o.type === 'wall') drawWallSprite(o);
+    }
+    for (const o of objects) {
+      if (o.type === 'blower') drawBlowerSprite(o);
+    }
+    if (showStreamlines) renderParticles();
+
+    // 拖拽创建预览
+    if (drag && drag.mode === 'new-wall') {
+      const x = Math.min(drag.curX, drag.startX), y = Math.min(drag.curY, drag.startY);
+      const w = Math.abs(drag.curX - drag.startX), h = Math.abs(drag.curY - drag.startY);
+      const px = x * W, py = y * H, pw = w * W, ph = h * H;
+
+      mctx.strokeStyle = '#f2a65a';
+      mctx.setLineDash([5,4]);
+      mctx.lineWidth = 2;
+      mctx.strokeRect(px, py, pw, ph);
+      mctx.setLineDash([]);
+    }
+  }
+
+  /* 主循环 */
+  let lastT = performance.now();
+  function loop(t) {
+    try {
+      const dt = Math.min(0.033, (t - lastT) / 1000) || 0.016;
+      lastT = t;
+
+      // FPS 统计
+      fpsFrames++;
+      if (t - fpsLastTime >= 1000) {
+        fps = fpsFrames;
+        fpsFrames = 0;
+        fpsLastTime = t;
+        if (fpsValLabel) fpsValLabel.textContent = fps;
+      }
+
+      if (!paused) {
+        rasterizeObstacles();
+        injectBlowers(dt);
+        fluidStep(0.12);
+        if (showStreamlines) stepParticles(0.12);
+      }
+      render();
+    } catch (e) {
+      const log = document.getElementById('errorLog');
+      if (log) {
+        log.style.display = 'block';
+        log.textContent = '运行时错误: ' + e.message;
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+
+  /* UI 图标绘制 */
+  function drawIcon(canvas, kind) {
+    const ctx = canvas.getContext('2d');
+    disableSmoothing(ctx);
+    ctx.clearRect(0, 0, 16, 16);
+    if (kind === 'select') {
+      ctx.fillStyle = '#eef1f7';
+      ctx.beginPath();
+      ctx.moveTo(3,2); ctx.lineTo(13,9); ctx.lineTo(9,10); ctx.lineTo(11,14); ctx.lineTo(9,15); ctx.lineTo(7,11); ctx.lineTo(3,13);
+      ctx.closePath(); ctx.fill();
+    } else if (kind === 'wall') {
+      ctx.fillStyle = '#9aa2b3';
+      ctx.fillRect(1,3,7,4); ctx.fillRect(9,3,6,4);
+      ctx.fillRect(1,8,4,4); ctx.fillRect(6,8,9,4);
+      ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.strokeRect(1,3,14,9);
+    } else if (kind === 'wall-tri') {
+      ctx.fillStyle = '#9aa2b3';
+      ctx.beginPath();
+      ctx.moveTo(8, 2);
+      ctx.lineTo(14, 13);
+      ctx.lineTo(2, 13);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+      ctx.stroke();
+    } else if (kind === 'wall-circle') {
+      ctx.fillStyle = '#9aa2b3';
+      ctx.beginPath();
+      ctx.arc(8, 8, 6, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+      ctx.stroke();
+    } else if (kind === 'blower') {
+      ctx.fillStyle = '#5ad1d6';
+      ctx.fillRect(2,2,12,12);
+      ctx.fillStyle = '#2b3142';
+      ctx.fillRect(4,4,8,8);
+      ctx.fillStyle = '#f2a65a';
+      ctx.fillRect(7,3,2,10); ctx.fillRect(3,7,10,2);
+    } else if (kind === 'delete') {
+      ctx.strokeStyle = '#e8637a'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(3,3); ctx.lineTo(13,13); ctx.moveTo(13,3); ctx.lineTo(3,13); ctx.stroke();
+    }
+  }
+  document.querySelectorAll('button.tool canvas').forEach(c => drawIcon(c, c.dataset.icon));
+
+  const toolButtons = document.querySelectorAll('button.tool');
+  const toolNameLabel = document.getElementById('toolName');
+  function setTool(t) {
+    currentTool = t;
+    selectedId = null;
+    toolButtons.forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+    toolNameLabel.textContent = {
+      select:'选择',
+      wall:'矩形墙',
+      'wall-tri':'三角墙',
+      'wall-circle':'圆形墙',
+      blower:'鼓风机',
+      delete:'删除'
+    }[t];
+  }
+  toolButtons.forEach(b => b.addEventListener('click', () => setTool(b.dataset.tool)));
+  setTool('select');
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    objects = []; selectedId = null; updateStatus();
   });
 
-  /* ---------- 6. 联络表单 ---------- */
-  var contactForm = document.getElementById("contactForm");
-  var formStatus = document.getElementById("formStatus");
+  const playPauseBtn = document.getElementById('playPause');
+  playPauseBtn.addEventListener('click', () => {
+    paused = !paused;
+    playPauseBtn.textContent = paused ? '▶' : '⏸';
+  });
 
-  if (contactForm) {
-    contactForm.addEventListener("submit", function (e) {
-      e.preventDefault();
+  document.getElementById('forceSlider').addEventListener('input', e => {
+    params.force = parseFloat(e.target.value);
+    document.getElementById('forceVal').textContent = params.force.toFixed(1);
+  });
+  document.getElementById('diffSlider').addEventListener('input', e => {
+    params.diff = parseFloat(e.target.value) * 0.0001;
+    document.getElementById('diffVal').textContent = params.diff.toFixed(4);
+  });
+  document.getElementById('viscSlider').addEventListener('input', e => {
+    params.visc = parseFloat(e.target.value) * 0.0001;
+    document.getElementById('viscVal').textContent = params.visc.toFixed(4);
+  });
+  document.getElementById('streamToggle').addEventListener('change', e => {
+    showStreamlines = e.target.checked;
+  });
 
-      var name = document.getElementById("contactName").value.trim();
-      var email = document.getElementById("contactEmail").value.trim();
-      var message = document.getElementById("contactMessage").value.trim();
-      var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const objCountLabel = document.getElementById('objCount');
+  function updateStatus() { objCountLabel.textContent = objects.length; }
 
-      formStatus.classList.remove("success", "error");
-
-      if (!name || !email || !message) {
-        formStatus.textContent = "請完整填寫所有欄位。";
-        formStatus.classList.add("error");
-        return;
-      }
-      if (!emailPattern.test(email)) {
-        formStatus.textContent = "請輸入有效的電子郵件地址。";
-        formStatus.classList.add("error");
-        return;
-      }
-
-      // 注意：此表单为纯前端展示，没有后端接口。
-      // 如需真正收件，请接入第三方表单服务（如 Formspree、EmailJS）
-      // 或自建后端 API，并将下方逻辑替换为实际的 fetch/AJAX 请求。
-      formStatus.textContent = "感謝您的留言！我們將盡快與您聯繫。";
-      formStatus.classList.add("success");
-      contactForm.reset();
-    });
+  /* 交互处理 */
+  function toFrac(evt) {
+    const rect = mainCanvas.getBoundingClientRect();
+    return {
+      x: (evt.clientX - rect.left) / rect.width,
+      y: (evt.clientY - rect.top) / rect.height
+    };
   }
 
-  /* ---------- 7. 深浅色主题切换 ---------- */
-  var THEME_KEY = "hingkwai-theme";
-  var themeToggleBtn = document.getElementById("themeToggleBtn");
-  var themeToggleBtnMobile = document.getElementById("themeToggleBtnMobile");
-  var themeToggleIcon = document.getElementById("themeToggleIcon");
-  var themeToggleIconMobile = document.getElementById("themeToggleIconMobile");
-
-  function updateThemeIcon(theme) {
-    var iconClass = theme === "dark" ? "fa fa-sun-o" : "fa fa-moon-o";
-    if (themeToggleIcon) themeToggleIcon.className = iconClass;
-    if (themeToggleIconMobile) themeToggleIconMobile.className = iconClass;
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute("data-theme", theme);
-    updateThemeIcon(theme);
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch (e) {
-      /* localStorage 可能不可用，忽略 */
+  function hitTest(fx, fy) {
+    for (let k = objects.length - 1; k >= 0; k--) {
+      const o = objects[k];
+      if (fx >= o.x && fx <= o.x + o.w && fy >= o.y && fy <= o.y + o.h) return o;
     }
+    return null;
   }
 
-  function toggleTheme() {
-    var current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
-    applyTheme(current === "dark" ? "light" : "dark");
+  function hitResizeHandle(fx, fy, o) {
+    if (!o || (o.type !== 'wall' && o.type !== 'blower')) return false;
+    const hx = (o.x + o.w) * W, hy = (o.y + o.h) * H;
+    return Math.abs(fx * W - hx) < 10 && Math.abs(fy * H - hy) < 10;
   }
 
-  // 页面加载时，头部脚本已经提前设置好 data-theme，这里只需同步图标显示
-  updateThemeIcon(document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light");
+  const DEFAULT_WALL_W = 0.03, DEFAULT_WALL_H = 0.16;
+  const DEFAULT_BLOWER_W = 0.07, DEFAULT_BLOWER_H = 0.07;
 
-  if (themeToggleBtn) themeToggleBtn.addEventListener("click", toggleTheme);
-  if (themeToggleBtnMobile) themeToggleBtnMobile.addEventListener("click", toggleTheme);
+  mainCanvas.addEventListener('pointerdown', e => {
+    mainCanvas.setPointerCapture(e.pointerId);
+    const { x: fx, y: fy } = toFrac(e);
+    pointerDownInfo = { fx, fy, time: performance.now(), moved: false };
 
-  /* ---------- 8. 字体大小调节 ---------- */
-  var FONT_KEY = "hingkwai-fontsize";
-  var FONT_STEPS = ["87.5%", "100%", "112.5%", "125%"];
-  var fontDecreaseBtn = document.getElementById("fontDecreaseBtn");
-  var fontIncreaseBtn = document.getElementById("fontIncreaseBtn");
-  var fontDecreaseBtnMobile = document.getElementById("fontDecreaseBtnMobile");
-  var fontIncreaseBtnMobile = document.getElementById("fontIncreaseBtnMobile");
-
-  function getCurrentFontIndex() {
-    var current = getComputedStyle(document.documentElement).getPropertyValue("--base-font-size").trim();
-    var idx = FONT_STEPS.indexOf(current);
-    return idx === -1 ? 1 : idx; // 默认落在 100%
-  }
-
-  function applyFontSize(index) {
-    index = Math.max(0, Math.min(FONT_STEPS.length - 1, index));
-    var value = FONT_STEPS[index];
-    document.documentElement.style.setProperty("--base-font-size", value);
-    try {
-      localStorage.setItem(FONT_KEY, value);
-    } catch (e) {
-      /* localStorage 可能不可用，忽略 */
+    // 墙体工具（三种形状）
+    if (currentTool === 'wall' || currentTool === 'wall-tri' || currentTool === 'wall-circle') {
+      const shape = currentTool === 'wall' ? 'rect' : (currentTool === 'wall-tri' ? 'triangle' : 'circle');
+      drag = { mode: 'new-wall', shape: shape, startX: fx, startY: fy, curX: fx, curY: fy };
+      return;
     }
-  }
 
-  function changeFontSize(delta) {
-    applyFontSize(getCurrentFontIndex() + delta);
-  }
+    if (currentTool === 'blower') {
+      const bx = clampi(fx - DEFAULT_BLOWER_W/2, 0, 1 - DEFAULT_BLOWER_W);
+      const by = clampi(fy - DEFAULT_BLOWER_H/2, 0, 1 - DEFAULT_BLOWER_H);
+      objects.push({
+        id: nextId++, type: 'blower',
+        x: bx, y: by,
+        w: DEFAULT_BLOWER_W, h: DEFAULT_BLOWER_H, angle: 0
+      });
+      selectedId = nextId - 1;
+      updateStatus();
+      return;
+    }
 
-  if (fontDecreaseBtn) fontDecreaseBtn.addEventListener("click", function () { changeFontSize(-1); });
-  if (fontIncreaseBtn) fontIncreaseBtn.addEventListener("click", function () { changeFontSize(1); });
-  if (fontDecreaseBtnMobile) fontDecreaseBtnMobile.addEventListener("click", function () { changeFontSize(-1); });
-  if (fontIncreaseBtnMobile) fontIncreaseBtnMobile.addEventListener("click", function () { changeFontSize(1); });
+    if (currentTool === 'delete') {
+      const hit = hitTest(fx, fy);
+      if (hit) {
+        objects = objects.filter(o => o.id !== hit.id);
+        updateStatus();
+      }
+      return;
+    }
+
+    const hit = hitTest(fx, fy);
+    if (hit && hitResizeHandle(fx, fy, hit)) {
+      drag = { mode: 'resize', id: hit.id, startX: fx, startY: fy, origW: hit.w, origH: hit.h };
+      selectedId = hit.id;
+      return;
+    }
+    if (hit) {
+      selectedId = hit.id;
+      drag = { mode: 'move', id: hit.id, startX: fx, startY: fy, origX: hit.x, origY: hit.y };
+      if (e.pointerType === 'touch') {
+        longPressTimer = setTimeout(() => {
+          objects = objects.filter(o => o.id !== hit.id);
+          selectedId = null; drag = null; updateStatus();
+        }, 550);
+      }
+    } else {
+      selectedId = null;
+    }
+  });
+
+  mainCanvas.addEventListener('pointermove', e => {
+    const { x: fx, y: fy } = toFrac(e);
+    if (pointerDownInfo) {
+      if (Math.hypot(fx - pointerDownInfo.fx, fy - pointerDownInfo.fy) > 0.004) pointerDownInfo.moved = true;
+    }
+    if (longPressTimer && pointerDownInfo && pointerDownInfo.moved) {
+      clearTimeout(longPressTimer); longPressTimer = null;
+    }
+    if (!drag) return;
+
+    if (drag.mode === 'new-wall') {
+      drag.curX = clampi(fx, 0, 1); drag.curY = clampi(fy, 0, 1);
+    } else if (drag.mode === 'move') {
+      const o = objects.find(o => o.id === drag.id);
+      if (o) {
+        o.x = clampi(drag.origX + (fx - drag.startX), 0, 1 - o.w);
+        o.y = clampi(drag.origY + (fy - drag.startY), 0, 1 - o.h);
+      }
+    } else if (drag.mode === 'resize') {
+      const o = objects.find(o => o.id === drag.id);
+      if (o) {
+        const minSize = o.type === 'blower' ? 0.035 : 0.02;
+        const maxSize = o.type === 'blower' ? 0.35 : 1;
+        o.w = clampi(drag.origW + (fx - drag.startX), minSize, Math.min(maxSize, 1 - o.x));
+        o.h = clampi(drag.origH + (fy - drag.startY), minSize, Math.min(maxSize, 1 - o.y));
+      }
+    }
+  });
+
+  mainCanvas.addEventListener('pointerup', e => {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    const { x: fx, y: fy } = toFrac(e);
+
+    if (drag && drag.mode === 'new-wall') {
+      const x = Math.min(drag.curX, drag.startX), y = Math.min(drag.curY, drag.startY);
+      let w = Math.abs(drag.curX - drag.startX), h = Math.abs(drag.curY - drag.startY);
+      if (w < 0.015 && h < 0.015) { w = DEFAULT_WALL_W; h = DEFAULT_WALL_H; }
+      objects.push({
+        id: nextId++, type: 'wall', shape: drag.shape,
+        x: clampi(x, 0, 1-w), y: clampi(y, 0, 1-h), w, h
+      });
+      selectedId = nextId - 1;
+      updateStatus();
+    }
+
+    if (pointerDownInfo && !pointerDownInfo.moved && drag && drag.mode === 'move') {
+      const o = objects.find(o => o.id === drag.id);
+      if (o && o.type === 'blower') o.angle = (o.angle + 90) % 360;
+    }
+
+    drag = null; pointerDownInfo = null;
+  });
+
+  mainCanvas.addEventListener('pointercancel', () => {
+    drag = null; pointerDownInfo = null;
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  });
+
+  mainCanvas.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const { x: fx, y: fy } = toFrac(e);
+    const hit = hitTest(fx, fy);
+    if (hit) {
+      objects = objects.filter(o => o.id !== hit.id);
+      selectedId = null;
+      updateStatus();
+    }
+  });
+
+  window.addEventListener('resize', resizeCanvases);
+  resizeCanvases();
+
+  // 初始场景
+  objects.push({ id: nextId++, type: 'blower', x: 0.06, y: 0.44, w: 0.07, h: 0.07, angle: 0 });
+  objects.push({ id: nextId++, type: 'wall', shape: 'rect', x: 0.45, y: 0.32, w: 0.05, h: 0.36 });
+  updateStatus();
+
+  requestAnimationFrame(loop);
 })();
 </script>
 </body>
